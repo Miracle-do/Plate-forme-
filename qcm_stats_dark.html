@@ -1,0 +1,1496 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QCM · Statistiques Inférentielles · ENEAM</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════
+   ROOT
+═══════════════════════════════════════ */
+:root {
+  --black:   #070b0f;
+  --void:    #0c1117;
+  --panel:   #111820;
+  --panel2:  #161f2a;
+  --border:  #1e2d3d;
+  --border2: #243446;
+  --cyan:    #00d4ff;
+  --cyan2:   #00aacc;
+  --green:   #00ff9d;
+  --green2:  #00cc7a;
+  --amber:   #ffb300;
+  --red:     #ff4757;
+  --purple:  #a78bfa;
+  --txt:     #cdd6e0;
+  --txt2:    #8899aa;
+  --txt3:    #4a6070;
+}
+
+/* ═══════════════════════════════════════
+   BASE
+═══════════════════════════════════════ */
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+
+body {
+  background: var(--black);
+  color: var(--txt);
+  font-family: 'Outfit', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Grille de fond style circuit / matrice */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(0,212,255,.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,255,.025) 1px, transparent 1px);
+  background-size: 32px 32px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Points aux intersections */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: radial-gradient(circle, rgba(0,212,255,.08) 1px, transparent 1px);
+  background-size: 32px 32px;
+  background-position: 16px 16px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.root {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 0 1.4rem 6rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* ═══════════════════════════════════════
+   SCANLINE & GLOW EFFECTS
+═══════════════════════════════════════ */
+@keyframes scanline {
+  0%   { transform: translateY(-100vh); }
+  100% { transform: translateY(100vh); }
+}
+
+.scanline {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(0,212,255,.15), transparent);
+  animation: scanline 8s linear infinite;
+  pointer-events: none;
+  z-index: 999;
+}
+
+/* ═══════════════════════════════════════
+   HEADER
+═══════════════════════════════════════ */
+.hdr {
+  padding: 3.5rem 0 2.5rem;
+  position: relative;
+}
+
+/* Ligne déco supérieure */
+.hdr-topbar {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  margin-bottom: 2.2rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .65rem;
+  color: var(--txt3);
+}
+
+.hdr-topbar .dot { width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 8px var(--cyan); }
+.hdr-topbar .dot.g { background:var(--green);box-shadow:0 0 8px var(--green); }
+.hdr-topbar .dot.a { background:var(--amber);box-shadow:0 0 8px var(--amber); }
+.hdr-topbar span { opacity:.5; }
+
+.hdr-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(1.6rem, 5vw, 2.8rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -.02em;
+  margin-bottom: .6rem;
+}
+
+.hdr-title .line1 { color: var(--txt); }
+.hdr-title .line2 {
+  color: var(--cyan);
+  text-shadow: 0 0 30px rgba(0,212,255,.4);
+}
+.hdr-title .line2::before { content: '> '; color: var(--txt3); }
+
+.hdr-sub {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .75rem;
+  color: var(--txt3);
+  margin-top: .4rem;
+}
+
+.hdr-sub .val { color: var(--green); }
+
+/* Barre de statut style terminal */
+.statusbar {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-top: 1.8rem;
+  padding: .6rem 1rem;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .65rem;
+  color: var(--txt3);
+  flex-wrap: wrap;
+}
+
+.statusbar .tag {
+  padding: .15rem .5rem;
+  border-radius: 2px;
+  font-weight: 500;
+}
+
+.tag-cyan { background: rgba(0,212,255,.1); color: var(--cyan); border: 1px solid rgba(0,212,255,.25); }
+.tag-green { background: rgba(0,255,157,.08); color: var(--green); border: 1px solid rgba(0,255,157,.2); }
+.tag-amber { background: rgba(255,179,0,.08); color: var(--amber); border: 1px solid rgba(255,179,0,.2); }
+
+/* ═══════════════════════════════════════
+   SCREENS
+═══════════════════════════════════════ */
+.screen{display:none}
+.screen.active{display:block;animation:boot .35s ease}
+@keyframes boot{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ═══════════════════════════════════════
+   HOME
+═══════════════════════════════════════ */
+.home-banner {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--cyan);
+  padding: .9rem 1.2rem;
+  margin-bottom: 1.8rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .75rem;
+  color: var(--txt2);
+  line-height: 1.7;
+  border-radius: 0 3px 3px 0;
+}
+
+.home-banner .prompt {
+  color: var(--green);
+  font-weight: 500;
+  display: block;
+  margin-bottom: .3rem;
+}
+
+.home-banner b { color: var(--cyan); font-weight: 500; }
+
+/* Grille thèmes */
+.th-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(225px,1fr));
+  gap: .8rem;
+  margin-bottom: 1.2rem;
+}
+
+.th-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 1.2rem 1.3rem;
+  cursor: pointer;
+  transition: all .2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Coin déco */
+.th-card::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 0; height: 0;
+  border-left: 12px solid transparent;
+  border-top: 12px solid var(--th-col, var(--cyan));
+  opacity: .4;
+  transition: opacity .2s;
+}
+
+.th-card:hover {
+  border-color: var(--th-col, var(--cyan));
+  background: var(--panel2);
+  box-shadow: 0 0 20px rgba(0,0,0,.4), inset 0 0 20px rgba(0,212,255,.02);
+  transform: translateY(-2px);
+}
+
+.th-card:hover::after { opacity: 1; }
+
+.th-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: .7rem;
+}
+
+.th-ico {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.th-id {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .6rem;
+  color: var(--th-col, var(--cyan));
+  opacity: .6;
+}
+
+.th-name {
+  font-size: .88rem;
+  font-weight: 600;
+  color: var(--txt);
+  margin-bottom: .25rem;
+  line-height: 1.3;
+}
+
+.th-meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .62rem;
+  color: var(--txt3);
+}
+
+.th-prog {
+  height: 2px;
+  background: var(--border);
+  border-radius: 99px;
+  margin-top: .8rem;
+  overflow: hidden;
+}
+
+.th-prog-fill {
+  height: 100%;
+  background: var(--th-col, var(--cyan));
+  width: 0;
+  border-radius: 99px;
+  transition: width .7s ease;
+  box-shadow: 0 0 6px var(--th-col, var(--cyan));
+}
+
+.btn-launch {
+  width: 100%;
+  padding: .9rem 1.4rem;
+  background: transparent;
+  border: 1px solid var(--cyan);
+  border-radius: 3px;
+  color: var(--cyan);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .2s ease;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .6rem;
+}
+
+.btn-launch::before { content: '> '; opacity: .5; }
+
+.btn-launch:hover {
+  background: rgba(0,212,255,.08);
+  box-shadow: 0 0 20px rgba(0,212,255,.15);
+  text-shadow: 0 0 10px var(--cyan);
+}
+
+/* ═══════════════════════════════════════
+   QCM
+═══════════════════════════════════════ */
+.q-topbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: .8rem 0;
+  margin-bottom: .9rem;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--border);
+}
+
+.q-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .62rem;
+  font-weight: 500;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  padding: .22rem .65rem;
+  border-radius: 2px;
+  border: 1px solid;
+  white-space: nowrap;
+}
+
+.ptrack {
+  flex: 1;
+  min-width: 80px;
+  height: 2px;
+  background: var(--border);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.pfill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--cyan), var(--green));
+  box-shadow: 0 0 8px var(--cyan);
+  border-radius: 99px;
+  transition: width .5s cubic-bezier(.4,0,.2,1);
+  width: 0%;
+}
+
+.q-frac {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .7rem;
+  color: var(--txt3);
+}
+
+/* Score strip */
+.srow {
+  display: flex;
+  gap: .7rem;
+  margin-bottom: 1.2rem;
+}
+
+.stile {
+  flex: 1;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: .65rem .8rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.stile::before {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 2px;
+}
+
+.stile.ok::before { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.stile.bad::before { background: var(--red); box-shadow: 0 0 6px var(--red); }
+.stile.rem::before { background: var(--cyan); box-shadow: 0 0 6px var(--cyan); }
+
+.stile .num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: .2rem;
+}
+
+.stile.ok .num { color: var(--green); text-shadow: 0 0 12px rgba(0,255,157,.4); }
+.stile.bad .num { color: var(--red); text-shadow: 0 0 12px rgba(255,71,87,.4); }
+.stile.rem .num { color: var(--cyan); text-shadow: 0 0 12px rgba(0,212,255,.4); }
+
+.stile .lbl {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .58rem;
+  color: var(--txt3);
+  text-transform: uppercase;
+  letter-spacing: .1em;
+}
+
+/* Question card */
+.qcard {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 1.8rem 2rem;
+  margin-bottom: 1rem;
+  position: relative;
+  overflow: hidden;
+  animation: boot .3s ease;
+}
+
+/* Coin circuit déco */
+.qcard::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, var(--cyan), transparent 60%);
+  opacity: .6;
+}
+
+.qcard-corner {
+  position: absolute;
+  top: 8px; right: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .58rem;
+  color: var(--txt3);
+  letter-spacing: .12em;
+}
+
+.q-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .62rem;
+  color: var(--cyan);
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  margin-bottom: .8rem;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+.q-label::before { content: '//'; color: var(--txt3); }
+
+.q-text {
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.65;
+  color: var(--txt);
+  margin-bottom: 1.3rem;
+  font-family: 'Outfit', sans-serif;
+}
+
+/* Illustration */
+.q-illo {
+  margin-bottom: 1.3rem;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background: var(--void);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: .6rem;
+  overflow: hidden;
+}
+
+.q-illo svg { max-width:100%;height:auto;display:block; }
+
+/* Options */
+.opts { display:flex;flex-direction:column;gap:.55rem; }
+
+.opt {
+  display: flex;
+  align-items: flex-start;
+  gap: .8rem;
+  padding: .8rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: .88rem;
+  color: var(--txt2);
+  background: var(--void);
+  transition: all .15s ease;
+  text-align: left;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 400;
+  line-height: 1.5;
+  position: relative;
+  overflow: hidden;
+}
+
+.opt::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 0;
+  background: rgba(0,212,255,.08);
+  transition: width .2s ease;
+}
+
+.opt:hover:not(:disabled) {
+  border-color: var(--cyan);
+  color: var(--txt);
+}
+
+.opt:hover:not(:disabled)::before { width: 100%; }
+
+.opt-key {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .65rem;
+  min-width: 22px;
+  height: 22px;
+  border-radius: 2px;
+  border: 1px solid var(--border2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--txt3);
+  flex-shrink: 0;
+  margin-top: 1px;
+  transition: all .15s;
+  background: var(--panel);
+  position: relative;
+  z-index: 1;
+}
+
+.opt:hover:not(:disabled) .opt-key {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  box-shadow: 0 0 8px rgba(0,212,255,.3);
+}
+
+.opt.correct {
+  border-color: var(--green);
+  background: rgba(0,255,157,.04);
+  color: var(--green);
+}
+
+.opt.correct .opt-key {
+  border-color: var(--green);
+  color: var(--green);
+  box-shadow: 0 0 8px rgba(0,255,157,.3);
+  background: rgba(0,255,157,.1);
+}
+
+.opt.wrong {
+  border-color: var(--red);
+  background: rgba(255,71,87,.04);
+  color: var(--red);
+}
+
+.opt.wrong .opt-key {
+  border-color: var(--red);
+  color: var(--red);
+  box-shadow: 0 0 8px rgba(255,71,87,.3);
+  background: rgba(255,71,87,.1);
+}
+
+.opt:disabled { cursor: default; }
+
+/* Explication */
+.expl {
+  display: none;
+  margin-top: 1.2rem;
+  padding: .9rem 1.1rem;
+  background: rgba(0,255,157,.04);
+  border: 1px solid rgba(0,255,157,.15);
+  border-left: 2px solid var(--green);
+  border-radius: 0 3px 3px 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .76rem;
+  color: var(--txt2);
+  line-height: 1.7;
+}
+
+.expl .expl-tag {
+  color: var(--green);
+  font-weight: 500;
+  display: block;
+  margin-bottom: .25rem;
+}
+
+.expl.show { display:block;animation:boot .3s ease; }
+
+/* NAV */
+.nav { display:flex;gap:.7rem;margin-top:.9rem; }
+
+.btn-prev {
+  padding: .7rem 1.2rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--txt3);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .72rem;
+  cursor: pointer;
+  transition: all .18s;
+  letter-spacing: .06em;
+}
+
+.btn-prev:hover:not(:disabled) {
+  border-color: var(--txt3);
+  color: var(--txt);
+}
+
+.btn-next {
+  flex: 1;
+  padding: .7rem 1.4rem;
+  background: rgba(0,212,255,.08);
+  border: 1px solid var(--cyan);
+  border-radius: 3px;
+  color: var(--cyan);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .18s;
+  letter-spacing: .06em;
+  text-shadow: 0 0 8px rgba(0,212,255,.4);
+}
+
+.btn-next:hover {
+  background: rgba(0,212,255,.14);
+  box-shadow: 0 0 16px rgba(0,212,255,.2);
+}
+
+/* ═══════════════════════════════════════
+   RESULTS
+═══════════════════════════════════════ */
+.res-terminal {
+  background: var(--void);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  margin-bottom: 1.8rem;
+  overflow: hidden;
+}
+
+.res-terminal-bar {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .6rem 1rem;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+}
+
+.res-terminal-bar .wdot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+}
+
+.wd-red { background: #ff5f56; }
+.wd-amber { background: #ffbd2e; }
+.wd-green { background: #27c93f; }
+
+.res-terminal-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .65rem;
+  color: var(--txt3);
+  margin-left: .4rem;
+  letter-spacing: .08em;
+}
+
+.res-body {
+  padding: 2rem;
+}
+
+.res-prompt {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .72rem;
+  color: var(--txt3);
+  margin-bottom: 1rem;
+}
+
+.res-prompt span { color: var(--green); }
+
+.res-score {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(3rem, 10vw, 5rem);
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: .5rem;
+  color: var(--cyan);
+  text-shadow: 0 0 40px rgba(0,212,255,.5);
+}
+
+.res-mention {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .88rem;
+  color: var(--green);
+  margin-bottom: .4rem;
+  text-shadow: 0 0 12px rgba(0,255,157,.4);
+}
+
+.res-detail {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .68rem;
+  color: var(--txt3);
+}
+
+/* Thème scores */
+.sec-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .68rem;
+  color: var(--cyan);
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+}
+
+.sec-title::before { content: '//'; color: var(--txt3); }
+.sec-title::after { content:'';flex:1;height:1px;background:var(--border); }
+
+.ts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(185px,1fr));
+  gap: .65rem;
+  margin-bottom: 1.8rem;
+}
+
+.ts-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: .85rem 1rem;
+}
+
+.ts-head {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  margin-bottom: .5rem;
+}
+
+.ts-ico { font-size: 1rem; }
+
+.ts-name {
+  font-size: .76rem;
+  font-weight: 500;
+  color: var(--txt);
+  line-height: 1.3;
+}
+
+.ts-track {
+  background: var(--border);
+  height: 3px;
+  border-radius: 99px;
+  overflow: hidden;
+  margin-bottom: .4rem;
+}
+
+.ts-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width .7s ease;
+}
+
+.ts-nums {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .62rem;
+  color: var(--txt3);
+}
+
+.ts-pct {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .95rem;
+  font-weight: 700;
+  float: right;
+  margin-top: -1.3rem;
+}
+
+.res-actions {
+  display: flex;
+  gap: .7rem;
+  flex-wrap: wrap;
+}
+
+.btn-home {
+  flex: 1;
+  padding: .8rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--txt3);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .72rem;
+  cursor: pointer;
+  transition: all .18s;
+  letter-spacing: .06em;
+}
+
+.btn-home:hover { border-color: var(--txt3); color: var(--txt); }
+
+.btn-retry {
+  flex: 1;
+  padding: .8rem;
+  background: rgba(0,255,157,.06);
+  border: 1px solid var(--green);
+  border-radius: 3px;
+  color: var(--green);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .72rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .18s;
+  letter-spacing: .06em;
+  text-shadow: 0 0 8px rgba(0,255,157,.4);
+}
+
+.btn-retry:hover {
+  background: rgba(0,255,157,.1);
+  box-shadow: 0 0 16px rgba(0,255,157,.15);
+}
+
+/* ═══════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════ */
+.footer {
+  margin-top: 3rem;
+  padding: 1.2rem 0;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.footer-brand {
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+}
+
+.footer-avatar {
+  width: 34px; height: 34px;
+  background: var(--panel);
+  border: 1px solid var(--cyan);
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: .85rem;
+  color: var(--cyan);
+  text-shadow: 0 0 8px var(--cyan);
+  box-shadow: 0 0 10px rgba(0,212,255,.1);
+}
+
+.footer-name {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .78rem;
+  font-weight: 500;
+  color: var(--txt);
+}
+
+.footer-role {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .6rem;
+  color: var(--txt3);
+}
+
+.footer-wa {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .68rem;
+  color: #25d366;
+  text-decoration: none;
+  padding: .38rem .75rem;
+  border: 1px solid rgba(37,211,102,.25);
+  border-radius: 2px;
+  transition: all .18s;
+  text-shadow: 0 0 8px rgba(37,211,102,.3);
+}
+
+.footer-wa:hover {
+  background: rgba(37,211,102,.06);
+  border-color: rgba(37,211,102,.5);
+  box-shadow: 0 0 12px rgba(37,211,102,.1);
+}
+
+@media(max-width:600px){
+  .srow{gap:.4rem}
+  .stile .num{font-size:1.2rem}
+  .qcard{padding:1.2rem 1.1rem}
+  .th-grid{grid-template-columns:1fr 1fr}
+  .res-actions{flex-direction:column}
+}
+</style>
+</head>
+<body>
+<div class="scanline"></div>
+<div class="root">
+
+<!-- HEADER -->
+<header class="hdr">
+  <div class="hdr-topbar">
+    <span class="dot"></span>
+    <span class="dot g"></span>
+    <span class="dot a"></span>
+    <span>ENEAM_STATS_INF.exe</span>
+    <span style="margin-left:auto">v2.0.0</span>
+  </div>
+
+  <div class="hdr-title">
+    <div class="line1">PROBABILITÉS &amp;</div>
+    <div class="line2">INFÉRENCE STATISTIQUE</div>
+  </div>
+  <div class="hdr-sub">
+    <span class="val">11</span> thèmes &nbsp;·&nbsp;
+    <span class="val">130</span> questions &nbsp;·&nbsp;
+    cours complet <span class="val">ENEAM</span>
+  </div>
+
+  <div class="statusbar">
+    <span class="tag tag-cyan">PROBABILITÉS</span>
+    <span class="tag tag-green">VARIABLES ALÉATOIRES</span>
+    <span class="tag tag-amber">LOIS USUELLES</span>
+    <span class="tag tag-cyan">ÉCHANTILLONNAGE</span>
+    <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:.62rem">STATUS: <span style="color:var(--green)">READY</span></span>
+  </div>
+</header>
+
+<!-- ACCUEIL -->
+<div id="s-home" class="screen active">
+  <div class="home-banner">
+    <span class="prompt">$ help --mode</span>
+    Sélectionnez un <b>module</b> pour réviser un thème précis, ou lancez le <b>mode complet</b> pour un test global. Votre score par thème est affiché à la fin.
+  </div>
+  <div class="th-grid" id="th-grid"></div>
+  <button class="btn-launch" onclick="startAll()">LANCER LE QCM COMPLET — TOUTES LES QUESTIONS</button>
+</div>
+
+<!-- QCM -->
+<div id="s-quiz" class="screen">
+  <div class="q-topbar">
+    <span class="q-badge" id="q-badge">MODULE</span>
+    <div class="ptrack"><div class="pfill" id="pfill"></div></div>
+    <span class="q-frac" id="qfrac">01/10</span>
+  </div>
+
+  <div class="srow">
+    <div class="stile ok"><div class="num" id="sc">0</div><div class="lbl">Correct</div></div>
+    <div class="stile bad"><div class="num" id="sw">0</div><div class="lbl">Erreur</div></div>
+    <div class="stile rem"><div class="num" id="sr">0</div><div class="lbl">Restant</div></div>
+  </div>
+
+  <div class="qcard">
+    <span class="qcard-corner" id="qcorner">Q_001</span>
+    <div class="q-label" id="qlabel">QUESTION</div>
+    <div class="q-text" id="qtext"></div>
+    <div class="q-illo" id="qillo" style="display:none"></div>
+    <div class="opts" id="opts"></div>
+    <div class="expl" id="expl"></div>
+  </div>
+
+  <div class="nav">
+    <button class="btn-prev" id="btn-prev" onclick="prevQ()">&#8592; PREV</button>
+    <button class="btn-next" id="btn-next" onclick="nextQ()">NEXT &#8594;</button>
+  </div>
+</div>
+
+<!-- RÉSULTATS -->
+<div id="s-result" class="screen">
+  <div class="res-terminal">
+    <div class="res-terminal-bar">
+      <span class="wdot wd-red"></span>
+      <span class="wdot wd-amber"></span>
+      <span class="wdot wd-green"></span>
+      <span class="res-terminal-title" id="res-chip">RESULTS.log</span>
+    </div>
+    <div class="res-body">
+      <div class="res-prompt">$ analyze results &nbsp;<span>--format=summary</span></div>
+      <div class="res-score" id="res-score">—</div>
+      <div class="res-mention" id="res-mention"></div>
+      <div class="res-detail" id="res-detail"></div>
+    </div>
+  </div>
+
+  <div class="sec-title">SCORE PAR MODULE</div>
+  <div class="ts-grid" id="theme-scores"></div>
+
+  <div class="res-actions">
+    <button class="btn-home" onclick="goHome()">&#8592; SELECT MODULE</button>
+    <button class="btn-retry" onclick="retryQuiz()">&#8635; &nbsp; RETRY</button>
+  </div>
+</div>
+
+</div><!-- /root -->
+
+<footer class="footer" style="max-width:820px;margin:0 auto;padding-left:1.4rem;padding-right:1.4rem;position:relative;z-index:1;">
+  <div class="footer-brand">
+    <div class="footer-avatar">M</div>
+    <div>
+      <div class="footer-name">Miracle L.</div>
+      <div class="footer-role">// Créateur du QCM</div>
+    </div>
+  </div>
+  <a class="footer-wa" href="https://wa.me/2290190821282" target="_blank" rel="noopener">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    +229 01 90 82 12 82
+  </a>
+</footer>
+
+<script>
+/* ═══════════════════════════════════════
+   SVG — fond void/dark
+═══════════════════════════════════════ */
+const BG='#070b0f', BG2='#0c1117', PNL='#111820';
+const CY='#00d4ff', GR='#00ff9d', AM='#ffb300', RD='#ff4757', PU='#a78bfa';
+const T2='#8899aa', T3='#4a6070', BORD='#1e2d3d';
+
+const SVG={
+vocab:`<svg viewBox="0 0 500 152" width="500" height="152" xmlns="http://www.w3.org/2000/svg">
+<rect width="500" height="152" fill="${BG2}"/>
+<text x="8" y="14" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="9">// vocabulaire_probabilites.ref</text>
+<rect x="8" y="22" width="484" height="20" rx="2" fill="${CY}0f" stroke="${CY}" stroke-width="1" stroke-dasharray="4,2" opacity=".6"/>
+<text x="250" y="36" text-anchor="middle" fill="${CY}" font-family="'JetBrains Mono',monospace" font-size="9">Ω = univers = { tous les résultats possibles }   ·   ω = éventualité</text>
+<rect x="8" y="48" width="148" height="18" rx="2" fill="${RD}0f" stroke="${RD}" stroke-width="1"/>
+<text x="82" y="61" text-anchor="middle" fill="${RD}" font-family="'JetBrains Mono',monospace" font-size="8">∅ :: impossible</text>
+<rect x="176" y="48" width="148" height="18" rx="2" fill="${GR}0a" stroke="${GR}" stroke-width="1"/>
+<text x="250" y="61" text-anchor="middle" fill="${GR}" font-family="'JetBrains Mono',monospace" font-size="8">Ω :: certain</text>
+<rect x="344" y="48" width="148" height="18" rx="2" fill="${PU}0f" stroke="${PU}" stroke-width="1"/>
+<text x="418" y="61" text-anchor="middle" fill="${PU}" font-family="'JetBrains Mono',monospace" font-size="8">Ā :: contraire</text>
+<rect x="8" y="72" width="234" height="18" rx="2" fill="${AM}0a" stroke="${AM}" stroke-width="1"/>
+<text x="125" y="85" text-anchor="middle" fill="${AM}" font-family="'JetBrains Mono',monospace" font-size="8">A ∩ B == "A ET B"</text>
+<rect x="258" y="72" width="234" height="18" rx="2" fill="${CY}0a" stroke="${CY}" stroke-width="1" opacity=".7"/>
+<text x="375" y="85" text-anchor="middle" fill="${CY}" font-family="'JetBrains Mono',monospace" font-size="8">A ∪ B == "A OU B"</text>
+<text x="8" y="108" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="8">$ example  →  dé_6faces.Ω = {1,2,3,4,5,6}</text>
+<text x="8" y="124" fill="${T2}" font-family="'JetBrains Mono',monospace" font-size="8">A2={2,4,6}  A3={5,6}  A2∪A3={2,4,5,6}  A2∩A3={6}  Ā2={1,3,5}</text>
+<text x="8" y="140" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="7">P(A) = card(A) / card(Ω)  [équiprobabilité]</text>
+</svg>`,
+
+denomb:`<svg viewBox="0 0 500 168" width="500" height="168" xmlns="http://www.w3.org/2000/svg">
+<rect width="500" height="168" fill="${BG2}"/>
+<text x="8" y="14" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="9">// denombrement.module</text>
+<rect x="8" y="20" width="116" height="54" rx="2" fill="${CY}0a" stroke="${CY}" stroke-width="1"/>
+<text x="66" y="35" text-anchor="middle" fill="${CY}" font-family="'JetBrains Mono',monospace" font-size="8">p-uplets</text>
+<text x="66" y="52" text-anchor="middle" fill="${T2}" font-family="'JetBrains Mono',monospace" font-size="16" font-weight="bold">n^p</text>
+<text x="66" y="67" text-anchor="middle" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="7">avec remise</text>
+<rect x="134" y="20" width="116" height="54" rx="2" fill="${AM}0a" stroke="${AM}" stroke-width="1"/>
+<text x="192" y="35" text-anchor="middle" fill="${AM}" font-family="'JetBrains Mono',monospace" font-size="8">Arrangements A(n,p)</text>
+<text x="192" y="50" text-anchor="middle" fill="${T2}" font-family="'JetBrains Mono',monospace" font-size="10" font-weight="bold">n!/(n-p)!</text>
+<text x="192" y="67" text-anchor="middle" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="7">sans remise · ordonné</text>
+<rect x="260" y="20" width="116" height="54" rx="2" fill="${PU}0a" stroke="${PU}" stroke-width="1"/>
+<text x="318" y="35" text-anchor="middle" fill="${PU}" font-family="'JetBrains Mono',monospace" font-size="8">Permutations</text>
+<text x="318" y="52" text-anchor="middle" fill="${T2}" font-family="'JetBrains Mono',monospace" font-size="16" font-weight="bold">n!</text>
+<text x="318" y="67" text-anchor="middle" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="7">tout l'ensemble</text>
+<rect x="386" y="20" width="106" height="54" rx="2" fill="${GR}08" stroke="${GR}" stroke-width="1"/>
+<text x="439" y="35" text-anchor="middle" fill="${GR}" font-family="'JetBrains Mono',monospace" font-size="8">Combinaisons C(n,p)</text>
+<text x="439" y="50" text-anchor="middle" fill="${T2}" font-family="'JetBrains Mono',monospace" font-size="9" font-weight="bold">n!/[p!(n-p)!]</text>
+<text x="439" y="67" text-anchor="middle" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="7">sans remise · non-ord.</text>
+<line x1="8" y1="84" x2="492" y2="84" stroke="${BORD}" stroke-width="1"/>
+<text x="8" y="100" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="8">props  →  C(n,0)=C(n,n)=1  |  C(n,p)=C(n,n-p)  |  A(n,p) = p! × C(n,p)</text>
+<text x="8" y="116" fill="${T2}" font-family="'JetBrains Mono',monospace" font-size="8">C(6,3) = 6!/(3!×3!) = <tspan fill="${GR}">20</tspan>  |  4! = <tspan fill="${AM}">24</tspan>  |  A(10,2) = 10×9 = <tspan fill="${CY}">90</tspan></text>
+<text x="8" y="140" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="8">// Binôme Newton : (a+b)^n = Σ C(n,k) a^k b^(n-k)</text>
+</svg>`,
+
+probBase:`<svg viewBox="0 0 500 152" width="500" height="152" xmlns="http://www.w3.org/2000/svg">
+<rect width="500" height="152" fill="${BG2}"/>
+<text x="8" y="14" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="9">// axiomes_probabilites.def</text>
+${[[GR,"P(Ω) = 1  ·  P(∅) = 0  ·  0 ≤ P(A) ≤ 1",22],
+   [CY,"P(Ā) = 1 − P(A)",46],
+   [AM,"P(A∪B) = P(A) + P(B) − P(A∩B)",70],
+   [PU,"A∩B=∅  =>  P(A∪B) = P(A) + P(B)",94],
+   [RD,"Equiprob:  P(A) = card(A) / card(Ω)",118],
+].map(([c,t,y])=>`<rect x="8" y="${y}" width="484" height="18" rx="2" fill="${c}0c" stroke="${c}" stroke-width="1" opacity=".8"/>
+<text x="250" y="${y+13}" text-anchor="middle" fill="${c}" font-family="'JetBrains Mono',monospace" font-size="9">${t}</text>`).join('')}
+</svg>`,
+
+probCond:`<svg viewBox="0 0 500 168" width="500" height="168" xmlns="http://www.w3.org/2000/svg">
+<rect width="500" height="168" fill="${BG2}"/>
+<text x="8" y="14" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="9">// prob_conditionnelles.ref</text>
+<rect x="8" y="20" width="484" height="28" rx="2" fill="${CY}0f" stroke="${CY}" stroke-width="1.5"/>
+<text x="250" y="31" text-anchor="middle" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="7">conditionnelle</text>
+<text x="250" y="43" text-anchor="middle" fill="${CY}" font-family="'JetBrains Mono',monospace" font-size="11" font-weight="bold">P(B|A) = P(A∩B) / P(A)     P(B|A) + P(B̄|A) = 1</text>
+<rect x="8" y="54" width="232" height="28" rx="2" fill="${GR}0a" stroke="${GR}" stroke-width="1"/>
+<text x="124" y="65" text-anchor="middle" fill="${GR}" font-family="'JetBrains Mono',monospace" font-size="7">composées</text>
+<text x="124" y="77" text-anchor="middle" fill="${T2}" font-family="'JetBrains Mono',monospace" font-size="10">P(A∩B) = P(A)·P(B|A)</text>
+<rect x="260" y="54" width="232" height="28" rx="2" fill="${PU}0a" stroke="${PU}" stroke-width="1"/>
+<text x="376" y="65" text-anchor="middle" fill="${PU}" font-family="'JetBrains Mono',monospace" font-size="7">indépendance</text>
+<text x="376" y="77" text-anchor="middle" fill="${T2}" font-family="'JetBrains Mono',monospace" font-size="10">P(A∩B) = P(A)·P(B)</text>
+<rect x="8" y="88" width="484" height="28" rx="2" fill="${AM}0a" stroke="${AM}" stroke-width="1"/>
+<text x="250" y="99" text-anchor="middle" fill="${AM}" font-family="'JetBrains Mono',monospace" font-size="7">probabilités totales</text>
+<text x="250" y="111" text-anchor="middle" fill="${T2}" font-family="'JetBrains Mono',monospace" font-size="10">P(B) = P(A)·P(B|A) + P(Ā)·P(B|Ā)</text>
+<rect x="8" y="122" width="484" height="28" rx="2" fill="${RD}0a" stroke="${RD}" stroke-width="1"/>
+<text x="250" y="133" text-anchor="middle" fill="${RD}" font-family="'JetBrains Mono',monospace" font-size="7">Bayes</text>
+<text x="250" y="145" text-anchor="middle" fill="${T2}" font-family="'JetBrains Mono',monospace" font-size="9">P(Aᵢ|B) = P(Aᵢ)·P(B|Aᵢ) / [ Σ P(Aⱼ)·P(B|Aⱼ) ]</text>
+</svg>`,
+
+va:`<svg viewBox="0 0 500 148" width="500" height="148" xmlns="http://www.w3.org/2000/svg">
+<rect width="500" height="148" fill="${BG2}"/>
+<text x="8" y="14" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="9">// variable_aleatoire.class</text>
+<rect x="8" y="20" width="238" height="66" rx="2" fill="${CY}0a" stroke="${CY}" stroke-width="1"/>
+<text x="127" y="35" text-anchor="middle" fill="${CY}" font-family="'JetBrains Mono',monospace" font-size="8">DISCRETE</text>
+<text x="127" y="50" text-anchor="middle" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="8">Σ P(X=x) = 1</text>
+<text x="127" y="64" text-anchor="middle" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="8">E(X) = Σ x·P(X=x)</text>
+<text x="127" y="79" text-anchor="middle" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="7">Bernoulli · Binomiale · Poisson</text>
+<rect x="256" y="20" width="236" height="66" rx="2" fill="${AM}0a" stroke="${AM}" stroke-width="1"/>
+<text x="374" y="35" text-anchor="middle" fill="${AM}" font-family="'JetBrains Mono',monospace" font-size="8">CONTINUE</text>
+<text x="374" y="50" text-anchor="middle" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="8">∫f(x)dx = 1</text>
+<text x="374" y="64" text-anchor="middle" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="8">E(X) = ∫x·f(x)dx</text>
+<text x="374" y="79" text-anchor="middle" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="7">Uniforme · Expo · Normale</text>
+<line x1="8" y1="96" x2="492" y2="96" stroke="${BORD}" stroke-width="1"/>
+<text x="250" y="112" text-anchor="middle" fill="${GR}" font-family="'JetBrains Mono',monospace" font-size="9">V(X) = E(X²) − [E(X)]²   [Koenig]   σ(X) = √V(X)</text>
+<text x="250" y="128" text-anchor="middle" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="8">E(aX+b)=aE(X)+b   V(aX+b)=a²V(X)   F(x)=P(X≤x)</text>
+</svg>`,
+
+loiDisc:`<svg viewBox="0 0 500 195" width="500" height="195" xmlns="http://www.w3.org/2000/svg">
+<rect width="500" height="195" fill="${BG2}"/>
+<text x="8" y="14" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="9">// lois_discretes.table</text>
+<rect x="8" y="18" width="484" height="14" rx="1" fill="${PNL}"/>
+<text x="70" y="29" text-anchor="middle" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="7" font-weight="bold">LOI</text>
+<text x="215" y="29" text-anchor="middle" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="7" font-weight="bold">P(X=k)</text>
+<text x="365" y="29" text-anchor="middle" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="7" font-weight="bold">E(X)</text>
+<text x="453" y="29" text-anchor="middle" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="7" font-weight="bold">V(X)</text>
+${[[CY,"Uniforme u([1,n])","1/n","(n+1)/2","(n²-1)/12"],
+   [PU,"Bernoulli B(1,p)","p^x(1-p)^(1-x)","p","p(1-p)"],
+   [GR,"Binomiale B(n,p)","C(n,k)p^k(1-p)^(n-k)","np","np(1-p)"],
+   [AM,"Hypergéom. H(N,n,Np)","C(Np,k)C(Nq,n-k)/C(N,n)","np","npq(N-n)/(N-1)"],
+   [CY,"Géométrique G(p)","p(1-p)^(k-1)","1/p","(1-p)/p²"],
+   [RD,"Poisson P(λ)","e^(-λ)·λ^k/k!","λ","λ"],
+].map(([c,n,p,e,v],i)=>`
+<rect x="8" y="${37+i*26}" width="484" height="22" rx="1" fill="${c}08"/>
+<text x="70" y="${52+i*26}" text-anchor="middle" fill="${c}" font-family="'JetBrains Mono',monospace" font-size="7.5" font-weight="bold">${n}</text>
+<text x="215" y="${52+i*26}" text-anchor="middle" fill="${T2}" font-family="'JetBrains Mono',monospace" font-size="7.5">${p}</text>
+<text x="365" y="${52+i*26}" text-anchor="middle" fill="${c}" font-family="'JetBrains Mono',monospace" font-size="8" font-weight="bold">${e}</text>
+<text x="453" y="${52+i*26}" text-anchor="middle" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="7">${v}</text>`).join('')}
+</svg>`,
+
+loisDerivees:`<svg viewBox="0 0 500 178" width="500" height="178" xmlns="http://www.w3.org/2000/svg">
+<rect width="500" height="178" fill="${BG2}"/>
+<text x="8" y="14" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="9">// lois_derivees_normale.ref</text>
+${[[RD,"χ²(n)","Σ Xi² où Xi~N(0,1) indép.","E=n · V=2n · n>30: →N(n,√(2n))",20],
+   [AM,"Student t(n)","T = X / √(Y/n) · X~N(0,1)","E=0 · V=n/(n-2) · n>30: →N(0,1)",66],
+   [CY,"Fisher F(n,m)","[χ²(n)/n] / [χ²(m)/m]","E=m/(m-2) · comparaison variances",112],
+   [GR,"Gamma Γ(p,θ)","f=θ^p/Γ(p)·e^(-θx)·x^(p-1)","E=p/θ · V=p/θ² · Expo=Γ(1,θ)",148],
+].map(([c,name,formula,params,y])=>`
+<rect x="8" y="${y}" width="484" height="38" rx="2" fill="${c}0a" stroke="${c}" stroke-width="1" opacity=".8"/>
+<text x="96" y="${y+13}" text-anchor="middle" fill="${c}" font-family="'JetBrains Mono',monospace" font-size="9" font-weight="bold">${name}</text>
+<text x="96" y="${y+27}" text-anchor="middle" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="7">${formula}</text>
+<text x="330" y="${y+20}" text-anchor="middle" fill="${T2}" font-family="'JetBrains Mono',monospace" font-size="8">${params}</text>`).join('')}
+</svg>`,
+
+normale:`<svg viewBox="0 0 500 182" width="500" height="182" xmlns="http://www.w3.org/2000/svg">
+<rect width="500" height="182" fill="${BG2}"/>
+<text x="8" y="14" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="9">// loi_normale.ref</text>
+<path d="M 30 128 C 80 128 120 28 180 22 Q 220 18 250 18 Q 280 18 320 22 C 380 28 420 128 470 128" fill="none" stroke="${CY}" stroke-width="1.5" opacity=".6"/>
+<path d="M 30 128 C 80 128 120 28 180 22 Q 220 18 250 18 Q 280 18 320 22 C 380 28 420 128 470 128" fill="${CY}04"/>
+<line x1="250" y1="18" x2="250" y2="138" stroke="${CY}" stroke-width="1" stroke-dasharray="3,3" opacity=".4"/>
+<text x="250" y="150" text-anchor="middle" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="7">m</text>
+<line x1="30" y1="136" x2="470" y2="136" stroke="${BORD}" stroke-width="1"/>
+<rect x="8" y="58" width="192" height="62" rx="2" fill="${PU}0a" stroke="${PU}" stroke-width="1"/>
+<text x="104" y="73" text-anchor="middle" fill="${PU}" font-family="'JetBrains Mono',monospace" font-size="8">N(m, σ)</text>
+<text x="104" y="87" text-anchor="middle" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="7">E(X)=m · V(X)=σ²</text>
+<text x="104" y="101" text-anchor="middle" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="7">T=(X-m)/σ → N(0,1)</text>
+<text x="104" y="113" text-anchor="middle" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="6">cloche symétrique/m</text>
+<rect x="300" y="58" width="192" height="62" rx="2" fill="${CY}0a" stroke="${CY}" stroke-width="1"/>
+<text x="396" y="73" text-anchor="middle" fill="${CY}" font-family="'JetBrains Mono',monospace" font-size="8">N(0,1) centrée réduite</text>
+<text x="396" y="87" text-anchor="middle" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="7">E=0 · V=1 · Π(t)=P(T≤t)</text>
+<text x="396" y="101" text-anchor="middle" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="7">Π(-t) = 1 - Π(t)</text>
+<text x="396" y="113" text-anchor="middle" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="6">Π(0)=0.5</text>
+<text x="250" y="164" text-anchor="middle" fill="${GR}" font-family="'JetBrains Mono',monospace" font-size="8">TCL: n≥30  →  X̄ ~ N(m, σ/√n)   Approx B(n,p) si n≥30, p≈0.5</text>
+<text x="250" y="178" text-anchor="middle" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="7">Uniforme: E=(a+b)/2, V=(b-a)²/12  ·  Expo E(θ): E=1/θ, V=1/θ²</text>
+</svg>`,
+
+echantillon:`<svg viewBox="0 0 500 158" width="500" height="158" xmlns="http://www.w3.org/2000/svg">
+<rect width="500" height="158" fill="${BG2}"/>
+<text x="8" y="14" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="9">// echantillonnage.vocabulary</text>
+<rect x="8" y="20" width="484" height="18" rx="2" fill="${CY}0f" stroke="${CY}" stroke-width="1" opacity=".7"/>
+<text x="250" y="33" text-anchor="middle" fill="${CY}" font-family="'JetBrains Mono',monospace" font-size="8">Population = ensemble d'intérêt  ·  Échantillon = sous-ensemble  ·  f = n/N × 100</text>
+${[[GR,"Recensement","Enquête exhaustive sur TOUTE la population",44],
+   [CY,"Sondage","Enquête partielle sur un échantillon",66],
+   [AM,"Base de sondage","Liste complète et ordonnée de toutes les unités",88],
+   [RD,"Erreur d'échantill.","Écart entre résultat échantillon et recensement",110],
+   [PU,"Méth. probabilistes","EAS · Stratifié · Grappes · Systématique",132],
+   [T2,"Méth. non-prob.","Commodité · Subjectif · Quotas · Boule de neige",154],
+].map(([c,k,v,y])=>`
+<rect x="8" y="${y-12}" width="484" height="16" rx="1" fill="${c}08"/>
+<text x="118" y="${y}" text-anchor="middle" fill="${c}" font-family="'JetBrains Mono',monospace" font-size="7.5" font-weight="bold">${k}</text>
+<text x="310" y="${y}" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="7">${v}</text>`).join('')}
+</svg>`,
+
+methEchant:`<svg viewBox="0 0 500 192" width="500" height="192" xmlns="http://www.w3.org/2000/svg">
+<rect width="500" height="192" fill="${BG2}"/>
+<text x="8" y="14" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="9">// methodes_echantillonnage.ref</text>
+${[[CY,"EAS — Aléatoire Simple","Même probabilité pour chaque individu · base de sondage requise","Avec/sans remise · population finie/infinie",20],
+   [GR,"Stratifié","Pop. → strates homogènes → EAS/strate → fusion","Proport: ni=wi×n  |  Optimal: ni=k×wiσi/√ci",68],
+   [AM,"Grappes (Clusters)","Pop. → grappes → tirer grappes → observer TOUS les éléments","Économique · meilleur si grappes représentatives pop.",116],
+   [PU,"Systématique","Choisir départ aléatoire i puis i, i+k, i+2k, ...","k = N/n  ex: N=5000, n=50 → k=100",164],
+].map(([c,name,d1,d2,y])=>`
+<rect x="8" y="${y}" width="484" height="40" rx="2" fill="${c}0a" stroke="${c}" stroke-width="1"/>
+<text x="108" y="${y+14}" text-anchor="middle" fill="${c}" font-family="'JetBrains Mono',monospace" font-size="8" font-weight="bold">${name}</text>
+<text x="108" y="${y+28}" text-anchor="middle" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="6.5">${d1}</text>
+<text x="360" y="${y+21}" text-anchor="middle" fill="${T2}" font-family="'JetBrains Mono',monospace" font-size="7.5">${d2}</text>`).join('')}
+</svg>`,
+
+distEchant:`<svg viewBox="0 0 500 182" width="500" height="182" xmlns="http://www.w3.org/2000/svg">
+<rect width="500" height="182" fill="${BG2}"/>
+<text x="8" y="14" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="9">// distribution_echantillonnage.ref</text>
+<rect x="8" y="20" width="484" height="46" rx="2" fill="${CY}0a" stroke="${CY}" stroke-width="1"/>
+<text x="250" y="34" text-anchor="middle" fill="${CY}" font-family="'JetBrains Mono',monospace" font-size="8" font-weight="bold">Distribution de la MOYENNE X̄</text>
+<text x="250" y="48" text-anchor="middle" fill="${T2}" font-family="'JetBrains Mono',monospace" font-size="9">E(X̄) = m</text>
+<text x="145" y="60" text-anchor="middle" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="7">Pop.infinie:  σ_x̄ = σ/√n</text>
+<text x="370" y="60" text-anchor="middle" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="7">Pop.finie:  σ_x̄ = σ/√n · √(N-n)/(N-1)</text>
+<rect x="8" y="72" width="484" height="46" rx="2" fill="${PU}0a" stroke="${PU}" stroke-width="1"/>
+<text x="250" y="86" text-anchor="middle" fill="${PU}" font-family="'JetBrains Mono',monospace" font-size="8" font-weight="bold">Distribution de la PROPORTION p̄</text>
+<text x="250" y="100" text-anchor="middle" fill="${T2}" font-family="'JetBrains Mono',monospace" font-size="9">E(p̄) = p</text>
+<text x="145" y="112" text-anchor="middle" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="7">Pop.infinie:  σ_p̄ = √(p(1-p)/n)</text>
+<text x="370" y="112" text-anchor="middle" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="7">Pop.finie:  × facteur √(N-n)/(N-1)</text>
+<rect x="8" y="124" width="484" height="20" rx="2" fill="${GR}0a" stroke="${GR}" stroke-width="1"/>
+<text x="250" y="138" text-anchor="middle" fill="${GR}" font-family="'JetBrains Mono',monospace" font-size="8" font-weight="bold">TCL: n ≥ 30  →  distribution approx. NORMALE</text>
+<text x="250" y="158" text-anchor="middle" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="7">Facteur d'exhaustivité ignoré si n/N &lt; 5%</text>
+<text x="250" y="174" text-anchor="middle" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="7">X̄ et p̄ sont des estimateurs sans biais de m et p</text>
+</svg>`,
+};
+
+/* ═══════════════════════════════════════
+   THÈMES
+═══════════════════════════════════════ */
+const THEMES=[
+  {id:'t1', name:'Vocabulaire & Événements', icon:'⬡', color:PU, desc:'Univers Ω · opérations'},
+  {id:'t2', name:'Dénombrement', icon:'#', color:CY, desc:'p-uplets · arrangements · Cₙᵖ'},
+  {id:'t3', name:'Probabilités de base', icon:'∑', color:GR, desc:'Axiomes · équiprobabilité'},
+  {id:'t4', name:'Prob. cond. & Bayes', icon:'⇌', color:AM, desc:'P(B|A) · totales · Bayes'},
+  {id:'t5', name:'Variables aléatoires', icon:'∿', color:'#00aacc', desc:'E(X) · V(X) · F(x) · Koenig'},
+  {id:'t6', name:'Lois discrètes', icon:'◉', color:GR, desc:'Bernoulli · Binomiale · Poisson'},
+  {id:'t7', name:'Lois continues', icon:'∫', color:PU, desc:'Uniforme · Expo · Normale · TCL'},
+  {id:'t8', name:'Lois dérivées', icon:'χ', color:RD, desc:'χ² · Student t · Fisher F · Gamma'},
+  {id:'t9', name:'Théorie de l\'échantillonnage', icon:'⊕', color:AM, desc:'Vocabulaire · méthodes'},
+  {id:'t10', name:'Méthodes d\'échantillonnage', icon:'⚙', color:CY, desc:'EAS · stratifié · grappes · syst.'},
+  {id:'t11', name:'Distribution d\'échantillonnage', icon:'X̄', color:GR, desc:'X̄ · p̄ · σ_x̄ · TCL appliqué'},
+];
+
+/* ═══════════════════════════════════════
+   BANQUE DE QUESTIONS (même que version précédente)
+═══════════════════════════════════════ */
+const BANK=[
+{t:'t1',q:"Qu'est-ce que l'univers Ω dans une expérience aléatoire ?",img:"vocab",o:["L'événement le plus probable","L'ensemble de tous les résultats possibles de l'expérience","Un sous-ensemble particulier","L'événement impossible"],c:1,e:"Ω est l'ensemble fondamental qui recense tous les résultats possibles. Ses éléments ω sont appelés éventualités."},
+{t:'t1',q:"On lance un dé à 6 faces. Quel est l'univers Ω ?",img:"vocab",o:["{1,2,3,4,5,6}","{pair, impair}","{1,6}","{0,1,2,3,4,5,6}"],c:0,e:"Ω = {1,2,3,4,5,6}. Chaque face est une éventualité."},
+{t:'t1',q:"Un événement élémentaire est :",img:"vocab",o:["Un événement impossible","Un singleton de Ω (un seul élément)","L'événement certain","Un événement de probabilité 1/2"],c:1,e:"Événement élémentaire = sous-ensemble de Ω contenant UN seul élément. Exemple : {5}."},
+{t:'t1',q:"L'événement ∅ est appelé :",img:"vocab",o:["Événement certain","Événement élémentaire","Événement impossible","Événement contraire"],c:2,e:"∅ est l'événement impossible : aucune éventualité ne lui appartient."},
+{t:'t1',q:"Si A2={2,4,6} et A3={5,6}, alors A2 ∩ A3 = ?",img:"vocab",o:["{2,4,5,6}","{6}","{5,6}","∅"],c:1,e:"A2∩A3 = {6}. Seul 6 est pair ET ≥5."},
+{t:'t1',q:"Si A2={2,4,6} et A3={5,6}, alors A2 ∪ A3 = ?",img:"vocab",o:["{6}","{2,4,5,6}","{1,2,3,4,5,6}","{2,4,6,5}"],c:1,e:"A2∪A3 = {2,4,5,6}. Réunion = tous les éléments de A2 OU A3."},
+{t:'t1',q:"Ā est le complémentaire de A. Si A2={2,4,6}, Ā2 = ?",img:"vocab",o:["{1,3,5}","{2,4,6}","{1,2,3,4,5,6}","∅"],c:0,e:"Ā2 = {1,3,5} (nombres impairs) : complémentaire de A2 dans Ω={1,2,3,4,5,6}."},
+{t:'t1',q:"Deux événements sont incompatibles si :",img:"vocab",o:["P(A)=P(B)","A∩B=∅","A∪B=Ω","P(A)+P(B)=1"],c:1,e:"Incompatibles : A∩B=∅, ils ne peuvent pas se réaliser simultanément."},
+{t:'t1',q:"Obtenir un nombre > 7 sur un dé à 6 faces est :",img:"vocab",o:["L'événement certain","Un événement élémentaire","L'événement impossible","Un événement de probabilité 1/6"],c:2,e:"Impossible d'obtenir >7 avec un dé à 6 faces → événement impossible ∅."},
+{t:'t1',q:"Un événement est un sous-ensemble de :",img:"vocab",o:["ℝ","L'espace de probabilité","Ω l'univers","ℕ"],c:2,e:"Par définition, un événement est un sous-ensemble de Ω."},
+{t:'t2',q:"La formule du nombre de p-uplets d'un ensemble de n éléments est :",img:"denomb",o:["n!","n!/p!","nᵖ","Cₙᵖ"],c:2,e:"nᵖ = nombre de séquences ordonnées de p éléments avec remise."},
+{t:'t2',q:"Combien de 3-uplets avec {A,B,C,D} ?",img:"denomb",o:["24","12","64","16"],c:2,e:"n=4, p=3 → 4³=64 séquences ordonnées avec répétition possible."},
+{t:'t2',q:"Le nombre de permutations de n éléments est :",img:"denomb",o:["nᵖ","n!/(n-p)!","n!","Cₙᵖ"],c:2,e:"n! = n×(n-1)×...×1. Exemple : 4! = 24."},
+{t:'t2',q:"Aₙᵖ = n!/(n-p)! est le nombre de :",img:"denomb",o:["Combinaisons","Arrangements (sans remise, ordonné)","p-uplets","Permutations"],c:1,e:"Aₙᵖ : p éléments parmi n, SANS remise, ordre IMPORTANT."},
+{t:'t2',q:"10 jetons numérotés 0-9, 2 tirages sans remise pour un code. Combien ?",img:"denomb",o:["100","90","45","20"],c:1,e:"A²₁₀ = 10×9 = 90 codes."},
+{t:'t2',q:"Cₙᵖ = n!/[p!(n-p)!] désigne :",img:"denomb",o:["p-uplets","Arrangements","Combinaisons (sans remise, non ordonné)","Permutations"],c:2,e:"Cₙᵖ : p éléments parmi n, sans tenir compte de l'ordre."},
+{t:'t2',q:"C³₆ = ?",img:"denomb",o:["120","20","15","30"],c:1,e:"C³₆ = 6!/(3!×3!) = 720/36 = 20."},
+{t:'t2',q:"La propriété Cₙᵖ = Cₙⁿ⁻ᵖ est :",img:"denomb",o:["Fausse","Vraie (symétrie)","Vraie seulement si p=n/2","Vraie seulement si p=1"],c:1,e:"Cₙᵖ = Cₙⁿ⁻ᵖ : propriété de symétrie. Aussi : Cₙ⁰=Cₙⁿ=1."},
+{t:'t2',q:"Urne 6 rouges + 4 noires, tirer 3. Nb de tirages avec 3 rouges ?",img:"denomb",o:["20","120","15","60"],c:0,e:"C³₆ × C⁰₄ = 20 × 1 = 20."},
+{t:'t2',q:"Urne 6 rouges + 4 noires, tirer 3. Nb de tirages avec 2 rouges et 1 noire ?",img:"denomb",o:["60","20","4","15"],c:0,e:"C²₆ × C¹₄ = 15 × 4 = 60."},
+{t:'t3',q:"P(Ω) = ?",img:"probBase",o:["0","1/2","1","Variable"],c:2,e:"P(Ω)=1 : axiome fondamental."},
+{t:'t3',q:"P(∅) = ?",img:"probBase",o:["1","0","1/2","Indéterminée"],c:1,e:"P(∅)=0 : l'événement impossible ne peut se réaliser."},
+{t:'t3',q:"P(Ā) = ?",img:"probBase",o:["P(A)","1/P(A)","1−P(A)","P(A)−1"],c:2,e:"P(Ā)=1−P(A)."},
+{t:'t3',q:"P(A∪B) = ?",img:"probBase",o:["P(A)+P(B)","P(A)+P(B)−P(A∩B)","P(A)×P(B)","P(A)/P(B)"],c:1,e:"Formule d'inclusion-exclusion."},
+{t:'t3',q:"En équiprobabilité, P(A) = ?",img:"probBase",o:["1/card(Ω)","card(A)","card(A)/card(Ω)","card(Ω)/card(A)"],c:2,e:"P(A)=card(A)/card(Ω)."},
+{t:'t3',q:"Dé équilibré : P(nombre pair) = ?",img:"probBase",o:["1/6","1/3","1/2","2/3"],c:2,e:"A={2,4,6}, card=3, card(Ω)=6 → P=1/2."},
+{t:'t3',q:"Si A⊂B, alors :",img:"probBase",o:["P(A)≥P(B)","P(A)≤P(B)","P(A)=P(B)","P(A)×P(B)=1"],c:1,e:"Si A⊂B alors P(A)≤P(B)."},
+{t:'t3',q:"Si A et B sont disjoints : P(A∪B) = ?",img:"probBase",o:["P(A)−P(B)","P(A)×P(B)","P(A)+P(B)","P(A)+P(B)+P(A∩B)"],c:2,e:"Si A∩B=∅, P(A∪B)=P(A)+P(B)."},
+{t:'t4',q:"P(B|A) = ?",img:"probCond",o:["P(A)×P(B)","P(A∩B)/P(A)","P(B)/P(A)","P(A∪B)/P(A)"],c:1,e:"P(B|A)=P(A∩B)/P(A) : probabilité de B sachant A réalisé."},
+{t:'t4',q:"P(A∩B) = ? (probabilités composées)",img:"probCond",o:["P(A)+P(B)","P(A)×P(B|A)","P(B)×P(A)","P(A|B)×P(A)"],c:1,e:"P(A∩B)=P(A)×P(B|A). Indépendants : P(A)×P(B)."},
+{t:'t4',q:"La formule des probabilités totales donne P(B) = ?",img:"probCond",o:["P(A)+P(B|A)","P(A)P(B|A)+P(Ā)P(B|Ā)","P(A)×P(B)","P(B|A)+P(B|Ā)"],c:1,e:"P(B)=P(A)P(B|A)+P(Ā)P(B|Ā)."},
+{t:'t4',q:"A et B indépendants ⟺",img:"probCond",o:["P(A∪B)=1","P(A∩B)=P(A)×P(B)","P(A)=P(B)","P(A|B)=P(A|Ā)"],c:1,e:"Indépendants ⟺ P(A∩B)=P(A)×P(B) ⟺ P(B|A)=P(B)."},
+{t:'t4',q:"La formule de Bayes calcule :",img:"probCond",o:["P(A∩B)","P(Aᵢ|B) connaissant P(B|Aᵢ)","P(A∪B)","P(B)"],c:1,e:"Bayes : remonter d'un effet (B) vers sa cause (Aᵢ). Utile en diagnostic médical."},
+{t:'t4',q:"P(B|A) + P(B̄|A) = ?",img:"probCond",o:["0","P(A)","1","P(B)"],c:2,e:"P(B|A)+P(B̄|A)=1 : complémentaires conditionnelles."},
+{t:'t4',q:"Classe : 60% anglais (A), 45% français (F), 20% les deux. P(F|A) = ?",img:"probCond",o:["20%","≈33%","75%","45%"],c:1,e:"P(F|A)=P(F∩A)/P(A)=0,20/0,60≈33%."},
+{t:'t4',q:"Événements incompatibles (A∩B=∅) ⟹ indépendants ?",img:"probCond",o:["Oui, toujours","Non, incompatibles ≠ indépendants","Oui si P(A)=P(B)","Dépend de Ω"],c:1,e:"Non. Incompatibles avec P(A)>0 et P(B)>0 ne sont PAS indépendants."},
+{t:'t5',q:"Une variable aléatoire X est :",img:"va",o:["Un nombre fixe","Une application X:Ω→ℝ","Un événement de prob. max","Une constante"],c:1,e:"X associe un réel à chaque résultat ω de l'expérience."},
+{t:'t5',q:"Propriété fondamentale d'une loi de probabilité discrète :",img:"va",o:["P(X=x)≤1 pour tout x","Σ P(X=x) = 1","E(X) = 0","P(X=0) = 1"],c:1,e:"Σ P(X=x)=1 : normalisation."},
+{t:'t5',q:"E(X) d'une VAD = ?",img:"va",o:["Valeur la plus probable","Valeur médiane","Σ x·P(X=x)","Maximum de X"],c:2,e:"E(X)=Σ x·P(X=x) : moyenne pondérée."},
+{t:'t5',q:"V(X) = E(X²) − [E(X)]² est le théorème de :",img:"va",o:["Bayes","Pascal","Koenig","Poisson"],c:2,e:"Théorème de Koenig : formule pratique de la variance."},
+{t:'t5',q:"V(aX+b) = ?",img:"va",o:["aV(X)+b","a²V(X)+b","a²V(X)","aV(X)"],c:2,e:"V(aX+b)=a²V(X). Translation n'affecte pas la variance."},
+{t:'t5',q:"E(aX+b) = ?",img:"va",o:["aE(X)","E(X)+b","aE(X)+b","a²E(X)+b"],c:2,e:"E(aX+b)=aE(X)+b. L'espérance est linéaire."},
+{t:'t5',q:"F(x) = P(X≤x) est :",img:"va",o:["La densité","La fonction de répartition","L'espérance","La variance"],c:1,e:"F(x) est la fonction de répartition. Croissante, 0 en -∞, 1 en +∞."},
+{t:'t5',q:"σ(X) = ?",img:"va",o:["V(X)","√V(X)","[V(X)]²","E(X)"],c:1,e:"σ(X)=√V(X) : écart type dans la même unité que X."},
+{t:'t6',q:"Loi de Bernoulli B(1,p) : P(X=1) = ?",img:"loiDisc",o:["1−p","p²","p","1/2"],c:2,e:"P(X=1)=p (succès), P(X=0)=q=1−p (échec)."},
+{t:'t6',q:"Pour X~B(1,p) : E(X) et V(X) = ?",img:"loiDisc",o:["E=p², V=pq","E=p, V=p²","E=p, V=pq","E=pq, V=p"],c:2,e:"E(X)=p et V(X)=pq."},
+{t:'t6',q:"P(X=k) pour X~B(n,p) = ?",img:"loiDisc",o:["pᵏ(1−p)ⁿ","Cₙᵏpᵏ(1−p)ⁿ⁻ᵏ","n!pᵏ(1−p)ⁿ⁻ᵏ","pᵏqᵏ/k!"],c:1,e:"P(X=k)=Cₙᵏ×pᵏ×(1−p)ⁿ⁻ᵏ."},
+{t:'t6',q:"Pour X~B(n,p) : E(X) et V(X) = ?",img:"loiDisc",o:["E=p, V=pq","E=np, V=npq","E=np, V=np²","E=n, V=npq"],c:1,e:"E(X)=np et V(X)=npq."},
+{t:'t6',q:"X~B(5;0,3). P(X≤2) sachant P(X=0)=0,168 P(X=1)=0,360 P(X=2)=0,309 = ?",img:"loiDisc",o:["0,837","0,668","0,509","0,472"],c:0,e:"P(X≤2)=0,168+0,360+0,309=0,837."},
+{t:'t6',q:"Loi de Poisson P(λ) : P(X=k) = ?",img:"loiDisc",o:["eλλᵏ/k!","e⁻λλᵏ/k!","λᵏ/k!","(1−λ)ᵏλ"],c:1,e:"P(X=k)=e^(−λ)λᵏ/k!."},
+{t:'t6',q:"Pour X~P(λ) : E(X) et V(X) = ?",img:"loiDisc",o:["E=2λ, V=λ","E=V=λ","E=λ, V=λ²","E=1/λ, V=λ"],c:1,e:"E(X)=V(X)=λ : particularité unique de Poisson."},
+{t:'t6',q:"B(n,p) approchée par P(np) quand :",img:"loiDisc",o:["n petit, p grand","n≥50, p≤0,1 et np≤15","n=p","p=0,5"],c:1,e:"Approximation Poisson : n≥50, p≤0,1, np≤15."},
+{t:'t6',q:"Hypergéométrique H vs Binomiale B :",img:"loiDisc",o:["H a plus de paramètres","B=avec remise (indép.), H=sans remise (dép.)","H a E(X) plus grande","B pour pop. finies uniquement"],c:1,e:"H : SANS remise, p change. B : avec remise, p constant."},
+{t:'t6',q:"Loi géométrique G(p) : E(X) = ?",img:"loiDisc",o:["p","1/p","pq","1/p²"],c:1,e:"E(X)=1/p. Modélise le rang du 1er succès."},
+{t:'t7',q:"Pour une VAC continue, la propriété de f(x) est :",img:"normale",o:["Σf(x)=1","∫f(x)dx=1 sur ℝ","f(x)=1","P(X=x)=f(x)"],c:1,e:"∫f(x)dx=1. Pour une VAC, P(X=x)=0 pour toute valeur précise."},
+{t:'t7',q:"Loi uniforme U([a,b]) : f(x) = ?",img:"normale",o:["1/(b+a)","1/(b−a) sur [a,b]","b−a","1/b"],c:1,e:"f(x)=1/(b−a) sur [a,b], 0 ailleurs."},
+{t:'t7',q:"Pour X~U([a,b]) : E(X) et V(X) = ?",img:"normale",o:["(b−a)/2 et b²/12","(a+b)/2 et (b−a)²/12","a/2 et a²/12","(a+b) et (b−a)²"],c:1,e:"E(X)=(a+b)/2 et V(X)=(b−a)²/12."},
+{t:'t7',q:"Loi exponentielle E(θ) : f(x) = ?",img:"normale",o:["θe^(θx) si x≥0","θe^(−θx) si x≥0","e^(−θx)/θ","θ²e^(−θx)"],c:1,e:"f(x)=θe^(−θx) si x≥0. E(X)=1/θ, V(X)=1/θ². F(x)=1−e^(−θx)."},
+{t:'t7',q:"Pour X~N(m,σ) : E(X) et V(X) = ?",img:"normale",o:["E=σ, V=m²","E=m, V=σ²","E=0, V=1","E=m, V=σ"],c:1,e:"E(X)=m et V(X)=σ²."},
+{t:'t7',q:"Standardisation N(m,σ) → N(0,1) : T = ?",img:"normale",o:["T=X−m","T=X/σ","T=(X−m)/σ","T=m/σ"],c:2,e:"T=(X−m)/σ ~ N(0,1). Permet d'utiliser les tables."},
+{t:'t7',q:"Pour T~N(0,1) : Π(−t) = ?",img:"normale",o:["Π(t)","1/Π(t)","1−Π(t)","Π(t)−1"],c:2,e:"Π(−t)=1−Π(t). Symétrie de N(0,1) autour de 0."},
+{t:'t7',q:"Le TCL dit que :",img:"normale",o:["Toute VA est normale","Somme de n VA i.i.d. → normale quand n grand","Moyenne de deux normales est normale","Toute VAD ≈ Poisson"],c:1,e:"TCL : ΣXᵢ i.i.d. → N(nm, σ√n) pour n grand."},
+{t:'t7',q:"Approximation de B(n,p) par la normale : conditions ?",img:"normale",o:["n≥50 et p≤0,1","n≥30 et p,q≈0,5 (ou np>15 et nq>15)","n≥10 et p=0,5","Toujours possible"],c:1,e:"Approx. normale : n≥30, p,q≈0,5 OU np>15 et nq>15 OU npq>10."},
+{t:'t8',q:"La loi χ²(n) est obtenue par :",img:"loisDerivees",o:["Somme de n normales","Somme des carrés de n N(0,1) indépendantes","Produit de n normales","Rapport de deux normales"],c:1,e:"χ²(n) = X₁²+...+Xₙ² où Xᵢ~N(0,1) indépendantes."},
+{t:'t8',q:"Pour X~χ²(n) : E(X) et V(X) = ?",img:"loisDerivees",o:["E=n/2, V=n","E=n, V=2n","E=2n, V=n","E=n, V=n²"],c:1,e:"E(χ²(n))=n et V(χ²(n))=2n."},
+{t:'t8',q:"Si X~χ²(n₁) et Y~χ²(n₂) indépendantes, X+Y suit :",img:"loisDerivees",o:["χ²(n₁×n₂)","χ²(n₁+n₂)","χ²(n₁−n₂)","N(0,1)"],c:1,e:"Stabilité : X+Y~χ²(n₁+n₂)."},
+{t:'t8',q:"La table du χ² donne la valeur χ²ₐ telle que :",img:"loisDerivees",o:["P(χ²(n)<χ²ₐ)=α","P(χ²(n)>χ²ₐ)=α","P(χ²(n)=χ²ₐ)=α","P(χ²(n)≠χ²ₐ)=α"],c:1,e:"P(χ²(n)>χ²ₐ)=α. Pour n=10, α=0,05 → χ²=18,30."},
+{t:'t8',q:"La loi de Student t(n) est :",img:"loisDerivees",o:["Somme de n normales","T = X/√(Y/n) · X~N(0,1) et Y~χ²(n) indép.","Produit de deux normales","Carré d'une normale"],c:1,e:"Tₙ = X/√(Y/n) avec X~N(0,1) et Y~χ²(n) indépendantes."},
+{t:'t8',q:"Pour Student t(n) : E(T) = ?",img:"loisDerivees",o:["n","n/(n−2)","0","1"],c:2,e:"E(Tₙ)=0 par symétrie. V(Tₙ)=n/(n−2) pour n>2."},
+{t:'t8',q:"La loi Student converge vers quoi quand n→∞ ?",img:"loisDerivees",o:["χ²(1)","N(0,1)","Poisson","Exponentielle"],c:1,e:"Tₙ → N(0,1) quand n>30 en pratique."},
+{t:'t8',q:"La loi de Fisher F(n,m) est :",img:"loisDerivees",o:["Deux variables normales","[χ²(n)/n] / [χ²(m)/m] indépendantes","Deux variables de Student","Une normale et un χ²"],c:1,e:"F(n,m) = [χ²(n)/n] / [χ²(m)/m]. Comparaison de variances."},
+{t:'t8',q:"La loi Gamma Γ(p,θ) : E(X) = ?",img:"loisDerivees",o:["pθ","p/θ","θ/p","p×θ²"],c:1,e:"E(X)=p/θ et V(X)=p/θ². Expo(θ)=Γ(1,θ) et χ²(n)=Γ(n/2,½)."},
+{t:'t8',q:"Pour n>30, la loi χ²(n) est approximée par :",img:"loisDerivees",o:["Student t(n)","Normale N(n, √(2n))","Poisson","Exponentielle"],c:1,e:"χ²(n) ≈ N(n, √(2n)) pour n>30."},
+{t:'t9',q:"Le taux de sondage f = ?",img:"echantillon",o:["N/n×100","n×N","n/N×100","(N−n)/N"],c:2,e:"f=n/N×100 : proportion des unités dans l'échantillon."},
+{t:'t9',q:"Un recensement est :",img:"echantillon",o:["Un sondage sur 50%","Une enquête exhaustive sur toute la population","Un échantillonnage stratifié","Un sondage par quotas"],c:1,e:"Recensement = enquête exhaustive : TOUS les éléments."},
+{t:'t9',q:"La base de sondage est :",img:"echantillon",o:["L'erreur d'échantillonnage","La liste complète et ordonnée des unités","Le taux de sondage","L'écart type"],c:1,e:"Base de sondage = liste complète des unités. Indispensable pour l'EAS."},
+{t:'t9',q:"L'erreur d'échantillonnage est :",img:"echantillon",o:["Une erreur de calcul","L'écart entre résultat échantillon et recensement","Une erreur de mesure","Toujours nulle"],c:1,e:"Erreur = écart entre résultat de l'échantillon et le recensement. Diminue quand n augmente."},
+{t:'t9',q:"Les méthodes probabilistes comprennent :",img:"echantillon",o:["Commodité et subjectif","EAS, stratifié, grappes, systématique","Quotas et boule de neige","Jugement et commodité"],c:1,e:"Méthodes probabilistes : EAS, stratifié, grappes, systématique."},
+{t:'t9',q:"L'échantillonnage de commodité est :",img:"echantillon",o:["Une méthode probabiliste rigoureuse","Une méthode non probabiliste basée sur la disponibilité","L'EAS en pop. infinie","L'échantillonnage systématique simplifié"],c:1,e:"Commodité = non probabiliste. Risque d'erreur non contrôlé."},
+{t:'t9',q:"L'échantillonnage boule de neige :",img:"echantillon",o:["Tire tous les k éléments","Chaque répondant réfère un autre répondant similaire","Représente une strate entière","Prend le ke élément"],c:1,e:"Boule de neige : chaque répondant réfère d'autres. Utile pour les populations rares."},
+{t:'t9',q:"Population finie + tirage AVEC remise = ?",img:"echantillon",o:["Population finie","Population traitée comme infinie","Population stratifiée","Population par grappes"],c:1,e:"Population finie + remise → traitée pratiquement comme infinie."},
+{t:'t10',q:"Dans un EAS : chaque individu...",img:"methEchant",o:["A plus de chance que d'autres","A la même probabilité d'être sélectionné","Est sélectionné selon son importance","Représente un groupe"],c:1,e:"EAS : chaque individu a la même probabilité."},
+{t:'t10',q:"Population {A,B,C,D,E}, échantillon de taille 2 sans remise. Combien d'échantillons ?",img:"methEchant",o:["10","20","5","25"],c:0,e:"C²₅=10 : {AB, AC, AD, AE, BC, BD, BE, CD, CE, DE}."},
+{t:'t10',q:"Échantillonnage systématique N=5000, n=50 : k = ?",img:"methEchant",o:["k=50","k=100","k=250","k=10"],c:1,e:"k=N/n=5000/50=100."},
+{t:'t10',q:"Échantillonnage stratifié proportionnel : nᵢ = ?",img:"methEchant",o:["nᵢ=n/H","nᵢ=wᵢ×n","nᵢ=k×wᵢσᵢ/√cᵢ","nᵢ=Nᵢ"],c:1,e:"Proportionnel : nᵢ=wᵢ×n. Fraction de sondage f constante."},
+{t:'t10',q:"La répartition optimale de Neyman tient compte de :",img:"methEchant",o:["Seulement du poids wᵢ","Du poids wᵢ, dispersion σᵢ et coût cᵢ","Seulement du coût cᵢ","Uniquement de Nᵢ"],c:1,e:"Neyman : nᵢ=k×wᵢσᵢ/√cᵢ avec k=G/(Σwᵢσᵢ√cᵢ)."},
+{t:'t10',q:"Dans l'échantillonnage par grappes, on observe :",img:"methEchant",o:["Un sous-échantillon de chaque grappe","Tous les éléments des grappes sélectionnées","Un élément par grappe","Seulement les éléments pairs"],c:1,e:"Grappes : on observe TOUS les éléments des grappes sélectionnées."},
+{t:'t10',q:"L'intervalle k de l'échantillonnage systématique vaut :",img:"methEchant",o:["k=n/N","k=N/n","k=N×n","k=√N"],c:1,e:"k=N/n."},
+{t:'t10',q:"L'échantillonnage par grappes est préférable quand :",img:"methEchant",o:["Les grappes sont homogènes","Chaque grappe est représentative (hétérogène) de la pop.","Il n'y a pas de base de sondage","La population est petite"],c:1,e:"Grappes : meilleur quand chaque grappe ressemble à la population."},
+{t:'t11',q:"E(X̄) = ?",img:"distEchant",o:["σ/√n","m/n","m","n×m"],c:2,e:"E(X̄)=m : estimateur sans biais de la moyenne."},
+{t:'t11',q:"Pour une population infinie, σ_x̄ = ?",img:"distEchant",o:["σ×√n","σ/n","σ/√n","σ×n"],c:2,e:"σ_x̄=σ/√n : erreur type de la moyenne."},
+{t:'t11',q:"Pour une population finie, σ_x̄ = ?",img:"distEchant",o:["σ/√n","σ/√n × √(N−n)/(N−1)","σ×√(N−n)","σ/N"],c:1,e:"σ_x̄=σ/√n × √(N−n)/(N−1). Facteur d'exhaustivité."},
+{t:'t11',q:"Le facteur d'exhaustivité peut être ignoré quand :",img:"distEchant",o:["N>100","n/N < 5%","n>30","σ est connu"],c:1,e:"Si n/N<0,05, le facteur ≈1 et on utilise simplement σ/√n."},
+{t:'t11',q:"La distribution de X̄ est approximativement normale si :",img:"distEchant",o:["n≥10","n≥30 (TCL) et N>2n","n≥100","La pop. est normale"],c:1,e:"TCL : n≥30 et N>2n. Si la pop. est normale, n≥30 n'est pas requis."},
+{t:'t11',q:"E(p̄) = ?",img:"distEchant",o:["p(1−p)/n","p/n","p","n×p"],c:2,e:"E(p̄)=p : estimateur sans biais de la proportion."},
+{t:'t11',q:"Pour une population infinie, σ_p̄ = ?",img:"distEchant",o:["√(p/n)","√(p(1−p))","√(p(1−p)/n)","p(1−p)/n"],c:2,e:"σ_p̄=√(p(1−p)/n) : erreur type de la proportion."},
+{t:'t11',q:"Pour n≥30, la distribution de p̄ suit :",img:"distEchant",o:["Binomiale B(n,p)","Poisson P(np)","Normale N(p, √(p(1−p)/n))","Uniforme"],c:2,e:"Par le TCL : L(p̄)≈N(p, √(p(1−p)/n)) pour n≥30."},
+{t:'t11',q:"Pop. infinie (σ=4000), échantillon n=30. σ_x̄ ≈ ?",img:"distEchant",o:["4000","133,3","730,3","400"],c:2,e:"σ_x̄=4000/√30≈730,3."},
+{t:'t11',q:"Si on quadruple n, σ_x̄ est :",img:"distEchant",o:["Divisé par 4","Divisé par 2","Divisé par 16","Inchangé"],c:1,e:"σ/√(4n) = σ_x̄/2. Quadrupler n divise l'erreur type par 2."},
+];
+
+/* ═══════════════════════════════════════
+   ENGINE
+═══════════════════════════════════════ */
+let activeTheme=null,activeQ=[],answers=[],cur=0,correct=0,wrong=0;
+
+function buildHome(){
+  const grid=document.getElementById('th-grid');
+  grid.innerHTML='';
+  THEMES.forEach((th,idx)=>{
+    const count=BANK.filter(q=>q.t===th.id).length;
+    const card=document.createElement('div');
+    card.className='th-card';
+    card.style.setProperty('--th-col',th.color);
+    card.innerHTML=`
+      <div class="th-card-head">
+        <span class="th-ico">${th.icon}</span>
+        <span class="th-id">MOD_${String(idx+1).padStart(2,'0')}</span>
+      </div>
+      <div class="th-name">${th.name}</div>
+      <div class="th-meta">${count}_questions  ·  ${th.desc}</div>
+      <div class="th-prog"><div class="th-prog-fill" style="background:${th.color};box-shadow:0 0 6px ${th.color}"></div></div>`;
+    card.addEventListener('click',()=>startTheme(th.id));
+    grid.appendChild(card);
+    setTimeout(()=>{card.querySelector('.th-prog-fill').style.width=Math.min(count*8,96)+'%';},150+idx*55);
+  });
+}
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function startTheme(tid){activeTheme=tid;activeQ=BANK.filter(q=>q.t===tid);launchQuiz();}
+function startAll(){activeTheme='all';activeQ=[...BANK];launchQuiz();}
+
+function launchQuiz(){
+  answers=new Array(activeQ.length).fill(null);cur=0;correct=0;wrong=0;
+  const badge=document.getElementById('q-badge');
+  if(activeTheme==='all'){
+    badge.textContent='// ALL_MODULES';
+    badge.style.cssText=`background:${GR}0f;border-color:${GR};color:${GR}`;
+  } else {
+    const th=THEMES.find(t=>t.id===activeTheme);
+    badge.textContent=`// ${th.name.replace("'","").toUpperCase().replace(/ /g,'_')}`;
+    badge.style.cssText=`background:${th.color}0f;border-color:${th.color};color:${th.color}`;
+  }
+  show('s-quiz');render();
+}
+
+function render(){
+  const q=activeQ[cur],n=cur+1,total=activeQ.length;
+  const pct=Math.round((n-1)/total*100);
+  document.getElementById('pfill').style.width=pct+'%';
+  document.getElementById('qfrac').textContent=`${String(n).padStart(2,'0')}/${total}`;
+  document.getElementById('qcorner').textContent=`Q_${String(n).padStart(3,'0')}.exe`;
+  document.getElementById('qlabel').textContent=`QUESTION ${String(n).padStart(2,'0')} — ${pct}% COMPLETED`;
+  document.getElementById('qtext').textContent=q.q;
+  const illo=document.getElementById('qillo');
+  if(q.img&&SVG[q.img]){illo.innerHTML=SVG[q.img];illo.style.display='flex';}
+  else{illo.innerHTML='';illo.style.display='none';}
+  const opts=document.getElementById('opts');opts.innerHTML='';
+  q.o.forEach((opt,i)=>{
+    const btn=document.createElement('button');
+    btn.className='opt';
+    btn.innerHTML=`<span class="opt-key">${'ABCD'[i]}</span>${opt}`;
+    btn.disabled=answers[cur]!==null;
+    if(answers[cur]!==null){
+      if(i===q.c)btn.classList.add('correct');
+      else if(i===answers[cur]&&answers[cur]!==q.c)btn.classList.add('wrong');
+    }
+    btn.addEventListener('click',()=>selectAns(i));opts.appendChild(btn);
+  });
+  const expl=document.getElementById('expl');
+  expl.innerHTML=`<span class="expl-tag">// OUTPUT</span>${q.e}`;
+  expl.className='expl'+(answers[cur]!==null?' show':'');
+  document.getElementById('sc').textContent=correct;
+  document.getElementById('sw').textContent=wrong;
+  document.getElementById('sr').textContent=activeQ.length-correct-wrong;
+  document.getElementById('btn-prev').style.opacity=cur===0?'0.3':'1';
+  document.getElementById('btn-prev').disabled=cur===0;
+  document.getElementById('btn-next').textContent=cur===activeQ.length-1?'SHOW RESULTS →':'NEXT →';
+}
+
+function selectAns(i){
+  if(answers[cur]!==null)return;
+  answers[cur]=i;
+  if(i===activeQ[cur].c)correct++;else wrong++;
+  render();
+}
+
+function nextQ(){if(cur===activeQ.length-1){showResult();return;}cur++;render();}
+function prevQ(){if(cur>0){cur--;render();}}
+
+function showResult(){
+  show('s-result');
+  const pct=Math.round(correct/activeQ.length*100);
+  const chip=activeTheme==='all'?'// FULL_SCAN.log':`// ${THEMES.find(t=>t.id===activeTheme).name.toUpperCase()}.log`;
+  document.getElementById('res-chip').textContent=chip;
+  document.getElementById('res-score').textContent=`${correct}/${activeQ.length}`;
+  document.getElementById('res-detail').textContent=`pct=${pct}%  errors=${wrong}  skipped=${activeQ.length-correct-wrong}`;
+  const mentions=[
+    [90,'> EXCELLENT — Ready for exam'],
+    [75,'> TRES BIEN — Minor review needed'],
+    [60,'> BIEN — Review key formulas'],
+    [50,'> MOYEN — More practice required'],
+    [0,'> INSUFFISANT — Restart from basics'],
+  ];
+  const m=mentions.find(([p])=>pct>=p);
+  document.getElementById('res-mention').textContent=m[1];
+  const container=document.getElementById('theme-scores');container.innerHTML='';
+  const list=activeTheme==='all'?THEMES:THEMES.filter(t=>t.id===activeTheme);
+  list.forEach((th,idx)=>{
+    const thQ=activeQ.filter(q=>q.t===th.id);if(!thQ.length)return;
+    const thC=thQ.filter(q=>answers[activeQ.indexOf(q)]===q.c).length;
+    const thP=Math.round(thC/thQ.length*100);
+    const col=thP>=75?GR:thP>=50?AM:RD;
+    const card=document.createElement('div');card.className='ts-card';
+    card.innerHTML=`
+      <div class="ts-head"><span class="ts-ico">${th.icon}</span><span class="ts-name">${th.name}</span></div>
+      <div class="ts-track"><div class="ts-fill" style="background:${col};box-shadow:0 0 6px ${col}"></div></div>
+      <div class="ts-nums">${thC}/${thQ.length} correctes</div>
+      <div class="ts-pct" style="color:${col}">${thP}%</div>`;
+    container.appendChild(card);
+    setTimeout(()=>{card.querySelector('.ts-fill').style.width=thP+'%';},200+idx*70);
+  });
+}
+
+function goHome(){show('s-home');}
+function retryQuiz(){if(activeTheme==='all')startAll();else startTheme(activeTheme);}
+buildHome();
+</script>
+</body>
+</html>
