@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Résumé · Statistiques Inférentielles · ENEAM</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Outfit:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--void:#050810;--panel:#0d1520;--panel2:#111e2e;--b1:#162030;--b2:#1e2d40;--b3:#243550;--cyan:#00d4ff;--green:#00ff9d;--amber:#ffb300;--red:#ff4757;--purple:#a78bfa;--teal:#00e5cc;--txt:#c8d6e0;--txt2:#7a9ab0;--txt3:#3d5568}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{background:var(--void);color:var(--txt);font-family:'Outfit',sans-serif;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,255,157,.012)1px,transparent 1px),linear-gradient(90deg,rgba(0,255,157,.012)1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+body::after{content:'';position:fixed;inset:0;background-image:radial-gradient(circle,rgba(0,255,157,.04)1px,transparent 1px);background-size:40px 40px;background-position:20px 20px;pointer-events:none;z-index:0}
+@keyframes scan{0%{transform:translateY(-100vh)}100%{transform:translateY(100vh)}}
+.scanline{position:fixed;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(0,255,157,.12),transparent);animation:scan 9s linear infinite;pointer-events:none;z-index:999}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:.8rem 1.5rem;border-bottom:1px solid var(--b1);background:rgba(5,8,16,.85);backdrop-filter:blur(10px);position:sticky;top:0;z-index:50}
+.nav-left{display:flex;align-items:center;gap:.8rem}
+.nav-back{display:flex;align-items:center;gap:.5rem;font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--txt3);text-decoration:none;padding:.3rem .7rem;border:1px solid var(--b2);border-radius:2px;transition:all .18s;cursor:pointer;background:none}
+.nav-back:hover{color:var(--green);border-color:var(--green)}
+.nav-title{font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--txt2)}
+.nav-title span{color:var(--green)}
+.nav-tag{font-family:'JetBrains Mono',monospace;font-size:.6rem;padding:.18rem .55rem;border:1px solid rgba(0,255,157,.25);border-radius:2px;color:var(--green);background:rgba(0,255,157,.07)}
+.hero{padding:2.5rem 1.5rem 1.5rem;max-width:960px;margin:0 auto;position:relative;z-index:1}
+.hero-eyebrow{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--txt3);letter-spacing:.15em;margin-bottom:.8rem}
+.hero-eyebrow span{color:var(--green)}
+.hero-h1{font-weight:900;font-size:clamp(1.8rem,5vw,3rem);letter-spacing:-.03em;line-height:1.1;margin-bottom:.6rem}
+.hero-h1 em{font-style:normal;background:linear-gradient(135deg,var(--green),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--txt3);margin-bottom:1.2rem}
+.hero-pills{display:flex;gap:.45rem;flex-wrap:wrap}
+.hero-pill{font-family:'JetBrains Mono',monospace;font-size:.6rem;padding:.18rem .55rem;border:1px solid var(--b2);border-radius:2px;color:var(--txt3)}
+.tabs-bar{max-width:960px;margin:0 auto;padding:1.2rem 1.5rem;position:relative;z-index:1;display:flex;gap:.6rem}
+.tab{font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:500;padding:.5rem 1rem;border:1px solid var(--b2);border-radius:2px;background:var(--panel);color:var(--txt3);cursor:pointer;transition:all .18s;letter-spacing:.05em}
+.tab.active{border-color:var(--green);color:var(--green);background:rgba(0,255,157,.07)}
+.tab:hover:not(.active){color:var(--txt2)}
+.main{max-width:960px;margin:0 auto;padding:0 1.5rem 5rem;position:relative;z-index:1}
+.condensed-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(265px,1fr));gap:1rem}
+.ccard{background:var(--panel);border:1px solid var(--b1);border-radius:4px;padding:1.3rem 1.4rem;cursor:pointer;transition:all .22s;position:relative;overflow:hidden}
+.ccard::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--cc,#00ff9d);opacity:.6;transition:opacity .2s}
+.ccard:hover{border-color:var(--cc,#00ff9d);transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,.4)}
+.ccard:hover::before{opacity:1}
+.ccard-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:.7rem}
+.ccard-ico{font-size:1.4rem}
+.ccard-id{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--cc,#00ff9d);opacity:.6}
+.ccard-title{font-size:.9rem;font-weight:700;color:var(--txt);margin-bottom:.25rem;line-height:1.3}
+.ccard-preview{font-size:.76rem;color:var(--txt3);line-height:1.5;font-weight:300;margin-bottom:.7rem}
+.ccard-keys{display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.7rem}
+.ckey{font-family:'JetBrains Mono',monospace;font-size:.58rem;padding:.1rem .4rem;background:rgba(0,0,0,.3);border:1px solid var(--b2);border-radius:1px;color:var(--txt3)}
+.ccard-cta{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--cc,#00ff9d);opacity:.7}
+.ccard:hover .ccard-cta{opacity:1}
+.detail-nav{display:flex;align-items:center;gap:.6rem;margin-bottom:1.4rem;flex-wrap:wrap}
+.dnav-btn{font-family:'JetBrains Mono',monospace;font-size:.62rem;padding:.32rem .7rem;border:1px solid var(--b2);border-radius:2px;background:var(--panel);color:var(--txt3);cursor:pointer;transition:all .15s;white-space:nowrap}
+.dnav-btn.active{border-color:var(--green);color:var(--green);background:rgba(0,255,157,.07)}
+.dnav-btn:hover:not(.active){color:var(--txt2)}
+.fiche{background:var(--panel);border:1px solid var(--b1);border-radius:6px;overflow:hidden;margin-bottom:1.4rem;display:none}
+.fiche.active{display:block;animation:fadeUp .3s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.fiche-header{padding:1.4rem 1.6rem 1.2rem;border-bottom:1px solid var(--b1);position:relative}
+.fiche-header::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--fc,#00ff9d)}
+.fiche-tag{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--fc,#00ff9d);letter-spacing:.12em;margin-bottom:.5rem;display:flex;align-items:center;gap:.4rem}
+.fiche-tag::before{content:'//'}
+.fiche-title{font-size:1.2rem;font-weight:700;color:var(--txt);margin-bottom:.25rem}
+.fiche-sub{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--txt3)}
+.fiche-body{padding:1.5rem}
+.fiche-section{margin-bottom:1.5rem}.fiche-section:last-child{margin-bottom:0}
+.fs-label{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--fc,#00ff9d);letter-spacing:.15em;text-transform:uppercase;margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem}
+.fs-label::after{content:'';flex:1;height:1px;background:var(--b1)}
+.def-list{display:flex;flex-direction:column;gap:.55rem}
+.def-item{display:flex;gap:1rem;padding:.65rem 1rem;background:rgba(0,0,0,.2);border:1px solid var(--b1);border-radius:3px;align-items:flex-start}
+.def-term{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:500;color:var(--fc,#00ff9d);min-width:140px;flex-shrink:0;padding-top:.1rem}
+.def-val{font-size:.82rem;color:var(--txt2);line-height:1.6;font-weight:300}
+.def-val strong{color:var(--txt);font-weight:500}
+.formula-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:.65rem}
+.formula-box{background:rgba(0,0,0,.3);border:1px solid var(--b2);border-radius:3px;padding:.85rem 1rem;text-align:center}
+.formula-name{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--txt3);margin-bottom:.35rem;letter-spacing:.08em}
+.formula-eq{font-family:'JetBrains Mono',monospace;font-size:.84rem;font-weight:500;color:var(--txt);line-height:1.5}
+.formula-note{font-size:.68rem;color:var(--txt3);margin-top:.25rem;font-weight:300}
+.example-box{background:rgba(0,0,0,.25);border:1px solid var(--b1);border-left:2px solid var(--cyan);border-radius:0 3px 3px 0;padding:.85rem 1.1rem;margin-bottom:.6rem}
+.ex-tag{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--cyan);margin-bottom:.35rem;display:block}
+.example-box p{font-size:.81rem;color:var(--txt2);line-height:1.65;font-weight:300}
+.ex-result{font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--amber);margin-top:.35rem;display:block}
+.retenir-list{display:flex;flex-direction:column;gap:.4rem}
+.retenir-item{display:flex;align-items:flex-start;gap:.6rem;padding:.55rem .85rem;background:rgba(167,139,250,.04);border:1px solid rgba(167,139,250,.12);border-radius:3px;font-size:.8rem;color:var(--txt2);font-weight:300;line-height:1.55}
+.retenir-item::before{content:'!';font-family:'JetBrains Mono',monospace;font-size:.62rem;font-weight:700;color:var(--purple);min-width:16px;height:16px;border:1px solid rgba(167,139,250,.4);border-radius:2px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.footer{border-top:1px solid var(--b1);padding:1.2rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;max-width:960px;margin:0 auto;position:relative;z-index:1}
+.footer-brand{display:flex;align-items:center;gap:.7rem}
+.f-avatar{width:32px;height:32px;background:var(--panel);border:1px solid var(--green);border-radius:2px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:700;color:var(--green)}
+.f-name{font-family:'JetBrains Mono',monospace;font-size:.75rem;font-weight:500;color:var(--txt)}
+.f-role{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--txt3)}
+.footer-wa{display:inline-flex;align-items:center;gap:.5rem;font-family:'JetBrains Mono',monospace;font-size:.65rem;color:#25d366;text-decoration:none;padding:.35rem .7rem;border:1px solid rgba(37,211,102,.25);border-radius:2px;transition:all .18s}
+.footer-wa:hover{background:rgba(37,211,102,.06);border-color:rgba(37,211,102,.5)}
+@media(max-width:600px){.condensed-grid{grid-template-columns:1fr}.formula-grid{grid-template-columns:1fr}.def-item{flex-direction:column;gap:.25rem}.def-term{min-width:unset}}
+</style>
+</head>
+<body>
+<div class="scanline"></div>
+<nav class="nav">
+  <div class="nav-left">
+    <button class="nav-back" onclick="history.back()">&#8592; Retour</button>
+    <span class="nav-title"><span>ENEAM</span> · Résumé de cours</span>
+  </div>
+  <span class="nav-tag">MODULE_02 · STATS</span>
+</nav>
+<div class="hero">
+  <div class="hero-eyebrow">// <span>RESUME_COURS</span> · Statistiques Inférentielles · IG2</div>
+  <h1 class="hero-h1">Probabilités &amp;<br><em>Inférence Statistique</em></h1>
+  <p class="hero-sub">11 thèmes · Définitions · Formules · Exemples</p>
+  <div class="hero-pills">
+    <span class="hero-pill">Événements &amp; Ω</span><span class="hero-pill">Dénombrement</span>
+    <span class="hero-pill">Probabilités cond.</span><span class="hero-pill">Bayes</span>
+    <span class="hero-pill">Variables aléatoires</span><span class="hero-pill">Lois discrètes</span>
+    <span class="hero-pill">Lois continues</span><span class="hero-pill">Lois dérivées</span>
+    <span class="hero-pill">Échantillonnage</span>
+  </div>
+</div>
+<div class="tabs-bar">
+  <button class="tab active" id="tab-cond" onclick="switchView('condensed')">⊞ Vue condensée</button>
+  <button class="tab" id="tab-detail" onclick="switchView('detail')">☰ Fiches détaillées</button>
+</div>
+<div class="main">
+  <div id="v-condensed"><div class="condensed-grid" id="cond-grid"></div></div>
+  <div id="v-detail" style="display:none">
+    <div class="detail-nav" id="detail-nav"></div>
+    <div id="fiches-container"></div>
+  </div>
+</div>
+<footer class="footer">
+  <div class="footer-brand">
+    <div class="f-avatar">M</div>
+    <div><div class="f-name">Miracle L.</div><div class="f-role">// Créateur du contenu</div></div>
+  </div>
+  <a class="footer-wa" href="https://wa.me/2290190821282" target="_blank" rel="noopener">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    +229 01 90 82 12 82
+  </a>
+</footer>
+<script>
+const THEMES=[
+{id:'t1',icon:'📚',color:'#a78bfa',title:'Vocabulaire & Événements',subtitle:'Univers Ω · Événements · Opérations',preview:'Les concepts fondamentaux de la théorie des probabilités.',keys:['Ω','Événement','∅','Ā','∩','∪'],
+defs:[{t:'Univers Ω',v:'<strong>Ensemble fondamental</strong> : recense tous les résultats possibles d\'une expérience aléatoire. Ses éléments ω sont les éventualités.'},{t:'Événement',v:'Sous-ensemble de Ω. Peut être élémentaire (singleton) ou composé.'},{t:'Événement impossible ∅',v:'Événement ne contenant aucune éventualité. P(∅) = 0.'},{t:'Événement certain Ω',v:'L\'univers lui-même. Se réalise à coup sûr. P(Ω) = 1.'},{t:'Événement contraire Ā',v:'Complémentaire de A dans Ω. P(Ā) = 1 − P(A).'},{t:'Intersection A∩B',v:'"A ET B" : éléments appartenant aux deux événements simultanément.'},{t:'Réunion A∪B',v:'"A OU B" : éléments appartenant à A ou B (ou aux deux).'}],
+formulas:[{name:'Axiomes fondamentaux',eq:'P(Ω)=1 · P(∅)=0 · 0≤P(A)≤1',note:''},{name:'Événement contraire',eq:'P(Ā) = 1 − P(A)',note:''},{name:'Formule d\'addition',eq:'P(A∪B) = P(A)+P(B)−P(A∩B)',note:'Inclusion-exclusion'},{name:'Équiprobabilité',eq:'P(A) = card(A) / card(Ω)',note:'Si tous les cas sont équiprobables'}],
+examples:[{tag:'DÉ À 6 FACES',txt:'Ω={1,2,3,4,5,6} · A2={2,4,6} · A3={5,6}. A2∩A3={6} · A2∪A3={2,4,5,6} · Ā2={1,3,5}.',result:'=> P(A2)=3/6=1/2 · P(A3)=2/6=1/3 · P(A2∩A3)=1/6'},{tag:'CALCUL AVEC LA FORMULE',txt:'P(A)=0,4 · P(B)=0,5 · P(A∩B)=0,2. P(A∪B)=0,4+0,5−0,2.',result:'=> P(A∪B) = 0,7'}],
+retenir:['P(Ω)=1 · P(∅)=0 · P(Ā)=1−P(A)','P(A∪B)=P(A)+P(B)−P(A∩B) · Si disjoints: P(A∪B)=P(A)+P(B)','Équiprobabilité: P(A)=card(A)/card(Ω)']},
+
+{id:'t2',icon:'🔢',color:'#00d4ff',title:'Dénombrement',subtitle:'p-uplets · Arrangements · Combinaisons',preview:'Compter les arrangements et combinaisons d\'éléments.',keys:['p-uplets','Arrangements','Combinaisons','Permutations','n!','Cₙᵖ'],
+defs:[{t:'p-uplets',v:'Séquences ordonnées de p éléments <strong>avec remise</strong>. Nombre = nᵖ.'},{t:'Arrangements Aₙᵖ',v:'p éléments parmi n, <strong>sans remise, ordonné</strong>. Aₙᵖ = n!/(n-p)!'},{t:'Permutations',v:'Arrangements de <strong>tous les éléments</strong>. Nombre = n!'},{t:'Combinaisons Cₙᵖ',v:'p éléments parmi n, <strong>sans remise, non ordonné</strong>. Cₙᵖ = n!/[p!(n-p)!]'}],
+formulas:[{name:'p-uplets (avec remise)',eq:'nᵖ',note:'Ex: 4³=64'},{name:'Arrangements Aₙᵖ',eq:'n! / (n−p)!',note:'Ex: A²₁₀=90'},{name:'Permutations',eq:'n!',note:'Ex: 4!=24'},{name:'Combinaisons Cₙᵖ',eq:'n! / [p!(n−p)!]',note:'Ex: C³₆=20'},{name:'Propriétés',eq:'Cₙ⁰=Cₙⁿ=1 · Cₙᵖ=Cₙⁿ⁻ᵖ',note:'Symétrie'}],
+examples:[{tag:'COMBINAISONS',txt:'C³₆ = 6!/(3!×3!) = 720/36 = 20 façons de choisir 3 éléments parmi 6 sans tenir compte de l\'ordre.',result:'=> 20 combinaisons possibles'},{tag:'ARRANGEMENTS',txt:'10 jetons numérotés, 2 tirages sans remise pour un code. A²₁₀ = 10×9 = 90 codes.',result:'=> 90 codes différents (ordre important)'}],
+retenir:['p-uplets: avec remise nᵖ · Arrangements: sans remise, ordonné n!/(n-p)!','Combinaisons: sans remise, non ordonné · Cₙᵖ = n!/[p!(n-p)!]','Aₙᵖ = p! × Cₙᵖ']},
+
+{id:'t3',icon:'🎲',color:'#00ff9d',title:'Probabilités de base',subtitle:'Axiomes · Équiprobabilité · Propriétés',preview:'Les règles fondamentales du calcul des probabilités.',keys:['Axiomes','Équiprobabilité','Addition','Complémentaire'],
+defs:[{t:'Probabilité P(A)',v:'Mesure entre 0 et 1 de la chance qu\'un événement A se réalise. P(Ω)=1, P(∅)=0.'},{t:'Équiprobabilité',v:'Tous les événements élémentaires ont la <strong>même probabilité 1/n</strong>. P(A)=card(A)/card(Ω).'},{t:'Événements disjoints',v:'A∩B=∅ : ils ne peuvent pas se réaliser simultanément. P(A∪B)=P(A)+P(B).'}],
+formulas:[{name:'Axiome 1',eq:'0 ≤ P(A) ≤ 1',note:'Pour tout événement A'},{name:'Axiome 2',eq:'P(Ω) = 1',note:'Événement certain'},{name:'Axiome 3',eq:'P(A∪B)=P(A)+P(B) si A∩B=∅',note:'Additivité'},{name:'Complémentaire',eq:'P(Ā) = 1 − P(A)',note:'Très utilisé'},{name:'Addition générale',eq:'P(A∪B)=P(A)+P(B)−P(A∩B)',note:''}],
+examples:[{tag:'DÉ ÉQUILIBRÉ',txt:'A = "nombre pair" = {2,4,6}. card(A)=3, card(Ω)=6. P(A) = 3/6 = 1/2.',result:'=> P(pair)=1/2 · P(impair)=1/2'},{tag:'COMPLÉMENTAIRE',txt:'P("au moins un 6 en 4 jets") = 1 − P("aucun 6") = 1 − (5/6)⁴.',result:'=> P = 1 − 0,482 ≈ 0,518'}],
+retenir:['P(Ω)=1 · P(∅)=0 · P(Ā)=1−P(A)','Si A⊂B alors P(A)≤P(B)','Disjoints: P(A∪B)=P(A)+P(B) · Sinon: soustraire P(A∩B)']},
+
+{id:'t4',icon:'🔀',color:'#ffb300',title:'Probabilités cond. & Bayes',subtitle:'P(B|A) · Probabilités totales · Bayes',preview:'Calcul de probabilités sous condition et formule de Bayes.',keys:['P(B|A)','Indépendance','Prob. totales','Bayes','Partition'],
+defs:[{t:'Prob. conditionnelle P(B|A)',v:'Probabilité de B <strong>sachant que A est réalisé</strong>. P(B|A) = P(A∩B)/P(A), avec P(A)≠0.'},{t:'Probabilités composées',v:'P(A∩B) = P(A) × P(B|A). Si indépendants: P(A∩B) = P(A)×P(B).'},{t:'Indépendance',v:'A et B indépendants ⟺ P(A∩B)=P(A)×P(B) ⟺ P(B|A)=P(B).'},{t:'Probabilités totales',v:'P(B) = Σ P(Aᵢ)×P(B|Aᵢ) si les Aᵢ forment une partition de Ω.'},{t:'Formule de Bayes',v:'P(Aᵢ|B) = P(Aᵢ)P(B|Aᵢ) / [Σ P(Aⱼ)P(B|Aⱼ)]. Remonter d\'un effet vers sa cause.'}],
+formulas:[{name:'Probabilité conditionnelle',eq:'P(B|A) = P(A∩B) / P(A)',note:'P(A)>0'},{name:'Prob. composées',eq:'P(A∩B) = P(A) · P(B|A)',note:''},{name:'Indépendance',eq:'P(A∩B) = P(A) · P(B)',note:''},{name:'Prob. totales',eq:'P(B) = P(A)P(B|A) + P(Ā)P(B|Ā)',note:'Partition: A et Ā'},{name:'Complémentaire cond.',eq:'P(B|A) + P(B̄|A) = 1',note:''}],
+examples:[{tag:'PROBABILITÉ CONDITIONNELLE',txt:'Classe: 60% anglais (A), 45% français (F), 20% les deux. P(F|A) = P(F∩A)/P(A) = 0,20/0,60.',result:'=> P(F|A) = 1/3 ≈ 33%'},{tag:'BAYES — TEST MÉDICAL',txt:'Maladie: prévalence 1%. Test positif si malade=99%, si sain=5%. P(malade|test+)=?',result:'=> P(M|+)=P(M)P(+|M)/[P(M)P(+|M)+P(Sain)P(+|Sain)] ≈ 16,7%'}],
+retenir:['P(B|A)=P(A∩B)/P(A) · P(B|A)+P(B̄|A)=1','Indépendants ⟺ P(A∩B)=P(A)P(B)','Bayes: remonter d\'un effet (B) vers sa cause (Aᵢ)','Incompatibles (A∩B=∅) ≠ Indépendants']},
+
+{id:'t5',icon:'📊',color:'#00e5cc',title:'Variables aléatoires',subtitle:'E(X) · V(X) · F(x) · Koenig',preview:'Définitions, espérance, variance et propriétés des variables aléatoires.',keys:['VAD','VAC','E(X)','V(X)','Koenig','F(x)','σ(X)'],
+defs:[{t:'Variable aléatoire X',v:'Application X:Ω→ℝ associant un réel à chaque résultat ω.'},{t:'VAD (discrète)',v:'Valeurs en nombre <strong>dénombrable</strong>. Σ P(X=x)=1.'},{t:'VAC (continue)',v:'Valeurs dans un intervalle. <strong>∫f(x)dx=1</strong>. P(X=x)=0 pour toute valeur précise.'},{t:'Espérance E(X)',v:'Moyenne pondérée: <strong>Σ x·P(X=x)</strong>. Valeur moyenne sur un grand nombre d\'essais.'},{t:'Variance V(X)',v:'Mesure la dispersion: <strong>V(X)=E(X²)−[E(X)]²</strong> (théorème de Koenig).'},{t:'Écart type σ(X)',v:'σ(X) = √V(X). Dans la même unité que X.'},{t:'Fonction de répartition F(x)',v:'F(x) = P(X≤x). Croissante, tend vers 0 en −∞ et 1 en +∞.'}],
+formulas:[{name:'Espérance',eq:'E(X) = Σ x·P(X=x)',note:'Pour VAD'},{name:'Koenig (Variance)',eq:'V(X) = E(X²) − [E(X)]²',note:'Formule pratique'},{name:'Linéarité E',eq:'E(aX+b) = aE(X)+b',note:''},{name:'Variance transformée',eq:'V(aX+b) = a²V(X)',note:'b n\'affecte pas V'},{name:'Écart type',eq:'σ(X) = √V(X)',note:''}],
+examples:[{tag:'CALCUL E(X) ET V(X)',txt:'X: valeurs 1(p=0,3), 2(p=0,5), 3(p=0,2). E(X)=1×0,3+2×0,5+3×0,2=1,9. E(X²)=1×0,3+4×0,5+9×0,2=4,1.',result:'=> E(X)=1,9 · V(X)=4,1−1,9²=4,1−3,61=0,49 · σ=0,7'},{tag:'PROPRIÉTÉS',txt:'X: E=5, V=4. Y=3X+2. E(Y)=3×5+2=17. V(Y)=3²×4=36.',result:'=> E(Y)=17 · V(Y)=36 · σ(Y)=6'}],
+retenir:['V(X)=E(X²)−[E(X)]² (Koenig) · σ(X)=√V(X)','E(aX+b)=aE(X)+b · V(aX+b)=a²V(X)','F(x)=P(X≤x) · P(a<X≤b)=F(b)−F(a)']},
+
+{id:'t6',icon:'📈',color:'#00ff9d',title:'Lois discrètes usuelles',subtitle:'Bernoulli · Binomiale · Poisson · Géométrique',preview:'Les lois de probabilité discrètes les plus importantes.',keys:['Bernoulli','Binomiale','Poisson','Géométrique','Hypergéom.','Uniforme'],
+defs:[{t:'Bernoulli B(1,p)',v:'2 issues: succès(1,prob.p) et échec(0,prob.q=1-p). E(X)=p, V(X)=pq.'},{t:'Binomiale B(n,p)',v:'<strong>n épreuves Bernoulli indépendantes</strong>. P(X=k)=Cₙᵏpᵏ(1-p)ⁿ⁻ᵏ. E(X)=np, V(X)=npq.'},{t:'Poisson P(λ)',v:'Phénomènes rares. P(X=k)=e⁻λλᵏ/k!. <strong>E(X)=V(X)=λ</strong>. Loi des petites probabilités.'},{t:'Géométrique G(p)',v:'Rang du 1er succès. P(X=k)=p(1-p)ᵏ⁻¹. E(X)=1/p, V(X)=(1-p)/p².'},{t:'Hypergéométrique H(N,n,Np)',v:'Tirage <strong>sans remise</strong>. E(X)=np, V(X)=npq(N-n)/(N-1). Si N grand → Binomiale.'}],
+formulas:[{name:'Bernoulli B(1,p)',eq:'E=p · V=pq',note:''},{name:'Binomiale B(n,p)',eq:'E=np · V=npq',note:'P(X=k)=Cₙᵏpᵏqⁿ⁻ᵏ'},{name:'Poisson P(λ)',eq:'E=V=λ · σ=√λ',note:'P(X=k)=e⁻λλᵏ/k!'},{name:'Géométrique G(p)',eq:'E=1/p · V=(1-p)/p²',note:''},{name:'Approx. Poisson',eq:'n≥50, p≤0,1, np≤15 → P(λ=np)',note:''},{name:'Approx. Normale',eq:'n≥30, p≈0,5 → N(np,√npq)',note:''}],
+examples:[{tag:'BINOMIALE',txt:'Hôpital: 50 chambres, taux occupation 75%. X~B(50;0,75). E(X)=50×0,75=37,5. V(X)=50×0,75×0,25=9,375.',result:'=> E=37,5 chambres occupées en moyenne'},{tag:'POISSON',txt:'Centre d\'appels: λ=4 appels/min. P(X=6) = e⁻⁴×4⁶/6! = e⁻⁴×4096/720 ≈ 0,104.',result:'=> Environ 10,4% de chance de recevoir exactement 6 appels'}],
+retenir:['Bernoulli=2 issues · Binomiale=n Bernoulli indép. · Poisson=phénomènes rares','Poisson: E(X)=V(X)=λ (unique!)','B(n,p) ≈ P(np) si n≥50, p≤0,1 · B(n,p) ≈ N(np,√npq) si n≥30, p≈0,5']},
+
+{id:'t7',icon:'〰️',color:'#a78bfa',title:'Lois continues',subtitle:'Uniforme · Exponentielle · Normale · TCL',preview:'Les lois de probabilité continues essentielles.',keys:['Uniforme','Exponentielle','Normale','N(0,1)','TCL','Standardisation'],
+defs:[{t:'Loi Uniforme U([a,b])',v:'f(x)=1/(b-a) sur [a,b]. <strong>E(X)=(a+b)/2</strong>, V(X)=(b-a)²/12.'},{t:'Loi Exponentielle E(θ)',v:'f(x)=θe^(-θx) si x≥0. <strong>E(X)=1/θ</strong>, V(X)=1/θ². Modélise les durées de vie.'},{t:'Loi Normale N(m,σ)',v:'Cloche de Gauss. <strong>E(X)=m</strong>, V(X)=σ². Standardisation: T=(X-m)/σ ~ N(0,1).'},{t:'Loi N(0,1)',v:'Normale <strong>centrée réduite</strong>. E=0, V=1. Π(t)=P(T≤t). Π(-t)=1-Π(t).'},{t:'TCL',v:'<strong>Théorème Central Limite</strong>: somme de n VA i.i.d. → normale pour n≥30.'}],
+formulas:[{name:'Uniforme U([a,b])',eq:'E=(a+b)/2 · V=(b-a)²/12',note:'f(x)=1/(b-a)'},{name:'Exponentielle E(θ)',eq:'E=1/θ · V=1/θ² · σ=1/θ',note:'F(x)=1−e^(−θx)'},{name:'Normale N(m,σ)',eq:'E=m · V=σ² · σ(X)=σ',note:'T=(X-m)/σ~N(0,1)'},{name:'N(0,1)',eq:'E=0 · V=1 · Π(-t)=1-Π(t)',note:'Π(0)=0,5'},{name:'TCL (n≥30)',eq:'X̄ ~ N(m, σ/√n)',note:'Pour n grand'}],
+examples:[{tag:'STANDARDISATION',txt:'X~N(100,15). P(X≤130)=P(T≤(130-100)/15)=P(T≤2)=Π(2).',result:'=> Lire Π(2) dans la table de N(0,1) ≈ 0,9772'},{tag:'LOI EXPONENTIELLE',txt:'Durée de vie d\'une lampe suit E(θ=1/10) (E.V.=10 ans). P(X>5)=1−F(5)=e^(−0,1×5)=e^(−0,5)≈0,607.',result:'=> 60,7% de chance que la lampe dure plus de 5 ans'}],
+retenir:['Standardisation: T=(X-m)/σ ~ N(0,1)','Π(-t)=1-Π(t) · Π(0)=0,5','TCL: n≥30 → X̄ ~ N(m, σ/√n)','Uniforme: dès que tu vois "arrivée au hasard" ou "intervalle fixe"']},
+
+{id:'t8',icon:'χ',color:'#ff4757',title:'Lois dérivées',subtitle:'χ²(n) · Student t(n) · Fisher F(n,m) · Gamma',preview:'Les lois construites à partir de la loi normale, utilisées en inférence.',keys:['Chi-deux','Student','Fisher','Gamma','Degrés de liberté'],
+defs:[{t:'Khi-deux χ²(n)',v:'Somme de n variables N(0,1)². <strong>E=n, V=2n</strong>. Table: P(χ²(n)>χ²ₐ)=α. Test d\'adéquation.'},{t:'Student t(n)',v:'T=X/√(Y/n) avec X~N(0,1) et Y~χ²(n). <strong>E=0, V=n/(n-2)</strong>. n>30 → N(0,1).'},{t:'Fisher F(n,m)',v:'F=[χ²(n)/n]/[χ²(m)/m]. <strong>E=m/(m-2)</strong>. Comparaison de variances.'},{t:'Gamma Γ(p,θ)',v:'f=θᵖ/Γ(p)·e^(-θx)·x^(p-1). <strong>E=p/θ, V=p/θ²</strong>. Expo=Γ(1,θ). χ²(n)=Γ(n/2,½).'}],
+formulas:[{name:'χ²(n)',eq:'E=n · V=2n',note:'Somme n×N(0,1)²'},{name:'Student t(n)',eq:'E=0 · V=n/(n-2)',note:'n>30: → N(0,1)'},{name:'Fisher F(n,m)',eq:'E=m/(m-2) si m>2',note:'Comparaison variances'},{name:'Gamma Γ(p,θ)',eq:'E=p/θ · V=p/θ²',note:'Expo(θ)=Γ(1,θ)'},{name:'Somme χ²',eq:'χ²(n₁)+χ²(n₂) = χ²(n₁+n₂)',note:'Stabilité'},{name:'Table Student',eq:'P(−tₐ ≤ T ≤ tₐ) = 1−α',note:''}],
+examples:[{tag:'LECTURE TABLE χ²',txt:'χ²(10) à α=5%: on lit χ²ₐ=18,30. Cela signifie P(χ²(10)>18,30)=0,05.',result:'=> 5% de chance de dépasser 18,30 avec 10 degrés de liberté'},{tag:'UTILISATION STUDENT',txt:'Échantillon n=10 étudiants, notes supposées normales. Variance inconnue → utiliser loi de Student t(n-1)=t(9).',result:'=> t(9) · Pour IC à 95%: lire tₐ dans table Student'}],
+retenir:['χ²(n): E=n, V=2n · additivité · n>30 ≈ N(n,√(2n))','Student t(n): E=0, V=n/(n-2) · n>30 ≈ N(0,1)','Fisher: comparaison de 2 variances · Gamma: généralisation Expo et χ²']},
+
+{id:'t9',icon:'⚙️',color:'#ffb300',title:'Théorie de l\'échantillonnage',subtitle:'Vocabulaire · Types de méthodes',preview:'Concepts fondamentaux et méthodes de sélection d\'échantillons.',keys:['Population','Échantillon','EAS','Stratifié','Grappes','Systématique'],
+defs:[{t:'Population',v:'Ensemble de tous les éléments d\'intérêt dans une étude. Peut être finie ou infinie.'},{t:'Échantillon',v:'Sous-ensemble de la population sélectionné pour être observé.'},{t:'Taux de sondage f',v:'f = n/N × 100. Proportion des unités incluses dans l\'échantillon.'},{t:'Base de sondage',v:'Liste complète et ordonnée de toutes les unités de la population. Nécessaire pour l\'EAS.'},{t:'EAS',v:'<strong>Échantillonnage Aléatoire Simple</strong>. Chaque individu a la même probabilité d\'être tiré.'},{t:'Stratifié',v:'Population divisée en strates homogènes → EAS dans chaque strate. Proportionnel ou optimal.'},{t:'Grappes',v:'Population divisée en grappes → tirer des grappes entières. Économique.'}],
+formulas:[{name:'Taux de sondage',eq:'f = n/N × 100',note:''},{name:'EAS — Nb d\'échantillons',eq:'C^n_N (sans remise)',note:'N=pop., n=taille'},{name:'Stratifié proportionnel',eq:'nᵢ = wᵢ × n = (Nᵢ/N) × n',note:''},{name:'Répartition optimale',eq:'nᵢ = k × wᵢσᵢ/√cᵢ',note:'k = G / Σwᵢσᵢ√cᵢ'},{name:'Systématique',eq:'k = N/n',note:'Intervalle entre 2 tirages'}],
+examples:[{tag:'STRATIFIÉ PROPORTIONNEL',txt:'Pop: 10000 entreprises (5000 petites, 3000 moy., 2000 grandes). Échantillon: 500. f=500/10000=0,05=5%.',result:'=> Petites: 5000×0,05=250 · Moyennes: 150 · Grandes: 100'},{tag:'ÉCHANTILLONNAGE SYSTÉMATIQUE',txt:'N=5000, n=50 → k=100. Départ aléatoire i entre 1 et 100, puis i, i+100, i+200,...',result:'=> 50 éléments sélectionnés toutes les 100 unités'}],
+retenir:['EAS: chaque individu a même prob. · base de sondage nécessaire','Stratifié proportionnel: nᵢ=wᵢ×n · Optimal (Neyman): nᵢ=k×wᵢσᵢ/√cᵢ','Systématique: k=N/n · Grappes: tous les éléments des grappes sélectionnées']},
+
+{id:'t10',icon:'📉',color:'#00ff9d',title:'Distribution d\'échantillonnage',subtitle:'Distribution de X̄ et de p̄',preview:'Propriétés des distributions d\'échantillonnage de la moyenne et de la proportion.',keys:['X̄','p̄','σ_x̄','σ_p̄','Estimateur sans biais','Facteur d\'exhaustivité'],
+defs:[{t:'Distribution de X̄',v:'Distribution de probabilité de toutes les valeurs possibles de la moyenne d\'échantillon.'},{t:'E(X̄) = m',v:'La moyenne d\'échantillon est un <strong>estimateur sans biais</strong> de la moyenne de la population.'},{t:'Erreur type σ_x̄',v:'Écart type de la distribution de X̄. σ_x̄=σ/√n (pop. infinie).'},{t:'Facteur d\'exhaustivité',v:'√(N-n)/(N-1). Appliqué pour les populations finies. Ignoré si n/N<5%.'},{t:'Distribution de p̄',v:'Distribution de la proportion d\'échantillon. E(p̄)=p (estimateur sans biais).'}],
+formulas:[{name:'E(X̄)',eq:'E(X̄) = m',note:'Estimateur sans biais'},{name:'Pop. infinie (ou n/N<5%)',eq:'σ_x̄ = σ/√n',note:'Erreur type'},{name:'Pop. finie',eq:'σ_x̄ = (σ/√n) × √(N-n)/(N-1)',note:'Avec facteur exhaustivité'},{name:'E(p̄)',eq:'E(p̄) = p',note:'Estimateur sans biais'},{name:'σ_p̄ (pop. infinie)',eq:'σ_p̄ = √(p(1-p)/n)',note:''},{name:'TCL (n≥30)',eq:'X̄ ~ N(m, σ/√n)',note:'Distribution approx. normale'}],
+examples:[{tag:'CALCUL σ_x̄',txt:'Pop. infinie: σ=4000, n=30. σ_x̄ = 4000/√30 = 4000/5,477 ≈ 730,3.',result:'=> Erreur type de la moyenne ≈ 730 FCFA'},{tag:'EFFET DE N SUR σ_x̄',txt:'Si on quadruple n: σ_x̄ = σ/√(4n) = σ/(2√n) = σ_x̄/2.',result:'=> Quadrupler n divise l\'erreur type par 2'}],
+retenir:['E(X̄)=m et E(p̄)=p : estimateurs sans biais','σ_x̄=σ/√n (pop. infinie) · σ_x̄=σ/√n×√(N-n)/(N-1) (pop. finie)','Facteur d\'exhaustivité ignoré si n/N<5%','TCL: n≥30 → X̄ ~ N(m, σ/√n)']},
+
+{id:'t11',icon:'📐',color:'#00d4ff',title:'Récapitulatif des lois',subtitle:'Tableau comparatif toutes lois',preview:'Vue synthétique de toutes les lois de probabilité du cours.',keys:['Tableau','Comparatif','Formules','E(X)','V(X)'],
+defs:[{t:'Lois discrètes',v:'Bernoulli B(1,p) · Binomiale B(n,p) · Poisson P(λ) · Géométrique G(p) · Hypergéométrique H(N,n,Np) · Uniforme u([1,n])'},{t:'Lois continues',v:'Uniforme U([a,b]) · Exponentielle E(θ) · Normale N(m,σ) · Normale Centrée Réduite N(0,1)'},{t:'Lois dérivées',v:'Khi-deux χ²(n) · Student t(n) · Fisher F(n,m) · Gamma Γ(p,θ)'}],
+formulas:[{name:'Bernoulli',eq:'E=p · V=p(1-p)',note:'2 issues'},{name:'Binomiale B(n,p)',eq:'E=np · V=npq',note:'n Bernoulli indép.'},{name:'Poisson P(λ)',eq:'E=V=λ',note:'Phénomènes rares'},{name:'Géométrique G(p)',eq:'E=1/p · V=(1-p)/p²',note:'Rang 1er succès'},{name:'Uniforme U([a,b])',eq:'E=(a+b)/2 · V=(b-a)²/12',note:''},{name:'Exponentielle E(θ)',eq:'E=1/θ · V=1/θ²',note:'Durées de vie'},{name:'Normale N(m,σ)',eq:'E=m · V=σ²',note:'Cloche Gauss'},{name:'χ²(n)',eq:'E=n · V=2n',note:''},{name:'Student t(n)',eq:'E=0 · V=n/(n-2)',note:''},{name:'Gamma Γ(p,θ)',eq:'E=p/θ · V=p/θ²',note:''}],
+examples:[{tag:'IDENTIFIER LA LOI',txt:'Nb d\'appels par heure (en moyenne 3) → phénomène aléatoire discret avec taux moyen.',result:'=> Loi de Poisson P(λ=3)'},{tag:'IDENTIFIER LA LOI',txt:'Durée de vie d\'un composant électronique (durée moyenne 5 ans).',result:'=> Loi exponentielle E(θ=0,2) · E(X)=1/θ=5 ans'}],
+retenir:['Poisson: E=V=λ (seule loi où espérance = variance)','Identifier la loi: discret→Bernoulli/Binomiale/Poisson · continu→Uniforme/Expo/Normale','Student et χ² convergent vers N(0,1) quand n→∞']}
+];
+
+function buildCondensed(){
+  const g=document.getElementById('cond-grid');g.innerHTML='';
+  THEMES.forEach((th,i)=>{
+    const c=document.createElement('div');c.className='ccard';c.style.setProperty('--cc',th.color);
+    c.innerHTML=`<div class="ccard-head"><span class="ccard-ico">${th.icon}</span><span class="ccard-id">T_${String(i+1).padStart(2,'0')}</span></div><div class="ccard-title">${th.title}</div><div class="ccard-preview">${th.preview}</div><div class="ccard-keys">${th.keys.map(k=>`<span class="ckey">${k}</span>`).join('')}</div><div class="ccard-cta">&#8594; Voir la fiche détaillée</div>`;
+    c.addEventListener('click',()=>{switchView('detail');showFiche(i);});
+    g.appendChild(c);
+  });
+}
+
+function buildDetailNav(){
+  const n=document.getElementById('detail-nav');n.innerHTML='';
+  THEMES.forEach((th,i)=>{
+    const b=document.createElement('button');b.className='dnav-btn'+(i===0?' active':'');
+    b.textContent=`${th.icon} ${th.title}`;b.addEventListener('click',()=>showFiche(i));n.appendChild(b);
+  });
+}
+
+function buildFiches(){
+  const c=document.getElementById('fiches-container');c.innerHTML='';
+  THEMES.forEach((th,i)=>{
+    const f=document.createElement('div');f.className='fiche'+(i===0?' active':'');f.id='fiche-'+i;
+    f.style.setProperty('--fc',th.color);
+    f.innerHTML=`<div class="fiche-header"><div class="fiche-tag">${th.subtitle}</div><div class="fiche-title">${th.icon} ${th.title}</div><div class="fiche-sub">${th.defs.length} définitions · ${th.formulas.length} formules · ${th.examples.length} exemples</div></div>
+    <div class="fiche-body">
+      <div class="fiche-section"><div class="fs-label">DÉFINITIONS</div><div class="def-list">${th.defs.map(d=>`<div class="def-item"><span class="def-term">${d.t}</span><span class="def-val">${d.v}</span></div>`).join('')}</div></div>
+      <div class="fiche-section"><div class="fs-label">FORMULES CLÉS</div><div class="formula-grid">${th.formulas.map(fm=>`<div class="formula-box"><div class="formula-name">${fm.name}</div><div class="formula-eq">${fm.eq}</div>${fm.note?`<div class="formula-note">${fm.note}</div>`:''}</div>`).join('')}</div></div>
+      <div class="fiche-section"><div class="fs-label">EXEMPLES</div>${th.examples.map(ex=>`<div class="example-box"><span class="ex-tag">// ${ex.tag}</span><p>${ex.txt}</p><span class="ex-result">${ex.result}</span></div>`).join('')}</div>
+      <div class="fiche-section"><div class="fs-label">POINTS À RETENIR</div><div class="retenir-list">${th.retenir.map(r=>`<div class="retenir-item">${r}</div>`).join('')}</div></div>
+    </div>`;
+    c.appendChild(f);
+  });
+}
+
+function showFiche(idx){
+  document.querySelectorAll('.fiche').forEach((f,i)=>f.classList.toggle('active',i===idx));
+  document.querySelectorAll('.dnav-btn').forEach((b,i)=>b.classList.toggle('active',i===idx));
+  document.getElementById('fiche-'+idx).scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function switchView(v){
+  const isD=v==='detail';
+  document.getElementById('v-condensed').style.display=isD?'none':'block';
+  document.getElementById('v-detail').style.display=isD?'block':'none';
+  document.getElementById('tab-cond').classList.toggle('active',!isD);
+  document.getElementById('tab-detail').classList.toggle('active',isD);
+}
+
+buildCondensed();buildDetailNav();buildFiches();
+</script>
+</body>
+</html>
