@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Résumé · Réseaux Informatiques · ENEAM</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Outfit:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#050810;--black:#070b0f;--panel:#0d1520;--panel2:#111e2e;
+  --b1:#162030;--b2:#1e2d40;--b3:#243550;
+  --cyan:#00d4ff;--green:#00ff9d;--amber:#ffb300;--red:#ff4757;--purple:#a78bfa;--teal:#00e5cc;
+  --txt:#c8d6e0;--txt2:#7a9ab0;--txt3:#3d5568;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--void);color:var(--txt);font-family:'Outfit',sans-serif;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,.015)1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.015)1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+body::after{content:'';position:fixed;inset:0;background-image:radial-gradient(circle,rgba(0,212,255,.05)1px,transparent 1px);background-size:40px 40px;background-position:20px 20px;pointer-events:none;z-index:0}
+@keyframes scan{0%{transform:translateY(-100vh)}100%{transform:translateY(100vh)}}
+.scanline{position:fixed;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(0,212,255,.15),transparent);animation:scan 9s linear infinite;pointer-events:none;z-index:999}
+
+/* NAV */
+.nav{display:flex;align-items:center;justify-content:space-between;padding:.8rem 1.5rem;border-bottom:1px solid var(--b1);background:rgba(5,8,16,.85);backdrop-filter:blur(10px);position:sticky;top:0;z-index:50}
+.nav-left{display:flex;align-items:center;gap:.8rem}
+.nav-back{display:flex;align-items:center;gap:.5rem;font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--txt3);text-decoration:none;padding:.3rem .7rem;border:1px solid var(--b2);border-radius:2px;transition:all .18s;cursor:pointer}
+.nav-back:hover{color:var(--cyan);border-color:var(--cyan)}
+.nav-title{font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--txt2)}
+.nav-title span{color:var(--cyan)}
+.nav-tag{font-family:'JetBrains Mono',monospace;font-size:.6rem;padding:.18rem .55rem;border:1px solid rgba(0,212,255,.25);border-radius:2px;color:var(--cyan);background:rgba(0,212,255,.07)}
+
+/* HERO */
+.hero{padding:2.5rem 1.5rem 2rem;max-width:960px;margin:0 auto;position:relative;z-index:1}
+.hero-eyebrow{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--txt3);letter-spacing:.15em;margin-bottom:.8rem}
+.hero-eyebrow span{color:var(--cyan)}
+.hero-h1{font-weight:900;font-size:clamp(1.8rem,5vw,3rem);letter-spacing:-.03em;line-height:1.1;margin-bottom:.6rem}
+.hero-h1 em{font-style:normal;background:linear-gradient(135deg,var(--cyan),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--txt3);margin-bottom:1.5rem}
+.hero-pills{display:flex;gap:.5rem;flex-wrap:wrap}
+.hero-pill{font-family:'JetBrains Mono',monospace;font-size:.62rem;padding:.22rem .65rem;border:1px solid var(--b2);border-radius:2px;color:var(--txt3)}
+
+/* TABS */
+.tabs-bar{max-width:960px;margin:0 auto;padding:0 1.5rem 1.5rem;position:relative;z-index:1;display:flex;gap:.6rem;flex-wrap:wrap}
+.tab{font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:500;padding:.55rem 1.1rem;border:1px solid var(--b2);border-radius:2px;background:var(--panel);color:var(--txt3);cursor:pointer;transition:all .18s;letter-spacing:.05em}
+.tab.active{border-color:var(--cyan);color:var(--cyan);background:rgba(0,212,255,.08);text-shadow:0 0 8px rgba(0,212,255,.4)}
+.tab:hover:not(.active){border-color:var(--b3);color:var(--txt2)}
+
+/* MAIN */
+.main{max-width:960px;margin:0 auto;padding:0 1.5rem 5rem;position:relative;z-index:1}
+
+/* ── VUE CONDENSÉE ── */
+.condensed{display:block}
+.condensed-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:1rem}
+.ccard{background:var(--panel);border:1px solid var(--b1);border-radius:4px;padding:1.3rem 1.4rem;cursor:pointer;transition:all .22s;position:relative;overflow:hidden}
+.ccard::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--cc);opacity:.7;transition:opacity .2s}
+.ccard:hover{border-color:var(--cc);transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,.4)}
+.ccard:hover::before{opacity:1}
+.ccard-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:.7rem}
+.ccard-ico{font-size:1.4rem}
+.ccard-id{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--cc);opacity:.6}
+.ccard-title{font-size:.92rem;font-weight:700;color:var(--txt);margin-bottom:.3rem;line-height:1.3}
+.ccard-preview{font-size:.78rem;color:var(--txt3);line-height:1.5;font-weight:300;margin-bottom:.8rem}
+.ccard-keys{display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.8rem}
+.ckey{font-family:'JetBrains Mono',monospace;font-size:.58rem;padding:.12rem .45rem;background:rgba(0,0,0,.3);border:1px solid var(--b2);border-radius:1px;color:var(--txt3)}
+.ccard-cta{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--cc);display:flex;align-items:center;gap:.3rem;opacity:.7}
+.ccard:hover .ccard-cta{opacity:1}
+
+/* ── FICHES DÉTAILLÉES ── */
+.detail{display:none}
+.detail.active{display:block}
+.detail-nav{display:flex;align-items:center;gap:.8rem;margin-bottom:1.5rem;flex-wrap:wrap}
+.dnav-btn{font-family:'JetBrains Mono',monospace;font-size:.65rem;padding:.35rem .75rem;border:1px solid var(--b2);border-radius:2px;background:var(--panel);color:var(--txt3);cursor:pointer;transition:all .15s;white-space:nowrap}
+.dnav-btn.active{border-color:var(--cyan);color:var(--cyan);background:rgba(0,212,255,.08)}
+.dnav-btn:hover:not(.active){border-color:var(--b3);color:var(--txt2)}
+
+/* Fiche */
+.fiche{background:var(--panel);border:1px solid var(--b1);border-radius:6px;overflow:hidden;margin-bottom:1.5rem;display:none}
+.fiche.active{display:block;animation:fadeUp .3s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.fiche-header{padding:1.4rem 1.6rem 1.2rem;border-bottom:1px solid var(--b1);position:relative}
+.fiche-header::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--fiche-col,var(--cyan))}
+.fiche-tag{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--fiche-col,var(--cyan));letter-spacing:.12em;margin-bottom:.5rem;display:flex;align-items:center;gap:.4rem}
+.fiche-tag::before{content:'//'}
+.fiche-title{font-size:1.2rem;font-weight:700;color:var(--txt);margin-bottom:.3rem}
+.fiche-sub{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--txt3)}
+.fiche-body{padding:1.6rem}
+
+/* Blocs dans les fiches */
+.fiche-section{margin-bottom:1.6rem}
+.fiche-section:last-child{margin-bottom:0}
+.fs-label{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--fiche-col,var(--cyan));letter-spacing:.15em;text-transform:uppercase;margin-bottom:.8rem;display:flex;align-items:center;gap:.5rem}
+.fs-label::after{content:'';flex:1;height:1px;background:var(--b1)}
+
+/* Définitions */
+.def-list{display:flex;flex-direction:column;gap:.6rem}
+.def-item{display:flex;gap:1rem;padding:.7rem 1rem;background:rgba(0,0,0,.2);border:1px solid var(--b1);border-radius:3px;align-items:flex-start}
+.def-term{font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:500;color:var(--fiche-col,var(--cyan));min-width:120px;flex-shrink:0;padding-top:.1rem}
+.def-val{font-size:.84rem;color:var(--txt2);line-height:1.6;font-weight:300}
+.def-val strong{color:var(--txt);font-weight:500}
+
+/* Formules */
+.formula-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.7rem}
+.formula-box{background:rgba(0,0,0,.3);border:1px solid var(--b2);border-radius:3px;padding:.9rem 1rem;text-align:center}
+.formula-name{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--txt3);margin-bottom:.4rem;letter-spacing:.08em}
+.formula-eq{font-family:'JetBrains Mono',monospace;font-size:.88rem;font-weight:500;color:var(--txt);line-height:1.5}
+.formula-eq .hi{color:var(--fiche-col,var(--cyan))}
+.formula-note{font-size:.7rem;color:var(--txt3);margin-top:.3rem;font-weight:300}
+
+/* Exemples */
+.example-box{background:rgba(0,0,0,.25);border:1px solid var(--b1);border-left:2px solid var(--green);border-radius:0 3px 3px 0;padding:.9rem 1.1rem;margin-bottom:.6rem}
+.example-box .ex-tag{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--green);margin-bottom:.4rem;display:block}
+.example-box p{font-size:.83rem;color:var(--txt2);line-height:1.65;font-weight:300}
+.example-box .ex-result{font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--amber);margin-top:.4rem;display:block}
+
+/* Tableau comparatif */
+.comp-table{width:100%;border-collapse:collapse;font-size:.8rem}
+.comp-table th{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--txt3);font-weight:500;padding:.5rem .8rem;border-bottom:1px solid var(--b2);text-align:left;letter-spacing:.06em}
+.comp-table td{padding:.55rem .8rem;border-bottom:1px solid var(--b1);color:var(--txt2);font-weight:300;line-height:1.4}
+.comp-table tr:last-child td{border-bottom:none}
+.comp-table td:first-child{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--txt);font-weight:500}
+.comp-table tr:hover td{background:rgba(0,212,255,.02)}
+
+/* Points à retenir */
+.retenir-list{display:flex;flex-direction:column;gap:.45rem}
+.retenir-item{display:flex;align-items:flex-start;gap:.65rem;padding:.6rem .9rem;background:rgba(255,179,0,.04);border:1px solid rgba(255,179,0,.12);border-radius:3px;font-size:.82rem;color:var(--txt2);font-weight:300;line-height:1.55}
+.retenir-item::before{content:'!';font-family:'JetBrains Mono',monospace;font-size:.65rem;font-weight:700;color:var(--amber);min-width:18px;height:18px;border:1px solid rgba(255,179,0,.4);border-radius:2px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+
+/* FOOTER */
+.footer{border-top:1px solid var(--b1);padding:1.2rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;max-width:960px;margin:0 auto;position:relative;z-index:1}
+.footer-brand{display:flex;align-items:center;gap:.7rem}
+.f-avatar{width:32px;height:32px;background:var(--panel);border:1px solid var(--cyan);border-radius:2px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:700;color:var(--cyan)}
+.f-name{font-family:'JetBrains Mono',monospace;font-size:.75rem;font-weight:500;color:var(--txt)}
+.f-role{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--txt3)}
+.footer-wa{display:inline-flex;align-items:center;gap:.5rem;font-family:'JetBrains Mono',monospace;font-size:.65rem;color:#25d366;text-decoration:none;padding:.35rem .7rem;border:1px solid rgba(37,211,102,.25);border-radius:2px;transition:all .18s}
+.footer-wa:hover{background:rgba(37,211,102,.06);border-color:rgba(37,211,102,.5)}
+
+@media(max-width:600px){.condensed-grid{grid-template-columns:1fr}.formula-grid{grid-template-columns:1fr}.def-item{flex-direction:column;gap:.3rem}.def-term{min-width:unset}}
+</style>
+</head>
+<body>
+<div class="scanline"></div>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-left">
+    <span class="nav-back" onclick="history.back()">&#8592; Retour</span>
+    <span class="nav-title"><span>ENEAM</span> · Résumé de cours</span>
+  </div>
+  <span class="nav-tag">MODULE_01</span>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">// <span>RESUME_COURS</span> · Réseaux Informatiques · IG2</div>
+  <h1 class="hero-h1">Réseaux<br><em>Informatiques</em></h1>
+  <p class="hero-sub">10 thèmes · Définitions · Formules · Exemples</p>
+  <div class="hero-pills">
+    <span class="hero-pill">LAN/WAN/MAN</span>
+    <span class="hero-pill">Équipements réseau</span>
+    <span class="hero-pill">Adressage IPv4</span>
+    <span class="hero-pill">Sous-réseaux CIDR</span>
+    <span class="hero-pill">Modèle OSI</span>
+    <span class="hero-pill">Protocoles</span>
+    <span class="hero-pill">Sécurité</span>
+    <span class="hero-pill">Topologies</span>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs-bar">
+  <button class="tab active" onclick="switchView('condensed')">⊞ Vue condensée</button>
+  <button class="tab" onclick="switchView('detail')">☰ Fiches détaillées</button>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- ════════════════════════════════
+       VUE CONDENSÉE
+  ════════════════════════════════ -->
+  <div id="v-condensed" class="condensed">
+    <div class="condensed-grid" id="cond-grid"></div>
+  </div>
+
+  <!-- ════════════════════════════════
+       FICHES DÉTAILLÉES
+  ════════════════════════════════ -->
+  <div id="v-detail" class="detail">
+    <div class="detail-nav" id="detail-nav"></div>
+    <div id="fiches-container"></div>
+  </div>
+
+</div>
+
+<footer class="footer">
+  <div class="footer-brand">
+    <div class="f-avatar">M</div>
+    <div><div class="f-name">Miracle L.</div><div class="f-role">// Créateur du contenu</div></div>
+  </div>
+  <a class="footer-wa" href="https://wa.me/2290190821282" target="_blank" rel="noopener">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    +229 01 90 82 12 82
+  </a>
+</footer>
+
+<script>
+/* ════════════════════════════════════════
+   DONNÉES — RÉSEAUX INFORMATIQUES
+════════════════════════════════════════ */
+const THEMES = [
+  {
+    id:'t1', icon:'🌐', color:'#00d4ff', title:'Types de réseaux',
+    subtitle:'LAN · MAN · WAN · PAN',
+    preview:'Classification des réseaux selon leur étendue géographique et leurs usages.',
+    keys:['LAN','MAN','WAN','PAN','Étendue','Débit'],
+    defs:[
+      {t:'LAN', v:'<strong>Local Area Network</strong> — Réseau local limité à un bâtiment ou campus. Haut débit (100 Mbps à 10 Gbps). Exemple : réseau d\'une école.'},
+      {t:'MAN', v:'<strong>Metropolitan Area Network</strong> — Réseau métropolitain couvrant une ville (~50 km). Relie plusieurs LAN. Exemple : réseau d\'une ville.'},
+      {t:'WAN', v:'<strong>Wide Area Network</strong> — Réseau étendu couvrant un pays ou le monde. Débit plus faible. Internet est le WAN mondial.'},
+      {t:'PAN', v:'<strong>Personal Area Network</strong> — Réseau personnel très limité (~10 m). Technologies : Bluetooth, infrarouge. Exemple : smartphone + écouteurs.'},
+    ],
+    formulas:[
+      {name:'Débit théorique', eq:'D = B × log₂(1 + S/N)', note:'Shannon · B=bande passante · S/N=rapport signal/bruit'},
+      {name:'Taux d\'utilisation', eq:'ρ = Débit_utile / Débit_max', note:'En %'},
+    ],
+    examples:[
+      {tag:'EXEMPLE LAN', txt:'Réseau ENEAM : tous les ordinateurs de la salle informatique reliés par câbles Ethernet forment un LAN avec un débit de 100 Mbps.', result:'=> Type : LAN · Étendue : 1 bâtiment'},
+      {tag:'EXEMPLE WAN', txt:'Connexion entre les agences d\'une banque à Cotonou, Porto-Novo et Parakou via des liaisons louées.', result:'=> Type : WAN · Opérateur : fournisseur télécom'},
+    ],
+    retenir:['LAN = local (bâtiment) · MAN = ville · WAN = pays/monde · PAN = personnel','Plus l\'étendue est grande, plus le débit tend à diminuer','Internet est le plus grand WAN existant'],
+  },
+  {
+    id:'t2', icon:'🔌', color:'#00ff9d', title:'Équipements réseau',
+    subtitle:'Hub · Switch · Routeur · Point d\'accès',
+    preview:'Les équipements d\'interconnexion et leurs rôles dans la transmission des données.',
+    keys:['Hub','Switch','Routeur','Passerelle','Pont','Répéteur'],
+    defs:[
+      {t:'Hub (Concentrateur)', v:'Équipement de couche 1 (physique). Diffuse les données reçues vers <strong>tous les ports</strong> sans distinction. Crée des collisions. Obsolète.'},
+      {t:'Switch (Commutateur)', v:'Équipement de couche 2 (liaison). Envoie les données <strong>uniquement au port destinataire</strong> grâce à la table MAC. Pas de collision.'},
+      {t:'Routeur', v:'Équipement de couche 3 (réseau). <strong>Interconnecte des réseaux différents</strong> et choisit le meilleur chemin via les adresses IP et les tables de routage.'},
+      {t:'Point d\'accès (AP)', v:'Permet aux appareils Wi-Fi de se connecter à un réseau filaire. Opère en couche 2. Exemple : box internet.'},
+      {t:'Passerelle (Gateway)', v:'Traduit entre deux protocoles différents. Opère de la couche 4 à 7. Exemple : routeur entre réseau local et Internet.'},
+    ],
+    formulas:[
+      {name:'Nb de collisions Hub', eq:'Domaine_collision = Tous les ports', note:'1 seul domaine de collision'},
+      {name:'Switch — Table MAC', eq:'Port ↔ Adresse_MAC', note:'1 domaine de collision par port'},
+    ],
+    examples:[
+      {tag:'SWITCH vs HUB', txt:'Dans un réseau de 4 PC : avec un Hub, si PC1 envoie à PC3, PC2 et PC4 reçoivent aussi. Avec un Switch, seul PC3 reçoit.', result:'=> Switch : plus efficace, pas de collision'},
+      {tag:'ROUTEUR', txt:'Le routeur de l\'ENEAM connecte le réseau interne (192.168.1.0/24) à Internet via le fournisseur d\'accès.', result:'=> Routeur : interconnexion de réseaux IP différents'},
+    ],
+    retenir:['Hub = diffusion vers tous (couche 1) · Switch = adresse précise (couche 2) · Routeur = entre réseaux (couche 3)','Le switch maintient une table MAC : Port ↔ Adresse MAC','Le routeur utilise les adresses IP pour router les paquets'],
+  },
+  {
+    id:'t3', icon:'🔗', color:'#ffb300', title:'Câbles et connexions',
+    subtitle:'RJ45 · Fibre optique · Sans fil',
+    preview:'Les supports de transmission physiques : caractéristiques, câblage et normes.',
+    keys:['RJ45','UTP','STP','Fibre','Cat5e','Cat6'],
+    defs:[
+      {t:'Câble à paires torsadées UTP', v:'Unshielded Twisted Pair. 4 paires de fils torsadés. <strong>Non blindé</strong>, sensible aux interférences. Connecteur RJ45. Standard le plus répandu.'},
+      {t:'Câble à paires torsadées STP', v:'Shielded Twisted Pair. Paires <strong>blindées</strong>. Moins sensible aux interférences électromagnétiques. Plus cher que UTP.'},
+      {t:'Fibre optique', v:'Transmet des données via des <strong>signaux lumineux</strong>. Très haut débit, longue distance, immunité aux perturbations. Monomode et multimode.'},
+      {t:'Câble Cat5e', v:'Supporte 100 Mbps à 100 MHz. Longueur max 100m. Usage : réseau 100Base-TX.'},
+      {t:'Câble Cat6', v:'Supporte 1 Gbps à 250 MHz. Longueur max 100m (55m pour 10G). Usage : Gigabit Ethernet.'},
+    ],
+    formulas:[
+      {name:'Longueur max segment', eq:'L_max = 100 m (cuivre)', note:'Câbles Ethernet UTP/STP'},
+      {name:'Paires câble droite', eq:'1-1 · 2-2 · 3-3 · 6-6', note:'PC → Switch (câble droit)'},
+      {name:'Câble croisé', eq:'1↔3 · 2↔6', note:'PC → PC (câble croisé)'},
+    ],
+    examples:[
+      {tag:'CÂBLAGE RJ45 — Norme T568B', txt:'Ordre des fils : Blanc-Orange, Orange, Blanc-Vert, Bleu, Blanc-Bleu, Vert, Blanc-Marron, Marron.', result:'=> 8 fils · 4 paires · Connecteur RJ45'},
+      {tag:'CHOIX DU CÂBLE', txt:'Pour connecter un PC à un switch, utiliser un câble droit. Pour connecter deux PC directement, utiliser un câble croisé.', result:'=> Câble droit : équipements différents · Croisé : mêmes équipements'},
+    ],
+    retenir:['Câble droit : équipements différents (PC–Switch, Switch–Routeur)','Câble croisé : mêmes équipements (PC–PC, Switch–Switch)','Longueur max câble Ethernet : 100 mètres','Fibre optique : immunité aux perturbations + haut débit + longue distance'],
+  },
+  {
+    id:'t4', icon:'📋', color:'#a78bfa', title:'Adressage IPv4',
+    subtitle:'Classes · Masques · Notation CIDR',
+    preview:'Comprendre l\'adressage IP version 4 : structure, classes et masques de sous-réseaux.',
+    keys:['Classe A','Classe B','Classe C','Masque','CIDR','Adresse réseau'],
+    defs:[
+      {t:'Adresse IPv4', v:'Nombre de <strong>32 bits</strong> écrit en 4 octets décimaux séparés par des points. Identifie de façon unique un hôte sur un réseau IP. Exemple : 192.168.1.10'},
+      {t:'Partie réseau', v:'Bits de poids fort de l\'adresse IP identifiant le <strong>réseau</strong>. Déterminée par le masque. Exemple avec /24 : 192.168.1.'},
+      {t:'Partie hôte', v:'Bits restants identifiant l\'<strong>hôte</strong> dans le réseau. Exemple avec /24 : dernier octet (.10).'},
+      {t:'Masque de sous-réseau', v:'Valeur 32 bits indiquant la frontière réseau/hôte. Les 1 désignent la partie réseau. Exemple : 255.255.255.0 = /24.'},
+      {t:'Adresse réseau', v:'Adresse IP avec la partie hôte à <strong>000...0</strong>. Identifie le réseau. Non attribuable à un hôte.'},
+      {t:'Adresse de broadcast', v:'Adresse IP avec la partie hôte à <strong>111...1</strong>. Envoi à tous les hôtes du réseau. Non attribuable à un hôte.'},
+    ],
+    formulas:[
+      {name:'Classe A', eq:'1.0.0.0 – 126.255.255.255', note:'/8 · Masque : 255.0.0.0'},
+      {name:'Classe B', eq:'128.0.0.0 – 191.255.255.255', note:'/16 · Masque : 255.255.0.0'},
+      {name:'Classe C', eq:'192.0.0.0 – 223.255.255.255', note:'/24 · Masque : 255.255.255.0'},
+      {name:'Nb d\'hôtes', eq:'2ⁿ − 2', note:'n = bits hôte · −2 : réseau et broadcast'},
+    ],
+    examples:[
+      {tag:'EXEMPLE CLASSE C', txt:'Adresse : 192.168.1.0/24. Masque : 255.255.255.0. Bits hôte : 8. Nb hôtes = 2⁸−2 = 254.', result:'=> Réseau: 192.168.1.0 · Broadcast: 192.168.1.255 · Hôtes: .1 à .254'},
+      {tag:'RECONNAÎTRE LA CLASSE', txt:'203.45.12.5 → premier octet = 203, compris entre 192 et 223.', result:'=> Classe C · Masque par défaut : 255.255.255.0'},
+    ],
+    retenir:['32 bits = 4 octets · A(.1–.126) · B(.128–.191) · C(.192–.223)','Nb hôtes utilisables = 2ⁿ − 2 (n = bits hôte)','Adresse réseau : hôtes = 0 · Broadcast : hôtes = 255 (pour /24)','127.x.x.x = loopback (test local) · non routé'],
+  },
+  {
+    id:'t5', icon:'🔢', color:'#00e5cc', title:'Sous-réseaux CIDR',
+    subtitle:'Découpage · VLSM · Calculs',
+    preview:'Diviser un réseau en sous-réseaux avec la notation CIDR et calculer les plages d\'adresses.',
+    keys:['CIDR','VLSM','Sous-réseau','Préfixe','Supernetting'],
+    defs:[
+      {t:'CIDR', v:'<strong>Classless Inter-Domain Routing</strong>. Notation avec préfixe /n indiquant le nombre de bits réseau. Remplace les classes. Ex : 192.168.1.0/26'},
+      {t:'Découpage en sous-réseaux', v:'Division d\'un réseau en plusieurs sous-réseaux plus petits en empruntant des bits à la partie hôte pour agrandir la partie réseau.'},
+      {t:'VLSM', v:'<strong>Variable Length Subnet Mask</strong>. Permet des sous-réseaux de tailles différentes dans le même espace d\'adressage. Optimise l\'utilisation des IP.'},
+      {t:'Pas du sous-réseau', v:'Intervalle entre deux sous-réseaux consécutifs. Égal à 2ⁿ (n = bits hôte restants). Exemple : /26 → pas = 64.'},
+    ],
+    formulas:[
+      {name:'Nb de sous-réseaux', eq:'2ˢ', note:'s = bits empruntés à la partie hôte'},
+      {name:'Nb d\'hôtes / sous-rés.', eq:'2ʰ − 2', note:'h = bits hôte restants'},
+      {name:'Pas du sous-réseau', eq:'256 − valeur_masque_octet', note:'Ex : masque .192 → pas = 64'},
+    ],
+    examples:[
+      {tag:'DÉCOUPAGE /26', txt:'Réseau 192.168.1.0/24, découpé en /26. Bits empruntés : 2. Sous-réseaux : 2²=4. Hôtes : 2⁶−2=62.', result:'SR0: .0–.63 · SR1: .64–.127 · SR2: .128–.191 · SR3: .192–.255'},
+      {tag:'CALCUL RAPIDE', txt:'IP: 172.16.5.130/27. Octets masque: 255.255.255.224. Pas=32. SR: 172.16.5.128/27. Hôtes: .129–.158.', result:'=> Réseau: .128 · Broadcast: .159 · Hôtes utilisables: .129 à .158'},
+    ],
+    retenir:['/24 = 256 adresses · /25 = 128 · /26 = 64 · /27 = 32 · /28 = 16 · /29 = 8 · /30 = 4','Pour trouver le réseau : IP ET Masque (AND binaire)','Toujours vérifier : adresse_réseau + pas − 1 = broadcast'],
+  },
+  {
+    id:'t6', icon:'🗂️', color:'#ff4757', title:'Modèles OSI & TCP/IP',
+    subtitle:'Couches · Encapsulation · Rôles',
+    preview:'Les modèles de référence en couches pour comprendre la communication réseau.',
+    keys:['OSI','TCP/IP','Couches','Encapsulation','PDU','Protocoles'],
+    defs:[
+      {t:'Modèle OSI', v:'Modèle de référence à <strong>7 couches</strong> (ISO). Décrit comment les données transitent d\'une application à un support physique. Chaque couche a un rôle précis.'},
+      {t:'Modèle TCP/IP', v:'Modèle pratique à <strong>4 couches</strong> utilisé sur Internet. Plus simple que OSI. Les couches : Accès réseau, Internet, Transport, Application.'},
+      {t:'Encapsulation', v:'Chaque couche <strong>ajoute un en-tête</strong> aux données de la couche supérieure avant transmission. La désencapsulation retire les en-têtes à la réception.'},
+    ],
+    formulas:[
+      {name:'Couche 7 OSI', eq:'Application', note:'HTTP, FTP, SMTP, DNS'},
+      {name:'Couche 6 OSI', eq:'Présentation', note:'Chiffrement, compression'},
+      {name:'Couche 5 OSI', eq:'Session', note:'Établissement de sessions'},
+      {name:'Couche 4 OSI', eq:'Transport', note:'TCP, UDP · Segments'},
+      {name:'Couche 3 OSI', eq:'Réseau', note:'IP · Paquets · Routeur'},
+      {name:'Couche 2 OSI', eq:'Liaison de données', note:'Ethernet · Trames · Switch'},
+      {name:'Couche 1 OSI', eq:'Physique', note:'Bits · Hub · Câbles'},
+    ],
+    examples:[
+      {tag:'ENCAPSULATION', txt:'Lors d\'un envoi HTTP : données → segment TCP (c.4) → paquet IP (c.3) → trame Ethernet (c.2) → bits (c.1).', result:'=> Chaque couche ajoute son en-tête (header)'},
+      {tag:'CORRESPONDANCE OSI/TCP-IP', txt:'Application+Présentation+Session OSI = Application TCP/IP. Transport OSI = Transport TCP/IP. Réseau OSI = Internet TCP/IP. Liaison+Physique OSI = Accès réseau TCP/IP.', result:'=> OSI=7 couches · TCP/IP=4 couches'},
+    ],
+    retenir:['Mémo couches OSI (bas→haut) : Physique · Liaison · Réseau · Transport · Session · Présentation · Application','Routeur = couche 3 · Switch = couche 2 · Hub = couche 1','PDU par couche : bits (1) · trames (2) · paquets (3) · segments (4)'],
+  },
+  {
+    id:'t7', icon:'📡', color:'#00d4ff', title:'Protocoles réseau',
+    subtitle:'TCP · UDP · DNS · DHCP · HTTP',
+    preview:'Les protocoles essentiels de communication dans les réseaux modernes.',
+    keys:['TCP','UDP','DNS','DHCP','HTTP','HTTPS','FTP','ICMP'],
+    defs:[
+      {t:'TCP', v:'<strong>Transmission Control Protocol</strong>. Protocole orienté connexion (couche 4). Garantit la livraison dans l\'ordre, sans perte. Utilisé pour HTTP, FTP, email.'},
+      {t:'UDP', v:'<strong>User Datagram Protocol</strong>. Protocole sans connexion (couche 4). Rapide mais sans garantie de livraison. Utilisé pour streaming, DNS, VoIP.'},
+      {t:'DNS', v:'<strong>Domain Name System</strong>. Traduit les noms de domaine en adresses IP. Port 53 UDP/TCP. Exemple : www.eneam.bj → 197.155.x.x'},
+      {t:'DHCP', v:'<strong>Dynamic Host Configuration Protocol</strong>. Attribue automatiquement des adresses IP aux hôtes. Port 67/68 UDP. Évite la configuration manuelle.'},
+      {t:'HTTP/HTTPS', v:'<strong>HyperText Transfer Protocol</strong>. Protocole du Web. Port 80 (HTTP) et 443 (HTTPS). HTTPS = HTTP chiffré avec TLS/SSL.'},
+      {t:'ICMP', v:'<strong>Internet Control Message Protocol</strong>. Protocole de diagnostic réseau. Utilisé par ping et traceroute. Pas de port spécifique.'},
+    ],
+    formulas:[
+      {name:'TCP', eq:'Port HTTP=80 · HTTPS=443', note:'FTP=21 · SSH=22 · SMTP=25'},
+      {name:'UDP', eq:'Port DNS=53 · DHCP=67/68', note:'SNMP=161 · NTP=123'},
+      {name:'3-way handshake', eq:'SYN → SYN-ACK → ACK', note:'Établissement connexion TCP'},
+    ],
+    examples:[
+      {tag:'DNS EN ACTION', txt:'Vous tapez "google.com". Votre PC demande au serveur DNS : "Quelle est l\'IP de google.com ?" Le DNS répond : "142.250.74.78". Votre PC s\'y connecte.', result:'=> DNS = annuaire téléphonique d\'Internet'},
+      {tag:'TCP vs UDP', txt:'Télécharger un fichier = TCP (chaque octet doit arriver). Regarder une vidéo en streaming = UDP (quelques pertes tolérables, fluidité prioritaire).', result:'=> TCP=fiabilité · UDP=vitesse'},
+    ],
+    retenir:['TCP = fiable + ordonné · UDP = rapide + léger','3-way handshake TCP : SYN → SYN-ACK → ACK','DNS = port 53 · HTTP = port 80 · HTTPS = port 443 · FTP = port 21','DHCP attribue : adresse IP + masque + passerelle + DNS'],
+  },
+  {
+    id:'t8', icon:'🔒', color:'#a78bfa', title:'Sécurité réseau',
+    subtitle:'Firewall · VPN · Chiffrement · Menaces',
+    preview:'Les mécanismes de protection des réseaux contre les menaces et intrusions.',
+    keys:['Firewall','VPN','DMZ','IDS/IPS','Chiffrement','VLAN'],
+    defs:[
+      {t:'Firewall (Pare-feu)', v:'Équipement ou logiciel qui <strong>filtre les paquets</strong> entrants et sortants selon des règles définies. Bloque les connexions non autorisées.'},
+      {t:'VPN', v:'<strong>Virtual Private Network</strong>. Tunnel chiffré à travers un réseau public. Permet de se connecter à distance de façon sécurisée.'},
+      {t:'DMZ', v:'<strong>DeMilitarized Zone</strong>. Zone réseau intermédiaire accessible depuis l\'extérieur. Contient les serveurs publics (Web, Mail). Isolée du réseau interne.'},
+      {t:'IDS / IPS', v:'<strong>Intrusion Detection/Prevention System</strong>. Surveille le trafic pour détecter (IDS) ou bloquer (IPS) les tentatives d\'intrusion.'},
+      {t:'VLAN', v:'<strong>Virtual LAN</strong>. Réseau local virtuel permettant de segmenter logiquement un réseau physique. Améliore la sécurité et les performances.'},
+    ],
+    formulas:[
+      {name:'Chiffrement symétrique', eq:'E(K, P) = C  et  D(K, C) = P', note:'Même clé K pour chiffrer et déchiffrer'},
+      {name:'Chiffrement asymétrique', eq:'E(Kpub, P) = C  ·  D(Kpriv, C) = P', note:'RSA, clés publique/privée'},
+      {name:'Algorithmes courants', eq:'AES, DES, RSA, TLS', note:'AES = standard actuel'},
+    ],
+    examples:[
+      {tag:'ARCHITECTURE SÉCURISÉE', txt:'Internet → Firewall ext. → DMZ (serveur web) → Firewall int. → Réseau interne (PCs, serveurs internes).', result:'=> DMZ protège le réseau interne même si le serveur web est compromis'},
+      {tag:'VPN EN PRATIQUE', txt:'Un employé en télétravail se connecte au VPN de l\'entreprise. Tout son trafic est chiffré et passe par le serveur VPN interne comme s\'il était au bureau.', result:'=> VPN = tunnel sécurisé sur Internet'},
+    ],
+    retenir:['Firewall = filtre les connexions · VPN = tunnel chiffré · DMZ = zone publique isolée','IDS détecte, IPS bloque les intrusions','VLAN segmente logiquement le réseau sans câblage supplémentaire','Chiffrement : symétrique (1 clé) · asymétrique (clé pub/priv)'],
+  },
+  {
+    id:'t9', icon:'🔄', color:'#00ff9d', title:'Topologies réseau',
+    subtitle:'Bus · Étoile · Anneau · Maillée',
+    preview:'Les différentes architectures de connexion entre équipements d\'un réseau.',
+    keys:['Étoile','Bus','Anneau','Maillée','Arbre','Hybride'],
+    defs:[
+      {t:'Topologie en étoile', v:'Tous les équipements sont reliés à un <strong>équipement central</strong> (switch ou hub). Panne d\'un hôte n\'affecte pas les autres. La plus répandue aujourd\'hui.'},
+      {t:'Topologie en bus', v:'Tous les équipements partagent un <strong>câble commun</strong> (bus). Simple mais une panne du bus affecte tout le réseau. Utilisée dans 10Base-2 Ethernet.'},
+      {t:'Topologie en anneau', v:'Équipements reliés en <strong>boucle fermée</strong>. Les données circulent dans un sens (ou deux). Panne d\'un nœud peut bloquer le réseau.'},
+      {t:'Topologie maillée', v:'Chaque équipement est relié à <strong>plusieurs autres</strong>. Très redondante et fiable. Coûteuse. Utilisée dans les WAN critiques.'},
+      {t:'Topologie en arbre', v:'Extension de la topologie étoile. Hiérarchique. Combinaison de bus et d\'étoile. Utilisée dans les réseaux d\'entreprise.'},
+    ],
+    formulas:[
+      {name:'Étoile — Nb de liens', eq:'L = N − 1', note:'N = nb d\'hôtes'},
+      {name:'Maillée complète', eq:'L = N(N−1) / 2', note:'N = nb d\'hôtes'},
+      {name:'Anneau — Nb de liens', eq:'L = N', note:'N = nb d\'hôtes'},
+    ],
+    examples:[
+      {tag:'RÉSEAU ENEAM (étoile)', txt:'10 PC reliés à un switch central. Si un PC tombe en panne, les 9 autres continuent de fonctionner.', result:'=> Étoile : panne isolée · switch = point central'},
+      {tag:'CALCUL TOPOLOGIE MAILLÉE', txt:'5 routeurs en topologie maillée complète. Nombre de liens = 5×4/2 = 10 liens.', result:'=> 10 câbles nécessaires pour 5 nœuds'},
+    ],
+    retenir:['Étoile = plus courante · fiable · coût modéré (câbles + switch central)','Bus = simple mais vulnérable · anneau = flux ordonné','Maillée complète = nb liens = N(N-1)/2','Panne point central en étoile = réseau entier hors service'],
+  },
+  {
+    id:'t10', icon:'🌍', color:'#ffb300', title:'Internet & Services web',
+    subtitle:'URL · HTTP · DNS · Architecture client-serveur',
+    preview:'Fonctionnement d\'Internet, des services web et de l\'architecture client-serveur.',
+    keys:['URL','HTTP','Client-Serveur','P2P','NAT','DHCP','Proxy'],
+    defs:[
+      {t:'Architecture client-serveur', v:'Le <strong>client</strong> envoie des requêtes, le <strong>serveur</strong> répond. Centralisé. Exemple : navigateur (client) + serveur web.'},
+      {t:'Architecture P2P', v:'<strong>Peer-to-Peer</strong>. Chaque nœud est à la fois client et serveur. Décentralisé. Exemple : BitTorrent.'},
+      {t:'NAT', v:'<strong>Network Address Translation</strong>. Traduit les adresses IP privées en adresse publique pour accéder à Internet. Permet de partager une IP publique.'},
+      {t:'URL', v:'<strong>Uniform Resource Locator</strong>. Adresse d\'une ressource web. Format : protocole://nom-de-domaine:port/chemin. Exemple : https://eneam.bj/cours'},
+      {t:'Proxy', v:'Serveur intermédiaire entre le client et Internet. Peut filtrer le trafic, mettre en cache des contenus et anonymiser l\'utilisateur.'},
+    ],
+    formulas:[
+      {name:'Structure URL', eq:'protocole://domaine:port/chemin', note:'Ex: https://site.bj:443/page'},
+      {name:'Adresses privées', eq:'10.0.0.0/8 · 172.16.0.0/12 · 192.168.0.0/16', note:'Non routées sur Internet'},
+      {name:'NAT', eq:'IP_privée:port ↔ IP_publique:port', note:'Table de traduction NAT'},
+    ],
+    examples:[
+      {tag:'URL ANALYSÉE', txt:'https://www.eneam.bj:443/inscription. Protocole=HTTPS · Domaine=www.eneam.bj · Port=443 · Chemin=/inscription', result:'=> Connexion sécurisée TLS sur port 443'},
+      {tag:'NAT EN ACTION', txt:'3 PCs (192.168.1.1, .2, .3) partagent l\'IP publique 41.20.5.10 via NAT. Le routeur maintient une table port:IP_privée.', result:'=> 1 IP publique pour plusieurs hôtes privés'},
+    ],
+    retenir:['Client-serveur = centralisé · P2P = décentralisé','NAT permet de partager une IP publique entre plusieurs hôtes','Adresses privées (RFC 1918) : 10.x, 172.16–31.x, 192.168.x','URL : protocole + domaine + port + chemin + paramètres'],
+  },
+];
+
+/* ════════════════════════════════════════
+   RENDU
+════════════════════════════════════════ */
+let currentFiche = 0;
+
+function buildCondensed(){
+  const grid = document.getElementById('cond-grid');
+  grid.innerHTML = '';
+  THEMES.forEach((th,i)=>{
+    const c = document.createElement('div');
+    c.className='ccard';
+    c.style.setProperty('--cc',th.color);
+    c.innerHTML=`
+      <div class="ccard-head">
+        <span class="ccard-ico">${th.icon}</span>
+        <span class="ccard-id">T_${String(i+1).padStart(2,'0')}</span>
+      </div>
+      <div class="ccard-title">${th.title}</div>
+      <div class="ccard-preview">${th.preview}</div>
+      <div class="ccard-keys">${th.keys.map(k=>`<span class="ckey">${k}</span>`).join('')}</div>
+      <div class="ccard-cta">&#8594; Voir la fiche détaillée</div>`;
+    c.addEventListener('click',()=>{
+      switchView('detail');
+      showFiche(i);
+    });
+    grid.appendChild(c);
+  });
+}
+
+function buildDetailNav(){
+  const nav = document.getElementById('detail-nav');
+  nav.innerHTML = '';
+  THEMES.forEach((th,i)=>{
+    const b=document.createElement('button');
+    b.className='dnav-btn'+(i===0?' active':'');
+    b.textContent=`${th.icon} ${th.title}`;
+    b.dataset.index=i;
+    b.addEventListener('click',()=>showFiche(i));
+    nav.appendChild(b);
+  });
+}
+
+function buildFiches(){
+  const container=document.getElementById('fiches-container');
+  container.innerHTML='';
+  THEMES.forEach((th,i)=>{
+    const f=document.createElement('div');
+    f.className='fiche'+(i===0?' active':'');
+    f.id=`fiche-${i}`;
+    f.style.setProperty('--fiche-col',th.color);
+
+    const defsHTML=th.defs.map(d=>`
+      <div class="def-item">
+        <span class="def-term">${d.t}</span>
+        <span class="def-val">${d.v}</span>
+      </div>`).join('');
+
+    const formulasHTML=th.formulas.map(fm=>`
+      <div class="formula-box">
+        <div class="formula-name">${fm.name}</div>
+        <div class="formula-eq">${fm.eq}</div>
+        ${fm.note?`<div class="formula-note">${fm.note}</div>`:''}
+      </div>`).join('');
+
+    const examplesHTML=th.examples.map(ex=>`
+      <div class="example-box">
+        <span class="ex-tag">// ${ex.tag}</span>
+        <p>${ex.txt}</p>
+        <span class="ex-result">${ex.result}</span>
+      </div>`).join('');
+
+    const retenirHTML=th.retenir.map(r=>`<div class="retenir-item">${r}</div>`).join('');
+
+    f.innerHTML=`
+      <div class="fiche-header">
+        <div class="fiche-tag">${th.subtitle}</div>
+        <div class="fiche-title">${th.icon} ${th.title}</div>
+        <div class="fiche-sub">${th.defs.length} définitions · ${th.formulas.length} formules · ${th.examples.length} exemples</div>
+      </div>
+      <div class="fiche-body">
+        <div class="fiche-section">
+          <div class="fs-label">DÉFINITIONS</div>
+          <div class="def-list">${defsHTML}</div>
+        </div>
+        <div class="fiche-section">
+          <div class="fs-label">FORMULES CLÉS</div>
+          <div class="formula-grid">${formulasHTML}</div>
+        </div>
+        <div class="fiche-section">
+          <div class="fs-label">EXEMPLES</div>
+          ${examplesHTML}
+        </div>
+        <div class="fiche-section">
+          <div class="fs-label">POINTS À RETENIR</div>
+          <div class="retenir-list">${retenirHTML}</div>
+        </div>
+      </div>`;
+    container.appendChild(f);
+  });
+}
+
+function showFiche(idx){
+  currentFiche=idx;
+  document.querySelectorAll('.fiche').forEach((f,i)=>f.classList.toggle('active',i===idx));
+  document.querySelectorAll('.dnav-btn').forEach((b,i)=>b.classList.toggle('active',i===idx));
+  document.getElementById(`fiche-${idx}`).scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function switchView(view){
+  const isDetail = view==='detail';
+  document.getElementById('v-condensed').style.display=isDetail?'none':'block';
+  document.getElementById('v-detail').style.display=isDetail?'block':'none';
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab')[isDetail?1:0].classList.add('active');
+}
+
+// Init
+buildCondensed();
+buildDetailNav();
+buildFiches();
+</script>
+</body>
+</html>
