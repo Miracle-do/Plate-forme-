@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QCM · Bases de Données · ENEAM</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Outfit:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#050810;--black:#070b0f;--panel:#0d1520;--panel2:#111e2e;
+  --b1:#162030;--b2:#1e2d40;--b3:#243446;
+  --cyan:#00d4ff;--green:#00ff9d;--amber:#ffb300;
+  --red:#ff4757;--purple:#a78bfa;--orange:#ff6b35;
+  --txt:#c8d6e0;--txt2:#7a9ab0;--txt3:#3d5568;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--void);color:var(--txt);font-family:'Outfit',sans-serif;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(255,107,53,.015) 1px,transparent 1px),linear-gradient(90deg,rgba(255,107,53,.015) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+body::after{content:'';position:fixed;inset:0;background-image:radial-gradient(circle,rgba(255,107,53,.04) 1px,transparent 1px);background-size:40px 40px;background-position:20px 20px;pointer-events:none;z-index:0}
+
+@keyframes scan{0%{transform:translateY(-100vh)}100%{transform:translateY(100vh)}}
+.scanline{position:fixed;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(255,107,53,.2),rgba(255,179,0,.2),transparent);animation:scan 9s linear infinite;pointer-events:none;z-index:999}
+
+.root{max-width:820px;margin:0 auto;padding:0 1.4rem 6rem;position:relative;z-index:1}
+
+/* NAV */
+.nav{display:flex;align-items:center;justify-content:space-between;padding:.9rem 0;border-bottom:1px solid var(--b1);margin-bottom:2.5rem;position:sticky;top:0;background:rgba(5,8,16,.92);backdrop-filter:blur(12px);z-index:40;gap:1rem;flex-wrap:wrap}
+.nav-back{display:flex;align-items:center;gap:.5rem;font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--txt2);text-decoration:none;padding:.3rem .7rem;border:1px solid var(--b2);border-radius:2px;transition:all .2s}
+.nav-back:hover{border-color:var(--orange);color:var(--orange)}
+.nav-title{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--txt3)}
+.nav-title span{color:var(--orange)}
+.nav-tag{font-family:'JetBrains Mono',monospace;font-size:.6rem;padding:.2rem .6rem;border:1px solid rgba(255,107,53,.3);border-radius:2px;color:var(--orange);background:rgba(255,107,53,.08)}
+
+/* HEADER */
+@keyframes slideUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.hdr{padding:2rem 0 2.5rem;text-align:center}
+.hdr-topbar{display:flex;align-items:center;justify-content:center;gap:.5rem;margin-bottom:1.5rem;animation:slideUp .5s ease .1s both}
+.dot{width:6px;height:6px;border-radius:50%}
+.dot-o{background:var(--orange);box-shadow:0 0 8px var(--orange)}
+.dot-a{background:var(--amber);box-shadow:0 0 8px var(--amber)}
+.dot-g{background:var(--green);box-shadow:0 0 8px var(--green)}
+.hdr-topbar span{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--txt3)}
+.hdr-title{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:clamp(1.6rem,5vw,2.8rem);line-height:1.15;letter-spacing:-.02em;margin-bottom:.6rem;animation:slideUp .5s ease .2s both}
+.hdr-title .t1{color:var(--txt)}
+.hdr-title .t2{color:var(--orange);text-shadow:0 0 30px rgba(255,107,53,.4)}
+.hdr-title .t2::before{content:'> ';color:var(--txt3)}
+.hdr-sub{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--txt2);animation:slideUp .5s ease .3s both}
+.hdr-sub .v{color:var(--amber)}
+.statusbar{display:flex;align-items:center;gap:1.2rem;margin-top:1.5rem;padding:.55rem 1rem;background:var(--panel);border:1px solid var(--b1);border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--txt3);flex-wrap:wrap;animation:slideUp .5s ease .4s both}
+.stag{padding:.14rem .5rem;border-radius:2px;font-weight:500;border:1px solid}
+.stag-o{background:rgba(255,107,53,.1);color:var(--orange);border-color:rgba(255,107,53,.3)}
+.stag-a{background:rgba(255,179,0,.08);color:var(--amber);border-color:rgba(255,179,0,.2)}
+.stag-g{background:rgba(0,255,157,.08);color:var(--green);border-color:rgba(0,255,157,.2)}
+
+/* SCREENS */
+.screen{display:none}
+.screen.active{display:block;animation:boot .35s ease}
+@keyframes boot{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* HOME */
+.home-banner{background:var(--panel);border:1px solid var(--b1);border-left:3px solid var(--orange);padding:.9rem 1.2rem;margin-bottom:1.8rem;font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--txt2);line-height:1.7;border-radius:0 3px 3px 0}
+.home-banner .prompt{color:var(--amber);font-weight:500;display:block;margin-bottom:.3rem}
+.home-banner b{color:var(--orange)}
+
+.th-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(225px,1fr));gap:.8rem;margin-bottom:1.2rem}
+.th-card{background:var(--panel);border:1px solid var(--b1);border-radius:3px;padding:1.2rem 1.3rem;cursor:pointer;transition:all .2s ease;position:relative;overflow:hidden}
+.th-card::after{content:'';position:absolute;top:0;right:0;width:0;height:0;border-left:12px solid transparent;border-top:12px solid var(--tc);opacity:.4;transition:opacity .2s}
+.th-card:hover{border-color:var(--tc);background:var(--panel2);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.th-card:hover::after{opacity:1}
+.th-card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:.7rem}
+.th-ico{font-size:1.2rem;line-height:1}
+.th-id{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--tc);opacity:.6}
+.th-name{font-size:.88rem;font-weight:600;color:var(--txt);margin-bottom:.25rem;line-height:1.3}
+.th-meta{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--txt3)}
+.th-prog{height:2px;background:var(--b2);border-radius:99px;margin-top:.8rem;overflow:hidden}
+.th-prog-fill{height:100%;background:var(--tc);border-radius:99px;box-shadow:0 0 6px var(--tc);transition:width .7s ease}
+
+.btn-launch{width:100%;padding:.9rem 1.4rem;background:transparent;border:1px solid var(--orange);border-radius:3px;color:var(--orange);font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:500;cursor:pointer;transition:all .2s ease;letter-spacing:.08em;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:.6rem}
+.btn-launch::before{content:'> ';opacity:.5}
+.btn-launch:hover{background:rgba(255,107,53,.08);box-shadow:0 0 20px rgba(255,107,53,.15);text-shadow:0 0 10px var(--orange)}
+
+/* QCM */
+.q-topbar{display:flex;align-items:center;gap:1rem;padding:.8rem 0;margin-bottom:.9rem;flex-wrap:wrap;border-bottom:1px solid var(--b1)}
+.q-badge{font-family:'JetBrains Mono',monospace;font-size:.62rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;padding:.22rem .65rem;border-radius:2px;border:1px solid;white-space:nowrap}
+.ptrack{flex:1;min-width:80px;height:2px;background:var(--b2);border-radius:99px;overflow:hidden}
+.pfill{height:100%;background:linear-gradient(90deg,var(--orange),var(--amber));box-shadow:0 0 8px var(--orange);border-radius:99px;transition:width .5s cubic-bezier(.4,0,.2,1);width:0%}
+.q-frac{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--txt3)}
+
+.srow{display:flex;gap:.7rem;margin-bottom:1.2rem}
+.stile{flex:1;background:var(--panel);border:1px solid var(--b1);border-radius:3px;padding:.65rem .8rem;text-align:center;position:relative;overflow:hidden}
+.stile::before{content:'';position:absolute;bottom:0;left:0;right:0;height:2px}
+.stile.ok::before{background:var(--green);box-shadow:0 0 6px var(--green)}
+.stile.bad::before{background:var(--red);box-shadow:0 0 6px var(--red)}
+.stile.rem::before{background:var(--orange);box-shadow:0 0 6px var(--orange)}
+.stile .num{font-family:'JetBrains Mono',monospace;font-size:1.5rem;font-weight:700;line-height:1;margin-bottom:.2rem}
+.stile.ok .num{color:var(--green);text-shadow:0 0 12px rgba(0,255,157,.4)}
+.stile.bad .num{color:var(--red);text-shadow:0 0 12px rgba(255,71,87,.4)}
+.stile.rem .num{color:var(--orange);text-shadow:0 0 12px rgba(255,107,53,.4)}
+.stile .lbl{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--txt3);text-transform:uppercase;letter-spacing:.1em}
+
+.qcard{background:var(--panel);border:1px solid var(--b1);border-radius:3px;padding:1.8rem 2rem;margin-bottom:1rem;position:relative;overflow:hidden;animation:boot .3s ease}
+.qcard::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,var(--orange),transparent 60%);opacity:.6}
+.qcard-corner{position:absolute;top:8px;right:12px;font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--txt3);letter-spacing:.1em}
+.q-label{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--orange);letter-spacing:.15em;text-transform:uppercase;margin-bottom:.8rem;display:flex;align-items:center;gap:.5rem}
+.q-label::before{content:'//';color:var(--txt3)}
+.q-text{font-size:1rem;font-weight:500;line-height:1.65;color:var(--txt);margin-bottom:1.3rem;font-family:'Outfit',sans-serif}
+
+.q-illo{margin-bottom:1.3rem;border:1px solid var(--b1);border-radius:3px;background:var(--void);display:flex;justify-content:center;align-items:center;padding:.6rem;overflow:hidden}
+.q-illo svg{max-width:100%;height:auto;display:block}
+
+.opts{display:flex;flex-direction:column;gap:.55rem}
+.opt{display:flex;align-items:flex-start;gap:.8rem;padding:.8rem 1rem;border:1px solid var(--b2);border-radius:3px;cursor:pointer;font-size:.88rem;color:var(--txt2);background:var(--void);transition:all .15s ease;text-align:left;font-family:'Outfit',sans-serif;font-weight:400;line-height:1.5;position:relative;overflow:hidden}
+.opt::before{content:'';position:absolute;left:0;top:0;bottom:0;width:0;background:rgba(255,107,53,.07);transition:width .2s ease}
+.opt:hover:not(:disabled){border-color:var(--orange);color:var(--txt)}
+.opt:hover:not(:disabled)::before{width:100%}
+.opt-key{font-family:'JetBrains Mono',monospace;font-size:.65rem;min-width:22px;height:22px;border-radius:2px;border:1px solid var(--b3);display:flex;align-items:center;justify-content:center;color:var(--txt3);flex-shrink:0;margin-top:1px;transition:all .15s;background:var(--panel);position:relative;z-index:1}
+.opt:hover:not(:disabled) .opt-key{border-color:var(--orange);color:var(--orange);box-shadow:0 0 8px rgba(255,107,53,.3)}
+.opt.correct{border-color:var(--green);background:rgba(0,255,157,.04);color:var(--green)}
+.opt.correct .opt-key{border-color:var(--green);color:var(--green);background:rgba(0,255,157,.1)}
+.opt.wrong{border-color:var(--red);background:rgba(255,71,87,.04);color:var(--red)}
+.opt.wrong .opt-key{border-color:var(--red);color:var(--red);background:rgba(255,71,87,.1)}
+.opt:disabled{cursor:default}
+
+.expl{display:none;margin-top:1.2rem;padding:.9rem 1.1rem;background:rgba(255,107,53,.04);border:1px solid rgba(255,107,53,.15);border-left:2px solid var(--orange);border-radius:0 3px 3px 0;font-family:'JetBrains Mono',monospace;font-size:.76rem;color:var(--txt2);line-height:1.7}
+.expl .expl-tag{color:var(--orange);font-weight:500;display:block;margin-bottom:.25rem}
+.expl.show{display:block;animation:boot .3s ease}
+
+.nav-row{display:flex;gap:.7rem;margin-top:.9rem}
+.btn-prev{padding:.7rem 1.2rem;background:transparent;border:1px solid var(--b2);border-radius:3px;color:var(--txt3);font-family:'JetBrains Mono',monospace;font-size:.7rem;cursor:pointer;transition:all .18s;letter-spacing:.06em}
+.btn-prev:hover:not(:disabled){border-color:var(--txt3);color:var(--txt)}
+.btn-next{flex:1;padding:.7rem 1.4rem;background:rgba(255,107,53,.08);border:1px solid var(--orange);border-radius:3px;color:var(--orange);font-family:'JetBrains Mono',monospace;font-size:.75rem;font-weight:500;cursor:pointer;transition:all .18s;letter-spacing:.06em;text-shadow:0 0 8px rgba(255,107,53,.4)}
+.btn-next:hover{background:rgba(255,107,53,.14);box-shadow:0 0 16px rgba(255,107,53,.2)}
+
+/* RÉSULTATS */
+.res-terminal{background:var(--void);border:1px solid var(--b1);border-radius:3px;margin-bottom:1.8rem;overflow:hidden}
+.res-tbar{display:flex;align-items:center;justify-content:space-between;padding:.65rem 1rem;background:var(--panel);border-bottom:1px solid var(--b1)}
+.res-tbar-left{display:flex;align-items:center;gap:.8rem}
+.wdots{display:flex;gap:.4rem}
+.wd{width:10px;height:10px;border-radius:50%;cursor:pointer}
+.wd:hover{opacity:.7}
+.wd-r{background:#ff5f56}.wd-a{background:#ffbd2e}.wd-g{background:#27c93f}
+.res-tfile{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--txt2)}
+.res-badge{font-family:'JetBrains Mono',monospace;font-size:.58rem;padding:.18rem .55rem;border-radius:2px;border:1px solid rgba(255,107,53,.3);color:var(--orange);background:rgba(255,107,53,.1)}
+.res-xbtn{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--txt3);background:transparent;border:1px solid var(--b2);border-radius:2px;padding:.28rem .65rem;cursor:pointer;transition:all .18s}
+.res-xbtn:hover{border-color:var(--red);color:var(--red)}
+.res-body{padding:2rem}
+.res-prompt{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--txt3);margin-bottom:1rem}
+.res-prompt span{color:var(--amber)}
+.res-score{font-family:'JetBrains Mono',monospace;font-size:clamp(3rem,10vw,5rem);font-weight:700;line-height:1;margin-bottom:.5rem;color:var(--orange);text-shadow:0 0 40px rgba(255,107,53,.5)}
+.res-mention{font-family:'JetBrains Mono',monospace;font-size:.88rem;color:var(--green);margin-bottom:.4rem;text-shadow:0 0 12px rgba(0,255,157,.4)}
+.res-detail{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--txt3)}
+
+.sec-title{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--orange);letter-spacing:.2em;text-transform:uppercase;margin-bottom:1rem;display:flex;align-items:center;gap:.6rem}
+.sec-title::before{content:'//';color:var(--txt3)}
+.sec-title::after{content:'';flex:1;height:1px;background:var(--b1)}
+
+.ts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:.65rem;margin-bottom:1.8rem}
+.ts-card{background:var(--panel);border:1px solid var(--b1);border-radius:3px;padding:.85rem 1rem}
+.ts-head{display:flex;align-items:center;gap:.4rem;margin-bottom:.5rem}
+.ts-ico{font-size:1rem}
+.ts-name{font-size:.76rem;font-weight:500;color:var(--txt);line-height:1.3}
+.ts-track{background:var(--b2);height:3px;border-radius:99px;overflow:hidden;margin-bottom:.4rem}
+.ts-fill{height:100%;border-radius:99px;transition:width .7s ease}
+.ts-nums{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--txt3)}
+.ts-pct{font-family:'JetBrains Mono',monospace;font-size:.95rem;font-weight:700;float:right;margin-top:-1.3rem}
+
+.res-actions{display:flex;gap:.7rem;flex-wrap:wrap}
+.btn-home{flex:1;padding:.8rem;background:transparent;border:1px solid var(--b2);border-radius:3px;color:var(--txt3);font-family:'JetBrains Mono',monospace;font-size:.7rem;cursor:pointer;transition:all .18s;letter-spacing:.06em}
+.btn-home:hover{border-color:var(--txt3);color:var(--txt)}
+.btn-retry{flex:1;padding:.8rem;background:rgba(255,107,53,.07);border:1px solid var(--orange);border-radius:3px;color:var(--orange);font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:500;cursor:pointer;transition:all .18s;letter-spacing:.06em}
+.btn-retry:hover{background:rgba(255,107,53,.12);box-shadow:0 0 14px rgba(255,107,53,.15)}
+
+.footer{margin-top:3rem;padding:1.2rem 0;border-top:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;position:relative;z-index:1}
+.footer-brand{display:flex;align-items:center;gap:.7rem}
+.footer-av{width:34px;height:34px;background:var(--panel);border:1px solid var(--orange);border-radius:2px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:.85rem;color:var(--orange);text-shadow:0 0 8px var(--orange)}
+.footer-name{font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:500;color:var(--txt)}
+.footer-role{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--txt3)}
+.footer-wa{display:inline-flex;align-items:center;gap:.5rem;font-family:'JetBrains Mono',monospace;font-size:.65rem;color:#25d366;text-decoration:none;padding:.32rem .65rem;border:1px solid rgba(37,211,102,.25);border-radius:2px;transition:all .18s}
+.footer-wa:hover{background:rgba(37,211,102,.06);border-color:rgba(37,211,102,.5)}
+
+@media(max-width:600px){.root{padding:0 1rem 5rem}.srow{gap:.4rem}.stile .num{font-size:1.2rem}.qcard{padding:1.2rem 1.1rem}.th-grid{grid-template-columns:1fr 1fr}.res-actions{flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="scanline"></div>
+<div class="root">
+
+<!-- NAV -->
+<nav class="nav">
+  <a class="nav-back" href="platform.html">&#8592; PLATFORM</a>
+  <span class="nav-title"><span>BDD</span>_DATABASE · QCM interactif</span>
+  <span class="nav-tag">MODULE_03</span>
+</nav>
+
+<!-- HEADER -->
+<header class="hdr">
+  <div class="hdr-topbar">
+    <span class="dot dot-o"></span>
+    <span class="dot dot-a"></span>
+    <span class="dot dot-g"></span>
+    <span>BDD_QCM.exe</span>
+    <span style="margin-left:auto">v1.0.0</span>
+  </div>
+  <div class="hdr-title">
+    <div class="t1">BASES DE DONNÉES</div>
+    <div class="t2">DATABASE SYSTEMS</div>
+  </div>
+  <div class="hdr-sub">
+    <span class="v">7</span> thèmes &nbsp;·&nbsp;
+    <span class="v">105</span> questions &nbsp;·&nbsp;
+    cours GBO Hervé · <span class="v">ENEAM</span>
+  </div>
+  <div class="statusbar">
+    <span class="stag stag-o">MCD / MLD</span>
+    <span class="stag stag-a">ALGÈBRE</span>
+    <span class="stag stag-g">SQL</span>
+    <span class="stag stag-o">NORMALISATION</span>
+    <span class="stag stag-a">SÉCURITÉ</span>
+    <span style="margin-left:auto">STATUS: <span style="color:var(--green)">READY</span></span>
+  </div>
+</header>
+
+<!-- ACCUEIL -->
+<div id="s-home" class="screen active">
+  <div class="home-banner">
+    <span class="prompt">$ help --module bdd</span>
+    Sélectionnez un <b>thème</b> pour réviser un chapitre précis, ou lancez le <b>mode complet</b>. Basé sur le cours de <b>GBO Hervé</b> — 113 pages.
+  </div>
+  <div class="th-grid" id="th-grid"></div>
+  <button class="btn-launch" onclick="startAll()">LANCER LE QCM COMPLET — 105 QUESTIONS</button>
+</div>
+
+<!-- QCM -->
+<div id="s-quiz" class="screen">
+  <div class="q-topbar">
+    <span class="q-badge" id="q-badge">MODULE</span>
+    <div class="ptrack"><div class="pfill" id="pfill"></div></div>
+    <span class="q-frac" id="qfrac">01/15</span>
+  </div>
+  <div class="srow">
+    <div class="stile ok"><div class="num" id="sc">0</div><div class="lbl">Correct</div></div>
+    <div class="stile bad"><div class="num" id="sw">0</div><div class="lbl">Erreur</div></div>
+    <div class="stile rem"><div class="num" id="sr">0</div><div class="lbl">Restant</div></div>
+  </div>
+  <div class="qcard">
+    <span class="qcard-corner" id="qcorner">Q_001</span>
+    <div class="q-label" id="qlabel">QUESTION</div>
+    <div class="q-text" id="qtext"></div>
+    <div class="q-illo" id="qillo" style="display:none"></div>
+    <div class="opts" id="opts"></div>
+    <div class="expl" id="expl"></div>
+  </div>
+  <div class="nav-row">
+    <button class="btn-prev" id="btn-prev" onclick="prevQ()">&#8592; PREV</button>
+    <button class="btn-next" id="btn-next" onclick="nextQ()">NEXT &#8594;</button>
+  </div>
+</div>
+
+<!-- RÉSULTATS -->
+<div id="s-result" class="screen">
+  <div class="res-terminal">
+    <div class="res-tbar">
+      <div class="res-tbar-left">
+        <div class="wdots">
+          <span class="wd wd-r" onclick="goHome()" title="Fermer"></span>
+          <span class="wd wd-a"></span>
+          <span class="wd wd-g"></span>
+        </div>
+        <span class="res-tfile" id="res-chip">RESULTS.log</span>
+        <span class="res-badge">BDD</span>
+      </div>
+      <button class="res-xbtn" onclick="goHome()">&#8592; MENU</button>
+    </div>
+    <div class="res-body">
+      <div class="res-prompt">$ analyze results &nbsp;<span>--format=summary</span></div>
+      <div class="res-score" id="res-score">—</div>
+      <div class="res-mention" id="res-mention"></div>
+      <div class="res-detail" id="res-detail"></div>
+    </div>
+  </div>
+  <div class="sec-title">SCORE PAR MODULE</div>
+  <div class="ts-grid" id="theme-scores"></div>
+  <div class="res-actions">
+    <button class="btn-home" onclick="goHome()">&#8592; SELECT MODULE</button>
+    <button class="btn-retry" onclick="retryQuiz()">&#8635; &nbsp; RETRY</button>
+  </div>
+</div>
+
+</div>
+
+<footer class="footer" style="max-width:820px;margin:0 auto;padding-left:1.4rem;padding-right:1.4rem">
+  <div class="footer-brand">
+    <div class="footer-av">M</div>
+    <div><div class="footer-name">Miracle L.</div><div class="footer-role">// Créateur du QCM</div></div>
+  </div>
+  <a class="footer-wa" href="https://wa.me/2290190821282" target="_blank" rel="noopener">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    +229 01 90 82 12 82
+  </a>
+</footer>
+
+<script>
+/* ═══════════════════════════════════════
+   SVG ILLUSTRATIONS
+═══════════════════════════════════════ */
+const BG='#070b0f', BG2='#0c1117';
+const OR='#ff6b35', AM='#ffb300', GR='#00ff9d', CY='#00d4ff';
+const PU='#a78bfa', RD='#ff4757', T2='#7a9ab0', T3='#3d5568', BORD='#1e2d40';
+
+const SVG = {
+
+sgbd: `<svg viewBox="0 0 500 155" width="500" height="155" xmlns="http://www.w3.org/2000/svg">
+<rect width="500" height="155" fill="${BG2}"/>
+<text x="8" y="14" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="9">// sgbd_generalites.def</text>
+<rect x="8" y="20" width="484" height="20" rx="2" fill="${OR}0f" stroke="${OR}" stroke-width="1" opacity=".8"/>
+<text x="250" y="34" text-anchor="middle" fill="${OR}" font-family="'JetBrains Mono',monospace" font-size="9">BDD = ensemble structuré de données + SGBD = logiciel de gestion</text>
+${[[GR,"Avantages BDD","Pas de redondance · Cohérence · Partage · Sécurité · Évolutivité",44],
+   [CY,"3 niveaux ANSI/SPARC","Physique (stockage) · Conceptuel (logique) · Externe (vues utilisateur)",66],
+   [AM,"Modèles de données","Hiérarchique · Réseau · Relationnel (Codd,1970) · Objet",88],
+   [PU,"Indépendance","Physique : modif. stockage sans impact appli · Logique : modif. schéma sans impact vues",110],
+   [RD,"SGBD populaires","MySQL · PostgreSQL · Oracle · SQL Server · SQLite",132],
+].map(([c,k,v,y])=>`
+<rect x="8" y="${y-12}" width="484" height="18" rx="1" fill="${c}08"/>
+<text x="105" y="${y}" text-anchor="middle" fill="${c}" font-family="'JetBrains Mono',monospace" font-size="7.5" font-weight="bold">${k}</text>
+<text x="265" y="${y}" fill="${T2}" font-family="'JetBrains Mono',monospace" font-size="7">${v}</text>`).join('')}
+</svg>`,
+
+mcd: `<svg viewBox="0 0 500 178" width="500" height="178" xmlns="http://www.w3.org/2000/svg">
+<rect width="500" height="178" fill="${BG2}"/>
+<text x="8" y="14" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="9">// modele_entite_association.schema</text>
+<rect x="8" y="20" width="148" height="60" rx="2" fill="${CY}0f" stroke="${CY}" stroke-width="1.5"/>
+<text x="82" y="36" text-anchor="middle" fill="${CY}" font-family="'JetBrains Mono',monospace" font-size="8" font-weight="bold">ENTITÉ</text>
+<text x="82" y="50" text-anchor="middle" fill="${T2}" font-family="'JetBrains Mono',monospace" font-size="7">rectangle</text>
+<text x="82" y="64" text-anchor="middle" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="6">ex: Etudiant, Filière</text>
+<rect x="176" y="20" width="148" height="60" rx="2" fill="${AM}0f" stroke="${AM}" stroke-width="1.5"/>
+<text x="250" y="36" text-anchor="middle" fill="${AM}" font-family="'JetBrains Mono',monospace" font-size="8" font-weight="bold">ATTRIBUT</text>
+<text x="250" y="50" text-anchor="middle" fill="${T2}" font-family="'JetBrains Mono',monospace" font-size="7">propriété de l'entité</text>
+<text x="250" y="64" text-anchor="middle" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="6">ex: Matricule, Nom</text>
+<rect x="344" y="20" width="148" height="60" rx="2" fill="${OR}0f" stroke="${OR}" stroke-width="1.5"/>
+<text x="418" y="36" text-anchor="middle" fill="${OR}" font-family="'JetBrains Mono',monospace" font-size="8" font-weight="bold">ASSOCIATION</text>
+<text x="418" y="50" text-anchor="middle" fill="${T2}" font-family="'JetBrains Mono',monospace" font-size="7">hexagone / ellipse</text>
+<text x="418" y="64" text-anchor="middle" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="6">lien entre entités</text>
+<line x1="8" y1="90" x2="492" y2="90" stroke="${BORD}" stroke-width="1"/>
+<text x="8" y="106" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="8">Cardinalités :</text>
+<text x="100" y="106" fill="${AM}" font-family="'JetBrains Mono',monospace" font-size="8">(0,1)</text>
+<text x="145" y="106" fill="${T2}" font-family="'JetBrains Mono',monospace" font-size="7">au plus 1</text>
+<text x="220" y="106" fill="${GR}" font-family="'JetBrains Mono',monospace" font-size="8">(1,1)</text>
+<text x="265" y="106" fill="${T2}" font-family="'JetBrains Mono',monospace" font-size="7">exactement 1</text>
+<text x="355" y="106" fill="${CY}" font-family="'JetBrains Mono',monospace" font-size="8">(0,N) / (1,N)</text>
+<text x="450" y="106" fill="${T2}" font-family="'JetBrains Mono',monospace" font-size="7">plusieurs</text>
+<rect x="8" y="115" width="230" height="22" rx="2" fill="${PU}0a" stroke="${PU}" stroke-width="1"/>
+<text x="123" y="126" text-anchor="middle" fill="${PU}" font-family="'JetBrains Mono',monospace" font-size="7.5" font-weight="bold">CIF (Contrainte Intégrité Fonct.)</text>
+<text x="123" y="133" text-anchor="middle" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="6">Card. max = 1 sur au moins une patte</text>
+<rect x="258" y="115" width="234" height="22" rx="2" fill="${RD}0a" stroke="${RD}" stroke-width="1"/>
+<text x="375" y="126" text-anchor="middle" fill="${RD}" font-family="'JetBrains Mono',monospace" font-size="7.5" font-weight="bold">CIM (Contrainte Intégrité Multiple)</text>
+<text x="375" y="133" text-anchor="middle" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="6">Card. max = N sur toutes les pattes</text>
+<text x="250" y="158" text-anchor="middle" fill="${T2}" font-family="'JetBrains Mono',monospace" font-size="7.5">Etudiant (1,1)---[s'inscrit]---(1,N) Filière  →  CIF (un étudiant = une filière)</text>
+<text x="250" y="170" text-anchor="middle" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="7">Etudiant (1,N)---[compose]---(1,N) Matière  →  CIM (plusieurs à plusieurs)</text>
+</svg>`,
+
+df: `<svg viewBox="0 0 500 162" width="500" height="162" xmlns="http://www.w3.org/2000/svg">
+<rect width="500" height="162" fill="${BG2}"/>
+<text x="8" y="14" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="9">// dependances_fonctionnelles.ref</text>
+<rect x="8" y="20" width="484" height="28" rx="2" fill="${GR}0a" stroke="${GR}" stroke-width="1.5"/>
+<text x="250" y="32" text-anchor="middle" fill="${GR}" font-family="'JetBrains Mono',monospace" font-size="8" font-weight="bold">DF : A → B  signifie "à une valeur de A correspond au plus une valeur de B"</text>
+<text x="250" y="43" text-anchor="middle" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="7">Ex: Matricule → Nom  (un matricule = un seul étudiant)</text>
+${[[AM,"DF Élémentaire (DFE)","A→B directe, B ne dépend que de A (pas d'un sous-ensemble de A)",56],
+   [CY,"DF Directe (DFED)","DFE sans transitivité : pas de C tel que A→C→B",78],
+   [OR,"Transitivité","Si A→B et B→C alors A→C (transitif, à éviter en normalisation)",100],
+   [PU,"Source de DF","Attribut(s) à gauche de la flèche : toujours identifiant(s)",122],
+   [RD,"But/Cible de DF","Attribut(s) à droite de la flèche : identifiant ou non",144],
+].map(([c,k,v,y])=>`
+<rect x="8" y="${y-12}" width="484" height="18" rx="1" fill="${c}08"/>
+<text x="108" y="${y}" text-anchor="middle" fill="${c}" font-family="'JetBrains Mono',monospace" font-size="7.5" font-weight="bold">${k}</text>
+<text x="305" y="${y}" fill="${T2}" font-family="'JetBrains Mono',monospace" font-size="7">${v}</text>`).join('')}
+</svg>`,
+
+mldr: `<svg viewBox="0 0 500 168" width="500" height="168" xmlns="http://www.w3.org/2000/svg">
+<rect width="500" height="168" fill="${BG2}"/>
+<text x="8" y="14" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="9">// modele_logique_relationnel.ref</text>
+<rect x="8" y="20" width="484" height="26" rx="2" fill="${OR}0f" stroke="${OR}" stroke-width="1.5"/>
+<text x="250" y="31" text-anchor="middle" fill="${OR}" font-family="'JetBrains Mono',monospace" font-size="8" font-weight="bold">MLDR = Passage MCD → Tables relationnelles</text>
+<text x="250" y="41" text-anchor="middle" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="7">Etudiant(Matricule, Nom, Prénom, Sexe, #Codfil)</text>
+${[[CY,"Règle 1 : Entité","Toute entité → une relation. Identifiant → clé primaire (souligné)",56],
+   [GR,"Règle 2 : Asso. 1,N-1,1","Identifiant du père (1,N) migre vers le fils → clé étrangère #",78],
+   [AM,"Règle 3 : Asso. N,N","L'association devient une relation avec les id. des deux entités en clé composite",100],
+   [PU,"Règle 4 : Asso. réflexive","Id. apparaît deux fois : Boxer(#Num_boxeur1, #Num_boxeur2, Date_combat)",122],
+   [RD,"Règle 5 : Entité faible","Id. faible + Id. entité forte → clé primaire composite",144],
+].map(([c,k,v,y])=>`
+<rect x="8" y="${y-12}" width="484" height="18" rx="1" fill="${c}08"/>
+<text x="108" y="${y}" text-anchor="middle" fill="${c}" font-family="'JetBrains Mono',monospace" font-size="7.5" font-weight="bold">${k}</text>
+<text x="305" y="${y}" fill="${T2}" font-family="'JetBrains Mono',monospace" font-size="6.5">${v}</text>`).join('')}
+</svg>`,
+
+normalisation: `<svg viewBox="0 0 500 158" width="500" height="158" xmlns="http://www.w3.org/2000/svg">
+<rect width="500" height="158" fill="${BG2}"/>
+<text x="8" y="14" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="9">// normalisation_formes_normales.ref</text>
+<rect x="8" y="20" width="154" height="56" rx="2" fill="${GR}0a" stroke="${GR}" stroke-width="1.5"/>
+<text x="85" y="35" text-anchor="middle" fill="${GR}" font-family="'JetBrains Mono',monospace" font-size="8" font-weight="bold">1FN</text>
+<text x="85" y="49" text-anchor="middle" fill="${T2}" font-family="'JetBrains Mono',monospace" font-size="7">Tous attributs atomiques</text>
+<text x="85" y="61" text-anchor="middle" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="6">→ trouver une clé primaire</text>
+<rect x="173" y="20" width="154" height="56" rx="2" fill="${AM}0a" stroke="${AM}" stroke-width="1.5"/>
+<text x="250" y="35" text-anchor="middle" fill="${AM}" font-family="'JetBrains Mono',monospace" font-size="8" font-weight="bold">2FN</text>
+<text x="250" y="49" text-anchor="middle" fill="${T2}" font-family="'JetBrains Mono',monospace" font-size="7">1FN + tout attribut non-clé</text>
+<text x="250" y="61" text-anchor="middle" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="6">dépend de TOUTE la clé</text>
+<rect x="338" y="20" width="154" height="56" rx="2" fill="${OR}0a" stroke="${OR}" stroke-width="1.5"/>
+<text x="415" y="35" text-anchor="middle" fill="${OR}" font-family="'JetBrains Mono',monospace" font-size="8" font-weight="bold">3FN</text>
+<text x="415" y="49" text-anchor="middle" fill="${T2}" font-family="'JetBrains Mono',monospace" font-size="7">2FN + pas de transitivité</text>
+<text x="415" y="61" text-anchor="middle" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="6">DFE directes avec la clé</text>
+<line x1="8" y1="86" x2="492" y2="86" stroke="${BORD}" stroke-width="1"/>
+<text x="8" y="102" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="7">Exemple 1FN→2FN : Commander(n°bon, ref_prod, date, libellé, pu, qté, client)</text>
+<text x="8" y="116" fill="${AM}" font-family="'JetBrains Mono',monospace" font-size="7">Clé : (n°bon, ref_prod) mais date/client dépendent uniquement de n°bon → violation 2FN</text>
+<text x="8" y="130" fill="${GR}" font-family="'JetBrains Mono',monospace" font-size="7">R1(n°bon, date, client)  R2(ref_prod, libellé, pu)  R3(n°bon, ref_prod, qté)</text>
+<text x="8" y="146" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="7">3FN : vérifier qu'aucun attribut non-clé ne dépend d'un autre attribut non-clé</text>
+</svg>`,
+
+algebre: `<svg viewBox="0 0 500 178" width="500" height="178" xmlns="http://www.w3.org/2000/svg">
+<rect width="500" height="178" fill="${BG2}"/>
+<text x="8" y="14" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="9">// algebre_relationnelle.ops</text>
+<text x="8" y="28" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="7">Opérations UNAIRES (une relation)</text>
+<rect x="8" y="32" width="230" height="18" rx="1" fill="${CY}08"/><text x="12" y="45" fill="${CY}" font-family="'JetBrains Mono',monospace" font-size="7.5" font-weight="bold">Sélection σ</text><text x="115" y="45" fill="${T2}" font-family="'JetBrains Mono',monospace" font-size="7">Filtre les tuples (lignes) selon condition</text>
+<rect x="258" y="32" width="234" height="18" rx="1" fill="${AM}08"/><text x="262" y="45" fill="${AM}" font-family="'JetBrains Mono',monospace" font-size="7.5" font-weight="bold">Projection π</text><text x="360" y="45" fill="${T2}" font-family="'JetBrains Mono',monospace" font-size="7">Filtre les attributs (colonnes)</text>
+<text x="8" y="64" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="7">Opérations BINAIRES (deux relations de même schéma)</text>
+<rect x="8" y="68" width="148" height="18" rx="1" fill="${GR}08"/><text x="12" y="81" fill="${GR}" font-family="'JetBrains Mono',monospace" font-size="7.5">Union ∪</text><text x="65" y="81" fill="${T2}" font-family="'JetBrains Mono',monospace" font-size="7">tuples R1 OU R2</text>
+<rect x="166" y="68" width="148" height="18" rx="1" fill="${PU}08"/><text x="170" y="81" fill="${PU}" font-family="'JetBrains Mono',monospace" font-size="7.5">Intersection ∩</text><text x="248" y="81" fill="${T2}" font-family="'JetBrains Mono',monospace" font-size="7">tuples R1 ET R2</text>
+<rect x="324" y="68" width="168" height="18" rx="1" fill="${RD}08"/><text x="328" y="81" fill="${RD}" font-family="'JetBrains Mono',monospace" font-size="7.5">Différence −</text><text x="400" y="81" fill="${T2}" font-family="'JetBrains Mono',monospace" font-size="7">dans R1 pas R2</text>
+<text x="8" y="100" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="7">Opérations SPÉCIALES</text>
+<rect x="8" y="104" width="148" height="18" rx="1" fill="${OR}08"/><text x="12" y="117" fill="${OR}" font-family="'JetBrains Mono',monospace" font-size="7.5">Produit cartésien ×</text><text x="100" y="117" fill="${T2}" font-family="'JetBrains Mono',monospace" font-size="7">toutes combinaisons</text>
+<rect x="166" y="104" width="148" height="18" rx="1" fill="${CY}08"/><text x="170" y="117" fill="${CY}" font-family="'JetBrains Mono',monospace" font-size="7.5">Jointure ⋈</text><text x="230" y="117" fill="${T2}" font-family="'JetBrains Mono',monospace" font-size="7">fusion sur condition</text>
+<rect x="324" y="104" width="168" height="18" rx="1" fill="${GR}08"/><text x="328" y="117" fill="${GR}" font-family="'JetBrains Mono',monospace" font-size="7.5">Division ÷</text><text x="390" y="117" fill="${T2}" font-family="'JetBrains Mono',monospace" font-size="7">tuples liés à TOUS</text>
+<line x1="8" y1="130" x2="492" y2="130" stroke="${BORD}" stroke-width="1"/>
+<text x="8" y="145" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="7.5">Fonctions agrégation : COUNT · SUM · AVG · MAX · MIN</text>
+<text x="8" y="159" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="7">Regroupement(R ; champ_grp ; COUNT(*) comme nb)  →  une ligne par groupe</text>
+<text x="8" y="172" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="7">Jointure naturelle : attribut commun utilisé automatiquement comme condition</text>
+</svg>`,
+
+sql: `<svg viewBox="0 0 500 182" width="500" height="182" xmlns="http://www.w3.org/2000/svg">
+<rect width="500" height="182" fill="${BG2}"/>
+<text x="8" y="14" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="9">// langage_sql.reference</text>
+<rect x="8" y="20" width="484" height="18" rx="2" fill="${OR}0f" stroke="${OR}" stroke-width="1"/>
+<text x="250" y="33" text-anchor="middle" fill="${OR}" font-family="'JetBrains Mono',monospace" font-size="9" font-weight="bold">SQL = DDL + DML + DCL</text>
+${[[CY,"DDL — Définition","CREATE TABLE · ALTER TABLE · DROP TABLE · CREATE INDEX",46],
+   [GR,"DML — Manipulation","INSERT INTO · UPDATE SET · DELETE FROM · SELECT FROM",68],
+   [AM,"DCL — Contrôle","GRANT · REVOKE · DENY  (gestion des droits/privilèges)",90],
+   [PU,"SELECT complet","SELECT … FROM … WHERE … GROUP BY … HAVING … ORDER BY",112],
+   [RD,"Jointures SQL","INNER JOIN · LEFT JOIN · RIGHT JOIN · FULL OUTER JOIN",134],
+   [OR,"Sous-requêtes","WHERE attr IN (SELECT…) · EXISTS · ANY · ALL",156],
+].map(([c,k,v,y])=>`
+<rect x="8" y="${y-12}" width="484" height="18" rx="1" fill="${c}08"/>
+<text x="100" y="${y}" text-anchor="middle" fill="${c}" font-family="'JetBrains Mono',monospace" font-size="7.5" font-weight="bold">${k}</text>
+<text x="297" y="${y}" fill="${T2}" font-family="'JetBrains Mono',monospace" font-size="7.5">${v}</text>`).join('')}
+<text x="250" y="175" text-anchor="middle" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="7">Injection SQL : OR 1=1 · ''='' · instructions par lots (;DROP TABLE…)</text>
+</svg>`,
+
+securite: `<svg viewBox="0 0 500 155" width="500" height="155" xmlns="http://www.w3.org/2000/svg">
+<rect width="500" height="155" fill="${BG2}"/>
+<text x="8" y="14" fill="${T3}" font-family="'JetBrains Mono',monospace" font-size="9">// securite_bdd.ref</text>
+<rect x="8" y="20" width="484" height="18" rx="2" fill="${RD}0f" stroke="${RD}" stroke-width="1"/>
+<text x="250" y="33" text-anchor="middle" fill="${RD}" font-family="'JetBrains Mono',monospace" font-size="9" font-weight="bold">Injection SQL = insertion de code malveillant dans une requête</text>
+${[[OR,"GRANT","Accorder des privilèges : GRANT SELECT ON table TO user",50],
+   [GR,"REVOKE","Révoquer des privilèges accordés : REVOKE SELECT ON table FROM user",72],
+   [AM,"DENY","Refuser explicitement des privilèges (SQL Server)",94],
+   [CY,"Rôles","Groupe d'utilisateurs pour faciliter la gestion des droits",116],
+   [PU,"Sauvegarde","BACKUP DATABASE (SQL Server) · MYSQLDUMP (MySQL) · EXPDP (Oracle)",138],
+].map(([c,k,v,y])=>`
+<rect x="8" y="${y-12}" width="484" height="18" rx="1" fill="${c}08"/>
+<text x="80" y="${y}" text-anchor="middle" fill="${c}" font-family="'JetBrains Mono',monospace" font-size="8" font-weight="bold">${k}</text>
+<text x="290" y="${y}" fill="${T2}" font-family="'JetBrains Mono',monospace" font-size="7.5">${v}</text>`).join('')}
+</svg>`,
+};
+
+/* ═══════════════════════════════════════
+   THÈMES
+═══════════════════════════════════════ */
+const THEMES = [
+  {id:'t1', name:'Généralités & SGBD',      icon:'🗄️', color:'#ff6b35', desc:'BDD, SGBD, niveaux, modèles'},
+  {id:'t2', name:'Modèle Entité-Association',icon:'🔷', color:'#00d4ff', desc:'MCD, entités, cardinalités, CIF/CIM'},
+  {id:'t3', name:'Dépendances Fonctionnelles',icon:'→', color:'#00ff9d', desc:'DF, DFE, DFED, transitivité'},
+  {id:'t4', name:'MLD Relationnel',          icon:'📋', color:'#ffb300', desc:'Passage MCD→MLDR, clés, règles'},
+  {id:'t5', name:'Normalisation',            icon:'✂️', color:'#a78bfa', desc:'1FN, 2FN, 3FN'},
+  {id:'t6', name:'Algèbre Relationnelle',    icon:'∑',  color:'#f472b6', desc:'Sélection, jointure, division...'},
+  {id:'t7', name:'Langage SQL',              icon:'⌨️', color:'#ff6b35', desc:'DDL, DML, DCL, fonctions, sécurité'},
+];
+
+/* ═══════════════════════════════════════
+   BANQUE DE QUESTIONS — 105 questions
+═══════════════════════════════════════ */
+const BANK = [
+
+/* ── T1 : Généralités & SGBD ── */
+{t:'t1',q:"Qu'est-ce qu'une base de données ?",img:"sgbd",o:["Un programme de traitement de texte","Un ensemble structuré de données stockées et gérées par un SGBD","Un fichier Excel","Un réseau d'ordinateurs"],c:1,e:"Une base de données est un ensemble structuré de données stockées sur un support informatique, géré par un SGBD. Elle permet l'accès partagé, cohérent et sécurisé aux données."},
+{t:'t1',q:"Quel est le principal inconvénient de la gestion par fichiers (avant les BDD) ?",img:"sgbd",o:["Les fichiers sont trop petits","La redondance des données et le manque de cohérence","Les fichiers sont trop rapides","L'impossibilité de stocker du texte"],c:1,e:"La gestion par fichiers entraîne redondance (duplication des données), incohérence, complexité et difficulté de partage. Les BDD ont été créées pour résoudre ces problèmes."},
+{t:'t1',q:"Quel chercheur a proposé le modèle relationnel en 1970 ?",img:"sgbd",o:["Edgar Dijkstra","Alan Turing","E.F. Codd","Dennis Ritchie"],c:2,e:"E.F. Codd (Edgar Frank Codd) d'IBM a proposé le modèle relationnel en 1970. Ce modèle est basé sur la théorie des ensembles et organise les données en tables (relations)."},
+{t:'t1',q:"Les 3 niveaux de l'architecture ANSI/SPARC sont :",img:"sgbd",o:["Physique, Logique, Réseau","Physique, Conceptuel, Externe","Interne, Médian, Externe","Bas, Moyen, Haut"],c:1,e:"Architecture ANSI/SPARC à 3 niveaux : Physique (stockage réel), Conceptuel/Logique (schéma global indépendant des applications), Externe (vues des utilisateurs)."},
+{t:'t1',q:"Quel niveau de l'architecture ANSI/SPARC correspond au stockage des données ?",img:"sgbd",o:["Niveau externe","Niveau conceptuel","Niveau physique","Niveau logique"],c:2,e:"Le niveau physique regroupe les services de gestion de la mémoire secondaire. Il définit la politique de stockage et le placement des données sur les supports."},
+{t:'t1',q:"Parmi les avantages d'une BDD, lequel est FAUX ?",img:"sgbd",o:["Suppression des redondances","Cohérence des données","Accès exclusif pour un seul utilisateur","Partage des données entre services"],c:2,e:"Une BDD permet l'accès CONCURRENT (multi-utilisateurs) et non exclusif. Les vrais avantages sont : suppression des redondances, cohérence, partage, sécurité, évolutivité."},
+{t:'t1',q:"Le modèle hiérarchique de données organise les données sous forme de :",img:"sgbd",o:["Tables liées par des clés","Arbre avec un nœud racine","Graphe avec connexions libres","Objets avec héritage"],c:1,e:"Le modèle hiérarchique organise les données en arborescence (arbre). Chaque nœud a un seul parent sauf la racine. Il ne permet que des interrogations simples prévues à la construction."},
+{t:'t1',q:"Le modèle réseau diffère du modèle hiérarchique car :",img:"sgbd",o:["Il n'a qu'un seul utilisateur","Il permet des connexions entre éléments (un nœud peut avoir plusieurs parents)","Il utilise des tables","Il n'a pas de schéma"],c:1,e:"Le modèle réseau est une extension du modèle hiérarchique : il permet des connexions entre différents éléments, donc un nœud peut avoir plusieurs parents. Plus d'interrogations possibles mais toujours prévues à la construction."},
+{t:'t1',q:"Quel SGBD utilise la commande MYSQLDUMP pour les sauvegardes ?",img:"sgbd",o:["Oracle","SQL Server","MySQL","PostgreSQL"],c:2,e:"MySQL utilise la commande MYSQLDUMP pour les sauvegardes. SQL Server utilise BACKUP DATABASE, Oracle utilise EXPDP."},
+{t:'t1',q:"L'indépendance physique des données signifie :",img:"sgbd",o:["Les données sont stockées en physique","On peut modifier le stockage sans impacter les applications","Les données sont indépendantes de tout traitement","Les applications fonctionnent sans connexion réseau"],c:1,e:"L'indépendance physique : on peut modifier la façon dont les données sont stockées sans impacter les applications. L'indépendance logique : on peut modifier le schéma conceptuel sans impacter les vues utilisateurs."},
+{t:'t1',q:"Dans un SGBD, qu'est-ce qu'un schéma ?",img:"sgbd",o:["Un dessin de la base de données","La description formelle de la structure des données","Une liste d'utilisateurs","Un fichier de configuration"],c:1,e:"Un schéma est la description formelle de la structure de la base de données (tables, attributs, contraintes). On distingue le schéma conceptuel (niveau logique), physique et externe."},
+{t:'t1',q:"Qu'est-ce que la propriété d'accès concurrent dans un SGBD ?",img:"sgbd",o:["Un seul utilisateur à la fois","Plusieurs utilisateurs peuvent accéder aux mêmes données simultanément","Les données sont copiées pour chaque utilisateur","L'accès est séquentiel uniquement"],c:1,e:"L'accès concurrent permet à plusieurs utilisateurs d'accéder aux mêmes données simultanément. Le SGBD gère les conflits (via des mécanismes de verrouillage ou transactions) pour maintenir la cohérence."},
+{t:'t1',q:"Les contraintes d'intégrité dans un SGBD servent à :",img:"sgbd",o:["Accélérer les requêtes","Assurer que les données respectent des règles de validité","Chiffrer les données","Compresser le stockage"],c:1,e:"Les contraintes d'intégrité définissent un état cohérent de la base. Elles sont vérifiées automatiquement à chaque insertion, modification ou suppression. Exemples : NOT NULL, UNIQUE, CHECK, clé étrangère."},
+{t:'t1',q:"Le niveau conceptuel d'un SGBD relationnel représente les données sous forme de :",img:"sgbd",o:["Fichiers binaires","Objets orientés","Tables avec attributs et contraintes d'intégrité","Graphes hiérarchiques"],c:2,e:"Au niveau conceptuel, les données sont représentées sous forme tabulaire (tables/relations) avec leurs attributs et contraintes d'intégrité. C'est indépendant du stockage physique et des applications."},
+{t:'t1',q:"Parmi ces logiciels, lequel N'EST PAS un SGBD ?",img:"sgbd",o:["MySQL","Oracle","Microsoft Excel","PostgreSQL"],c:2,e:"Microsoft Excel est un tableur, pas un SGBD. Les SGBD incluent MySQL, Oracle, PostgreSQL, SQL Server, SQLite, etc. Excel ne gère pas les accès concurrents, les transactions ni les contraintes d'intégrité."},
+
+/* ── T2 : Modèle Entité-Association ── */
+{t:'t2',q:"Dans un MCD, comment est représentée une entité ?",img:"mcd",o:["Un cercle","Un hexagone","Un rectangle","Un losange"],c:2,e:"Dans le formalisme Merise, une entité est représentée par un RECTANGLE contenant son nom et ses attributs. L'association est représentée par un hexagone (ou ellipse)."},
+{t:'t2',q:"Qu'est-ce qu'une occurrence d'entité ?",img:"mcd",o:["Un attribut de l'entité","Un exemplaire (ligne/tuple) de l'entité","Le nom de l'entité","L'identifiant de l'entité"],c:1,e:"Une occurrence (ou enregistrement, tuple, uplet) est un exemplaire particulier de l'entité. Ex: pour l'entité Etudiant, 'Magengo Guttembert' est une occurrence."},
+{t:'t2',q:"Un attribut est dit 'atomique' s'il est :",img:"mcd",o:["Très petit","Non décomposable en attributs plus simples","Identifiant de l'entité","Calculé automatiquement"],c:1,e:"Un attribut atomique (simple) est une propriété non décomposable. Ex: 'Adresse' n'est pas atomique car elle se décompose en rue, code postal, ville. 'Nom' est atomique."},
+{t:'t2',q:"La cardinalité (0,1) sur une patte d'association signifie :",img:"mcd",o:["L'entité participe toujours exactement une fois","L'entité peut ne pas participer ou participer au plus une fois","L'entité participe toujours plusieurs fois","L'entité est facultative dans l'association"],c:1,e:"(0,1) = minimum 0 (participation facultative), maximum 1 (au plus une fois). Ex: Un étudiant peut avoir 0 ou 1 maître de stage. La cardinalité minimum ne doit jamais être supérieure à 1."},
+{t:'t2',q:"Une CIF (Contrainte d'Intégrité Fonctionnelle) est reconnaissable par :",img:"mcd",o:["La cardinalité maximum N sur toutes les pattes","La cardinalité maximum 1 sur au moins une patte (0,1 ou 1,1)","La présence d'attributs dans l'association","L'absence d'identifiant"],c:1,e:"Une CIF est matérialisée par la présence de la cardinalité maximale 1 (0,1 ou 1,1) sur au moins une des pattes. Elle traduit qu'une occurrence d'une entité est liée à au plus une occurrence de l'autre entité."},
+{t:'t2',q:"Une association binaire relie :",img:"mcd",o:["Une seule entité à elle-même","Deux entités distinctes","Trois entités","Un nombre quelconque d'entités"],c:1,e:"Une association binaire relie exactement deux entités. La dimension d'une association = le nombre d'entités impliquées. Réflexive=1, binaire=2, ternaire=3, n-aire=n."},
+{t:'t2',q:"Dans un MCD Merise, quel symbole représente une association ?",img:"mcd",o:["Un rectangle","Un cercle","Un hexagone (ou ellipse)","Un triangle"],c:2,e:"Les associations sont représentées par des hexagones (parfois des ellipses) dont l'intitulé décrit le type de lien reliant les entités."},
+{t:'t2',q:"Une association réflexive (récursive) est une association qui :",img:"mcd",o:["Ne contient pas d'attributs","Relie la même entité à elle-même","A une cardinalité (1,1) sur toutes les pattes","Ne peut pas avoir de cardinalité N"],c:1,e:"Une association réflexive fait intervenir au moins deux fois la même entité. Ex: 'Parrainer' relie l'entité Membre à elle-même (un membre peut parrainer d'autres membres)."},
+{t:'t2',q:"L'entité Etudiant doit avoir au minimum :",img:"mcd",o:["Aucun attribut","Un seul attribut calculé","Au moins un attribut identifiant","Exactement deux attributs"],c:2,e:"Chaque entité doit posséder au moins un attribut identifiant (clé). Cet attribut doit être renseigné à la création de chaque occurrence. Ex: Matricule pour Etudiant."},
+{t:'t2',q:"Une entité est dite 'faible' lorsque :",img:"mcd",o:["Elle a peu d'attributs","Son existence dépend d'une autre entité (son identifiant seul ne suffit pas)","Elle n'a pas d'association","Elle est en 3FN"],c:1,e:"Une entité faible n'a pas d'existence propre : son identifiant ne permet pas seul d'identifier une occurrence de manière unique. Il a besoin de l'identifiant d'une autre entité (entité forte). Ex: Chambre dépend de Hotel."},
+{t:'t2',q:"Qu'est-ce qu'une CIM (Contrainte d'Intégrité Multiple) ?",img:"mcd",o:["Une association avec cardinalité max = 1 sur toutes les pattes","Une association avec cardinalité max = N sur toutes les pattes (N,N)","Une association sans attributs","Une association réflexive"],c:1,e:"Une CIM est une association plusieurs-à-plusieurs (N,N) : la cardinalité maximum est N sur TOUTES les pattes. Ex: Un étudiant compose plusieurs matières ET une matière est composée par plusieurs étudiants."},
+{t:'t2',q:"Que sont les règles de gestion dans la construction du MCD ?",img:"mcd",o:["Les règles SQL d'intégrité","Les contraintes de gestion, manipulation ou utilisation des données du domaine étudié","Les règles de normalisation","Les règles de sauvegarde"],c:1,e:"Les règles de gestion expriment les contraintes du domaine métier. Elles précisent les liens possibles entre occurrences. Ex: 'Un étudiant s'inscrit dans une filière' = règle de gestion qui génère une association."},
+{t:'t2',q:"Dans Merise, une sous-entité avec contrainte XT (partition) signifie :",img:"mcd",o:["Au moins une entité fille","Au plus une entité fille","Exactement une et une seule entité fille","Plusieurs entités filles obligatoires"],c:2,e:"XT = contrainte de partition (1,1) : chaque occurrence de l'entité principale est reliée à EXACTEMENT UNE entité fille. X=exclusion (au plus une), T=totalité (au moins une), XT=partition (exactement une)."},
+{t:'t2',q:"L'identifiant d'une entité permet de :",img:"mcd",o:["Calculer des statistiques","Identifier de façon unique chaque occurrence de l'entité","Trier les occurrences","Chiffrer les données"],c:1,e:"L'identifiant (clé) est un ensemble minimal d'attributs dont la connaissance des valeurs permet d'identifier une occurrence unique de l'entité. Ex: Matricule identifie un seul Etudiant."},
+{t:'t2',q:"Un dictionnaire des données contient :",img:"mcd",o:["Les requêtes SQL","La liste de toutes les propriétés du système avec leur type et description","Les utilisateurs de la BDD","Les sauvegardes"],c:1,e:"Le dictionnaire des données liste toutes les propriétés (attributs) du système avec leur code, libellé, type (E=élémentaire, Co=concaténée, Ca=calculée) et observations. C'est la base du MCD."},
+
+/* ── T3 : Dépendances Fonctionnelles ── */
+{t:'t3',q:"La dépendance fonctionnelle A → B signifie :",img:"df",o:["A dépend de B","À une valeur de A correspond au plus une valeur de B","A et B sont indépendants","B peut avoir plusieurs valeurs pour une valeur de A"],c:1,e:"A → B signifie qu'à une valeur de A correspond au plus une valeur de B. Ex: Matricule → Nom signifie qu'un matricule donné correspond à un seul nom d'étudiant."},
+{t:'t3',q:"Une dépendance fonctionnelle A → B est dite 'élémentaire' si :",img:"df",o:["A est un seul attribut","B ne dépend que de A (pas d'un sous-ensemble strict de A)","A et B sont des identifiants","La relation est en 3FN"],c:1,e:"Une DFE est élémentaire si et seulement si elle ne contient pas de redondance : B dépend de A mais pas d'un sous-ensemble strict de A. Cela évite les dépendances partielles."},
+{t:'t3',q:"La transitivité dans les DF est définie par :",img:"df",o:["A → B et B → C alors A → C","A → B et A → C alors B → C","A → B et C → A alors B → C","A → B et B → A"],c:0,e:"Transitivité : Si A→B et B→C, alors on peut déduire A→C. En normalisation, cette transitivité est à éliminer pour obtenir la 3FN (tous les attributs non-clés doivent dépendre directement de la clé)."},
+{t:'t3',q:"Dans la couverture minimale, les DFED (DFE directes) à source simple donnent lieu à :",img:"df",o:["Des associations CIM dans le MCD","Des entités du MCD","Des attributs d'association","Des contraintes CHECK"],c:1,e:"Les DFED à source simple (un seul identifiant) deviennent les ENTITÉS du MCD. La source (identifiant) devient l'identifiant de l'entité, et les attributs en but deviennent les attributs de l'entité."},
+{t:'t3',q:"Une dépendance fonctionnelle A → B,C contient une transitivité si :",img:"df",o:["A est un attribut calculé","B → C ou C → B (un attribut but dépend d'un autre attribut but)","A contient plusieurs attributs","La relation a moins de 3 attributs"],c:1,e:"Il y a transitivité si un attribut en but dépend d'un autre attribut (lui aussi en but) que la source. Ex: A→B,C avec B→C : C dépend de B (transitif), donc A→C est déductible par A→B→C."},
+{t:'t3',q:"Les DFED à source composée (plusieurs identifiants) donnent lieu à :",img:"df",o:["Des entités simples","Des associations CIM (plusieurs à plusieurs)","Des clés étrangères","Des contraintes NOT NULL"],c:1,e:"Les DFED à source composée (plusieurs identifiants en source) génèrent des associations CIM (N,N) dans le MCD. Les attributs non-identifiants en but deviennent les attributs de l'association."},
+{t:'t3',q:"La matrice des dépendances fonctionnelles est :",img:"df",o:["Un graphe oriente","Un tableau à double entrée représentant les DFE entre identifiants et propriétés","Une liste ordonnée de DF","Un arbre des dépendances"],c:1,e:"La matrice des DF est un tableau à double entrée : en-tête de colonne = identifiants (sources), en-tête de ligne = toutes les propriétés. Elle représente les DFED élémentaires directes."},
+{t:'t3',q:"Dans une dépendance fonctionnelle A → B, A est appelé :",img:"df",o:["But ou cible","Source ou déterminant","Clé étrangère","Attribut dérivé"],c:1,e:"A est la SOURCE (déterminant) de la DF. B est le BUT (cible). Les sources sont toujours des identifiants d'entités. Les buts peuvent être des identifiants ou des attributs non-identifiants."},
+{t:'t3',q:"Quelle affirmation est vraie sur une dépendance fonctionnelle élémentaire directe (DFED) ?",img:"df",o:["Elle peut être déduite par transitivité","Elle n'existe pas en pratique","Elle est sans transitivité et sans redondance dans sa source","Elle concerne uniquement les attributs calculés"],c:2,e:"Une DFED est élémentaire (pas de sous-ensemble de la source qui fonctionnerait) ET directe (pas de transitivité : pas de C intermédiaire tel que A→C et C→B)."},
+{t:'t3',q:"Si Matricule → Nom et si Nom ne dépend que de Matricule, cette DF est :",img:"df",o:["Transitive","Partielle","Élémentaire directe (DFED)","Réflexive"],c:2,e:"Matricule → Nom est élémentaire (Nom ne dépend que de Matricule, pas d'un sous-ensemble) et directe (pas d'attribut intermédiaire). C'est donc une DFED."},
+{t:'t3',q:"La couverture minimale d'un ensemble de DF est :",img:"df",o:["L'ensemble de toutes les DF possibles","Un ensemble réduit de DFED suffisant pour représenter toutes les dépendances","La liste des attributs clés","Le MCD complet"],c:1,e:"La couverture minimale est un ensemble réduit de DFED (élémentaires directes) à partir duquel on peut retrouver toutes les dépendances fonctionnelles. C'est la base pour construire le MCD."},
+{t:'t3',q:"La dépendance fonctionnelle A,B → C où {A,B} est la source est dite :",img:"df",o:["Simple","Composée (source multiple)","Réflexive","Calculée"],c:1,e:"Une DF à source composée a plusieurs attributs comme déterminant. Ex: Code_filiere, Code_matiere → coefficient signifie que le coefficient dépend de la combinaison filière+matière."},
+
+/* ── T4 : MLD Relationnel ── */
+{t:'t4',q:"Dans le MLDR, comment est notée une clé étrangère ?",img:"mldr",o:["En gras","Soulignée","Précédée du symbole #","Entre crochets []"],c:2,e:"Dans le MLDR, une clé étrangère est précédée du symbole # (dièse). Ex: Etudiant(Matricule, Nom, Prénom, #Codfil) où #Codfil est une clé étrangère référençant Filière."},
+{t:'t4',q:"Dans une association 1,N — 1,1 (père-fils), la clé étrangère migre :",img:"mldr",o:["Du fils vers le père","Du père (cardinalité N) vers le fils (cardinalité 1)","Des deux côtés","Elle ne migre pas"],c:1,e:"Dans une association maître-esclave (père-fils), l'identifiant du PÈRE (entité avec cardinalité max N) migre vers le FILS (entité avec cardinalité max 1) pour former une clé étrangère."},
+{t:'t4',q:"Une association CIM (N,N) donne dans le MLDR :",img:"mldr",o:["Aucune nouvelle table","Une nouvelle relation avec les identifiants des deux entités en clé composite","Uniquement des clés étrangères","Une table avec une seule clé"],c:1,e:"Une association N,N crée une nouvelle relation (table) dont la clé primaire est la combinaison des identifiants des deux entités participantes. Les attributs de l'association deviennent les attributs de cette relation."},
+{t:'t4',q:"La clé primaire d'une relation est :",img:"mldr",o:["Tout attribut de la relation","Un ensemble minimum d'attributs permettant d'identifier un enregistrement unique","N'importe quel attribut non NULL","Le premier attribut de la table"],c:1,e:"La clé primaire est un ensemble MINIMUM d'attributs dont la connaissance des valeurs permet d'identifier de façon unique un enregistrement (tuple) dans la relation."},
+{t:'t4',q:"Pour les sous-entités, la méthode ascendante consiste à :",img:"mldr",o:["Les enfants héritent des attributs du père et le père disparaît","Le père absorbe ses enfants et hérite de leurs attributs, les enfants disparaissent","On crée une table pour chaque entité","On fusionne le père et les enfants en une seule table"],c:1,e:"Méthode ascendante : le PÈRE 'tue' ses enfants. Le père hérite de tous les attributs des enfants. Les entités filles disparaissent. Exemple : Client hérite de prénom, date_naissance (Particulier) et RC (Entreprise)."},
+{t:'t4',q:"Quelle est la notation correcte d'une relation en MLDR ?",img:"mldr",o:["Etudiant{Matricule, Nom, Prénom}","Etudiant[Matricule, Nom, Prénom]","Etudiant(Matricule, Nom, Prénom, #Codfil)","Etudiant: Matricule, Nom, Prénom"],c:2,e:"La notation standard du MLDR est NomRelation(attribut1, attribut2, ...). La clé primaire est soulignée, les clés étrangères précédées de #. Ex: Etudiant(Matricule, Nom, Prénom, #Codfil)."},
+{t:'t4',q:"Une association réflexive N,N dans le MLDR donne :",img:"mldr",o:["Une seule relation avec un attribut","Une relation où l'identifiant apparaît deux fois avec des alias","Deux relations séparées","Une contrainte CHECK"],c:1,e:"Une association réflexive N,N crée une relation où l'identifiant apparaît DEUX FOIS avec des noms différents. Ex: Boxer(#Num_boxeur1, #Num_boxeur2, Date_combat) pour les combats entre boxeurs."},
+{t:'t4',q:"Qu'est-ce qu'une clé candidate ?",img:"mldr",o:["Un attribut qui peut être NULL","Un ensemble minimal d'attributs pouvant servir de clé primaire","Une clé étrangère alternative","Un attribut calculé"],c:1,e:"Une clé candidate est un ensemble minimal d'attributs permettant d'identifier de façon unique chaque tuple. Une relation peut avoir plusieurs clés candidates ; on en choisit une comme clé primaire."},
+{t:'t4',q:"Dans la méthode descendante pour les sous-entités :",img:"mldr",o:["Le père absorbe les enfants","Les enfants héritent des attributs du père, le père disparaît","Chaque entité devient une table","Le père et les enfants coexistent"],c:1,e:"Méthode descendante : les ENFANTS 'tuent' leur père. Chaque entité fille hérite des attributs du père en plus de ses propres attributs. L'entité père disparaît."},
+{t:'t4',q:"Pourquoi une entité de dimension 1 (un seul attribut) ne devient relation que si sa cardinalité min = 0 ?",img:"mldr",o:["Pour économiser de l'espace","Car si la cardinalité min = 1, l'attribut migre directement dans la relation associée","Pour des raisons de performances","C'est une convention arbitraire"],c:1,e:"Si l'entité de dimension 1 a une cardinalité min = 1, l'attribut migre simplement comme clé étrangère dans la relation associée (pas besoin de table séparée). Si min = 0 (optionnel), on crée une table séparée."},
+{t:'t4',q:"La clé étrangère établit une contrainte de :",img:"mldr",o:["Domaine","Intégrité référentielle","Unicité","Valeur non nulle"],c:1,e:"La clé étrangère établit une contrainte d'intégrité référentielle : la valeur de la clé étrangère dans une table doit exister comme valeur de la clé primaire dans la table référencée."},
+{t:'t4',q:"Dans le passage MCD → MLDR pour une entité normale (forte) :",img:"mldr",o:["L'entité devient une vue","L'entité devient une relation ; son identifiant devient la clé primaire","L'entité est fusionnée avec ses associations","Les attributs calculés sont supprimés"],c:1,e:"Règle principale : toute entité forte devient une RELATION (table) dans le MLDR. Son identifiant (ou ses identifiants) devient la clé primaire de la relation."},
+
+/* ── T5 : Normalisation ── */
+{t:'t5',q:"Une relation est en 1ère Forme Normale (1FN) si :",img:"normalisation",o:["Elle n'a aucun attribut","Tous ses attributs sont atomiques (non décomposables) et elle possède une clé primaire","Elle est en 2FN","Elle n'a pas de clé étrangère"],c:1,e:"1FN : tous les attributs sont atomiques (indivisibles, pas de listes ni de groupes répétitifs) ET la relation possède une clé primaire. C'est le niveau minimal de normalisation."},
+{t:'t5',q:"Une relation est en 2ème Forme Normale (2FN) si :",img:"normalisation",o:["Elle est en 1FN et a une seule clé","Elle est en 1FN et tout attribut non-clé dépend de TOUTE la clé primaire (pas de dépendance partielle)","Elle n'a pas de transitivité","Elle est en 3FN"],c:1,e:"2FN : en 1FN ET tout attribut non-clé dépend fonctionnellement de la totalité de la clé primaire (pas de dépendance partielle). Problème typique : clé composée dont un attribut dépend seulement d'une partie."},
+{t:'t5',q:"Une relation est en 3ème Forme Normale (3FN) si :",img:"normalisation",o:["Elle est en 2FN et a peu d'attributs","Elle est en 2FN et tout attribut non-clé dépend directement de la clé (pas de transitivité)","Elle n'a pas de clé étrangère","Elle est en 1FN et 2FN"],c:1,e:"3FN : en 2FN ET aucun attribut non-clé ne dépend d'un autre attribut non-clé (pas de transitivité). Tous les attributs non-clés doivent avoir une dépendance fonctionnelle directe avec la clé primaire."},
+{t:'t5',q:"Soit Commander(n°bon, ref_prod, date, libellé, pu, qté, client). Sachant que n°bon,ref_prod est la clé, et que 'date' et 'client' dépendent uniquement de n°bon : quelle forme normale est violée ?",img:"normalisation",o:["1FN","2FN","3FN","Aucune forme normale n'est violée"],c:1,e:"La 2FN est violée car 'date' et 'client' dépendent partiellement de la clé (seulement de n°bon, pas de la totalité n°bon+ref_prod). Solution : créer R1(n°bon, date, client) et R2(ref_prod, libellé, pu)."},
+{t:'t5',q:"Quel est l'objectif principal de la normalisation ?",img:"normalisation",o:["Accélérer les requêtes","Réduire les redondances et éviter les anomalies d'insertion/modification/suppression","Chiffrer les données","Réduire le nombre de tables"],c:1,e:"La normalisation vise à éliminer les redondances, les anomalies de mise à jour et à obtenir des structures de données claires. Elle décompose les relations sans perte d'informations."},
+{t:'t5',q:"La décomposition d'une relation lors de la normalisation doit se faire :",img:"normalisation",o:["Avec perte d'informations possible","Sans perte d'informations","En doublant toutes les clés","Aléatoirement"],c:1,e:"La normalisation consiste à décomposer une relation SANS perte d'informations (décomposition sans perte). On doit pouvoir retrouver la relation originale par jointure des sous-relations obtenues."},
+{t:'t5',q:"Soit R(A, B, C, D) avec A comme clé. Si B → C, alors R est en :",img:"normalisation",o:["1FN seulement","2FN mais pas 3FN","3FN","Aucune forme normale"],c:1,e:"R est en 2FN (la clé est simple : A, donc pas de dépendance partielle possible). Mais R viole la 3FN car B → C est une transitivité : C dépend de B (non-clé) et non directement de A (la clé)."},
+{t:'t5',q:"La normalisation en 2FN ne concerne que les relations ayant :",img:"normalisation",o:["Des attributs calculés","Une clé primaire composée (plusieurs attributs)","Des clés étrangères","Des attributs textuels"],c:1,e:"La 2FN n'a de sens que si la clé primaire est COMPOSÉE (plusieurs attributs). Si la clé est simple (un seul attribut), la 2FN est automatiquement satisfaite si la relation est en 1FN."},
+{t:'t5',q:"Lors de la mise en 1FN, que doit-on faire avec l'attribut 'Adresse' (rue, code postal, ville) ?",img:"normalisation",o:["Le laisser tel quel","Le supprimer","Le décomposer en 3 attributs atomiques : rue, code_postal, ville","Le transformer en clé primaire"],c:2,e:"En 1FN, tous les attributs doivent être atomiques. 'Adresse' est concaténée (décomposable), donc il faut la remplacer par 3 attributs simples : rue, code_postal, ville."},
+{t:'t5',q:"Si une relation est en 3FN, elle est automatiquement :",img:"normalisation",o:["Seulement en 3FN","En 1FN et 2FN également","Aucune des formes normales","Uniquement en 2FN"],c:1,e:"Les formes normales sont hiérarchiques : 3FN ⊃ 2FN ⊃ 1FN. Si une relation est en 3FN, elle est nécessairement en 2FN et en 1FN également."},
+
+/* ── T6 : Algèbre Relationnelle ── */
+{t:'t6',q:"L'opération de SÉLECTION en algèbre relationnelle :",img:"algebre",o:["Choisit des colonnes (attributs)","Filtre des lignes (tuples) selon une condition","Fusionne deux relations","Supprime les doublons"],c:1,e:"La Sélection σ (sigma) filtre les TUPLES (lignes) d'une relation selon une condition. R'=σ_condition(R). Ex: σ_pu<400(Produit) renvoie les produits dont le prix est inférieur à 400."},
+{t:'t6',q:"L'opération de PROJECTION en algèbre relationnelle :",img:"algebre",o:["Filtre des lignes selon une condition","Sélectionne des colonnes (attributs) spécifiques","Crée le produit cartésien","Fusionne deux tables"],c:1,e:"La Projection π (pi) sélectionne des ATTRIBUTS (colonnes) d'une relation. R'=π_attributs(R). Ex: π_nom,prénom(Etudiant) retourne seulement les colonnes nom et prénom."},
+{t:'t6',q:"Le produit cartésien R1 × R2 produit :",img:"algebre",o:["Les tuples communs aux deux relations","Toutes les combinaisons possibles de tuples de R1 avec ceux de R2","Les tuples de R1 qui ne sont pas dans R2","Les tuples qui correspondent à une condition"],c:1,e:"Le produit cartésien combine TOUTES les lignes de R1 avec TOUTES les lignes de R2. Si R1 a n tuples et R2 a m tuples, le résultat aura n×m tuples. C'est la base de la jointure."},
+{t:'t6',q:"La JOINTURE (⋈) entre deux relations :",img:"algebre",o:["Est un produit cartésien","Est un produit cartésien filtré par une condition de jointure","Supprime les doublons","Retourne seulement les tuples sans correspondance"],c:1,e:"La jointure = produit cartésien + sélection sur une condition. R'=R1⋈R2 sur condition. En pratique, on joint sur l'attribut commun (clé primaire = clé étrangère)."},
+{t:'t6',q:"L'UNION de R1 et R2 contient :",img:"algebre",o:["Les tuples présents dans R1 ET R2","Les tuples présents dans R1 OU R2 (sans doublons)","Les tuples de R1 absents de R2","Le produit des deux relations"],c:1,e:"L'Union R1 ∪ R2 contient tous les tuples appartenant à R1 OU à R2 (ou aux deux), sans doublons. R1 et R2 doivent avoir le même schéma (mêmes attributs)."},
+{t:'t6',q:"La DIFFÉRENCE R1 − R2 contient :",img:"algebre",o:["Les tuples communs à R1 et R2","Les tuples de R1 non présents dans R2","Les tuples de R2 non présents dans R1","Tous les tuples des deux relations"],c:1,e:"La Différence R1 − R2 contient les tuples présents dans R1 mais ABSENTS de R2. R1 et R2 doivent avoir le même schéma."},
+{t:'t6',q:"L'INTERSECTION R1 ∩ R2 contient :",img:"algebre",o:["Les tuples de R1 uniquement","Les tuples communs à R1 ET R2","Les tuples de R1 ou R2","Les tuples de R1 minus R2"],c:1,e:"L'Intersection contient les tuples appartenant À LA FOIS à R1 ET à R2. Elle peut être exprimée en termes de différence : R1 ∩ R2 = R1 − (R1 − R2)."},
+{t:'t6',q:"L'opération de DIVISION R ÷ d retourne :",img:"algebre",o:["Les tuples de R divisés par 2","Les tuples de R qui sont en relation avec TOUS les tuples de d","Les tuples de R divisés par d","Le quotient numérique"],c:1,e:"La Division retourne les tuples de R liés à TOUS les tuples de d. Ex: 'Matricules des étudiants qui ont composé dans TOUTES les matières'. C'est l'opération algébrique exprimant le 'pour tous'."},
+{t:'t6',q:"Une fonction d'agrégation comme COUNT, SUM, AVG s'utilise avec :",img:"algebre",o:["La sélection σ","La projection π","Le regroupement (GROUP BY)","La jointure ⋈"],c:2,e:"Les fonctions d'agrégation (COUNT, SUM, AVG, MAX, MIN) s'utilisent dans une opération de regroupement. Chaque groupe est traité comme un ensemble et la fonction calcule une valeur de synthèse par groupe."},
+{t:'t6',q:"Le résultat d'un regroupement contient :",img:"algebre",o:["Tous les attributs de la relation originale","Seulement les attributs de regroupement et les fonctions de synthèse","Seulement les fonctions de synthèse","Les attributs sélectionnés aléatoirement"],c:1,e:"Après un regroupement, le résultat ne contient QUE les attributs de regroupement et les fonctions de synthèse. On ne peut utiliser que ces éléments dans les opérations suivantes."},
+{t:'t6',q:"Pour exécuter une jointure naturelle, quelle condition est requise ?",img:"algebre",o:["Les deux relations ont le même nombre de tuples","Les deux relations partagent au moins un attribut de même nom","Les deux relations ont la même clé primaire","Les deux relations sont identiques"],c:1,e:"La jointure naturelle utilise automatiquement le ou les attributs de même nom comme condition de jointure, en éliminant les doublons de colonnes dans le résultat."},
+{t:'t6',q:"Quelle propriété caractérise toujours le résultat d'une opération d'algèbre relationnelle ?",img:"algebre",o:["Il contient des doublons","C'est une nouvelle relation (pas de doublons, propriété de fermeture)","Il est vide","Il est en 3FN"],c:1,e:"Propriété de fermeture : le résultat de toute opération d'algèbre relationnelle est une nouvelle RELATION. Cela implique notamment l'absence de doublons et permet de composer les opérations."},
+
+/* ── T7 : SQL ── */
+{t:'t7',q:"Que signifie DDL en SQL ?",img:"sql",o:["Data Delivery Language","Data Definition Language","Dynamic Data Language","Direct Data Link"],c:1,e:"DDL = Data Definition Language. C'est la partie de SQL qui permet de définir et modifier la structure de la base : CREATE TABLE, ALTER TABLE, DROP TABLE, CREATE INDEX, etc."},
+{t:'t7',q:"Quelle instruction SQL crée une table ?",img:"sql",o:["INSERT TABLE","MAKE TABLE","CREATE TABLE","BUILD TABLE"],c:2,e:"CREATE TABLE est l'instruction DDL pour créer une nouvelle table. Syntaxe : CREATE TABLE nom_table (champ1 type1 [contraintes], champ2 type2, ...);"},
+{t:'t7',q:"Quelle instruction SQL permet d'ajouter un enregistrement dans une table ?",img:"sql",o:["ADD INTO","INSERT INTO","UPDATE INTO","CREATE INTO"],c:1,e:"INSERT INTO est l'instruction DML pour ajouter un enregistrement. Syntaxe : INSERT INTO table (champ1, champ2, ...) VALUES (valeur1, valeur2, ...);"},
+{t:'t7',q:"La clause WHERE dans un SELECT sert à :",img:"sql",o:["Regrouper les résultats","Trier les résultats","Filtrer les enregistrements selon une condition","Sélectionner des colonnes"],c:2,e:"WHERE filtre les enregistrements AVANT le regroupement. Elle s'applique aux lignes individuelles. Pour filtrer APRÈS regroupement, on utilise HAVING (avec GROUP BY)."},
+{t:'t7',q:"Quelle est la différence entre WHERE et HAVING en SQL ?",img:"sql",o:["Il n'y a aucune différence","WHERE filtre les lignes avant regroupement, HAVING filtre les groupes après GROUP BY","HAVING s'utilise sans GROUP BY","WHERE ne peut pas utiliser de conditions"],c:1,e:"WHERE filtre les lignes individuelles AVANT le regroupement. HAVING filtre les GROUPES formés par GROUP BY. HAVING est toujours utilisé avec GROUP BY."},
+{t:'t7',q:"La clause ORDER BY dans un SELECT permet de :",img:"sql",o:["Filtrer les enregistrements","Regrouper les enregistrements","Trier les résultats par ordre croissant (ASC) ou décroissant (DESC)","Joindre deux tables"],c:2,e:"ORDER BY trie les résultats. Par défaut : ordre croissant (ASC). Pour décroissant : ORDER BY champ DESC. On peut trier sur plusieurs champs : ORDER BY champ1 ASC, champ2 DESC."},
+{t:'t7',q:"Que fait l'instruction SQL suivante : SELECT DISTINCT nom FROM Etudiant ?",img:"sql",o:["Sélectionne tous les noms, y compris les doublons","Sélectionne les noms en supprimant les doublons","Supprime les étudiants sans nom","Crée une nouvelle table"],c:1,e:"DISTINCT élimine les doublons dans les résultats. SELECT DISTINCT nom FROM Etudiant retourne la liste des noms sans répétition. À distinguer de SELECT ALL (défaut) qui inclut les doublons."},
+{t:'t7',q:"La contrainte NOT NULL sur une colonne signifie :",img:"sql",o:["La colonne doit être numérique","La colonne ne peut pas rester vide (doit avoir une valeur)","La colonne ne peut pas être une clé","La colonne est automatiquement indexée"],c:1,e:"NOT NULL signifie qu'un enregistrement ne peut être inséré que si ce champ contient une valeur (non vide). C'est une contrainte d'intégrité de domaine."},
+{t:'t7',q:"Quelle instruction SQL modifie des enregistrements existants ?",img:"sql",o:["INSERT INTO","MODIFY","UPDATE ... SET","CHANGE"],c:2,e:"UPDATE ... SET modifie des enregistrements. Syntaxe : UPDATE table SET champ1=valeur1, champ2=valeur2 WHERE condition. ATTENTION : sans WHERE, tous les enregistrements sont modifiés."},
+{t:'t7',q:"La commande GRANT en SQL sert à :",img:"sql",o:["Créer une table","Accorder des privilèges à un utilisateur","Supprimer une base de données","Récupérer des enregistrements"],c:1,e:"GRANT est une commande DCL (Data Control Language) pour accorder des privilèges. Ex: GRANT SELECT, INSERT ON table TO utilisateur. On peut utiliser ALL PRIVILEGES pour tout accorder."},
+{t:'t7',q:"Qu'est-ce que l'injection SQL ?",img:"securite",o:["Une technique d'optimisation des requêtes","Une méthode de sauvegarde","Une technique d'attaque consistant à insérer du code SQL malveillant dans une entrée","Une façon d'importer des données"],c:2,e:"L'injection SQL est une attaque qui exploite des formulaires web pour injecter des instructions SQL malveillantes. Ex: saisir '105 OR 1=1' dans un champ ID pour accéder à tous les enregistrements."},
+{t:'t7',q:"Quelle jointure SQL retourne TOUS les enregistrements des deux tables, même sans correspondance ?",img:"sql",o:["INNER JOIN","LEFT JOIN","RIGHT JOIN","FULL OUTER JOIN"],c:3,e:"FULL OUTER JOIN (ou FULL JOIN) retourne TOUS les enregistrements quand il y a une correspondance dans l'une OU l'autre table. C'est la combinaison de LEFT JOIN et RIGHT JOIN."},
+{t:'t7',q:"Que fait GROUP BY dans une requête SQL ?",img:"sql",o:["Trie les résultats","Regroupe les lignes ayant les mêmes valeurs dans les colonnes spécifiées","Filtre les lignes","Supprime les doublons"],c:1,e:"GROUP BY regroupe les lignes ayant des valeurs identiques dans les colonnes spécifiées. On l'utilise avec des fonctions d'agrégation (COUNT, SUM, AVG, MAX, MIN) pour calculer des statistiques par groupe."},
+{t:'t7',q:"La contrainte CHECK dans une table SQL permet de :",img:"sql",o:["Vérifier la syntaxe SQL","Limiter les valeurs acceptées dans une colonne selon une condition","Chiffrer les données","Indexer automatiquement la colonne"],c:1,e:"CHECK est une contrainte d'intégrité de domaine. Elle limite les valeurs acceptées par une ou plusieurs colonnes. Ex: CHECK (age >= 18) empêche l'insertion d'un âge inférieur à 18."},
+{t:'t7',q:"Que signifie REVOKE dans le DCL SQL ?",img:"securite",o:["Créer un utilisateur","Accorder des privilèges","Révoquer des autorisations précédemment accordées","Sauvegarder la base"],c:2,e:"REVOKE est une commande DCL qui révoque des autorisations précédemment accordées par GRANT. Si on révoque, l'utilisateur perd le droit mais peut le recevoir à nouveau par GRANT ultérieurement."},
+{t:'t7',q:"La commande ALTER TABLE permet de :",img:"sql",o:["Créer une nouvelle table","Modifier la structure d'une table existante (ajouter/modifier/supprimer colonnes)","Supprimer tous les enregistrements","Créer un index"],c:1,e:"ALTER TABLE modifie la structure d'une table existante. Elle permet : ADD COLUMN (ajouter colonne), ALTER COLUMN ou MODIFY (modifier type/taille), DROP COLUMN (supprimer colonne)."},
+{t:'t7',q:"Quelle clause SQL est utilisée pour filtrer les résultats après un GROUP BY ?",img:"sql",o:["WHERE","FILTER","HAVING","AFTER"],c:2,e:"HAVING filtre les groupes créés par GROUP BY. WHERE ne peut pas être utilisé avec des fonctions d'agrégation. Ex: GROUP BY Codfil HAVING COUNT(*) > 5 → filières ayant plus de 5 étudiants."},
+{t:'t7',q:"Quel est le résultat de COUNT(*) dans une requête SQL ?",img:"sql",o:["La somme de toutes les valeurs","Le nombre d'enregistrements (y compris ceux avec des valeurs NULL)","La valeur maximale","La moyenne"],c:1,e:"COUNT(*) compte le nombre total d'enregistrements, y compris ceux qui contiennent des valeurs NULL dans certains champs. COUNT(colonne) exclut les NULL pour la colonne spécifiée."},
+];
+
+/* ═══════════════════════════════════════
+   ENGINE
+═══════════════════════════════════════ */
+let activeTheme=null, activeQ=[], answers=[], cur=0, correct=0, wrong=0;
+
+function buildHome(){
+  const grid = document.getElementById('th-grid');
+  grid.innerHTML = '';
+  THEMES.forEach((th, idx) => {
+    const count = BANK.filter(q => q.t === th.id).length;
+    const card = document.createElement('div');
+    card.className = 'th-card';
+    card.style.setProperty('--tc', th.color);
+    card.innerHTML = `
+      <div class="th-card-head">
+        <span class="th-ico">${th.icon}</span>
+        <span class="th-id" style="color:${th.color}">MOD_${String(idx+1).padStart(2,'0')}</span>
+      </div>
+      <div class="th-name">${th.name}</div>
+      <div class="th-meta">${count}_questions · ${th.desc}</div>
+      <div class="th-prog"><div class="th-prog-fill" style="background:${th.color};box-shadow:0 0 6px ${th.color}"></div></div>`;
+    card.addEventListener('click', () => startTheme(th.id));
+    grid.appendChild(card);
+    setTimeout(() => {
+      card.querySelector('.th-prog-fill').style.width = Math.min(count * 7, 96) + '%';
+    }, 150 + idx * 60);
+  });
+}
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function startTheme(tid){
+  activeTheme = tid;
+  activeQ = BANK.filter(q => q.t === tid);
+  launchQuiz();
+}
+
+function startAll(){
+  activeTheme = 'all';
+  activeQ = [...BANK];
+  launchQuiz();
+}
+
+function launchQuiz(){
+  answers = new Array(activeQ.length).fill(null);
+  cur = 0; correct = 0; wrong = 0;
+  const badge = document.getElementById('q-badge');
+  if(activeTheme === 'all'){
+    badge.textContent = '// ALL_MODULES';
+    badge.style.cssText = 'background:rgba(255,107,53,.1);border-color:#ff6b35;color:#ff6b35';
+  } else {
+    const th = THEMES.find(t => t.id === activeTheme);
+    badge.textContent = `// ${th.name.toUpperCase().replace(/[' ]/g,'_').substring(0,20)}`;
+    badge.style.cssText = `background:${th.color}10;border-color:${th.color};color:${th.color}`;
+  }
+  show('s-quiz');
+  render();
+}
+
+function render(){
+  const q = activeQ[cur], n = cur+1, total = activeQ.length;
+  const pct = Math.round((n-1)/total*100);
+  document.getElementById('pfill').style.width = pct + '%';
+  document.getElementById('qfrac').textContent = `${String(n).padStart(2,'0')}/${total}`;
+  document.getElementById('qcorner').textContent = `Q_${String(n).padStart(3,'0')}.exe`;
+  document.getElementById('qlabel').textContent = `QUESTION ${String(n).padStart(2,'0')} — ${pct}% COMPLETED`;
+  document.getElementById('qtext').textContent = q.q;
+  const illo = document.getElementById('qillo');
+  if(q.img && SVG[q.img]){ illo.innerHTML = SVG[q.img]; illo.style.display = 'flex'; }
+  else { illo.innerHTML = ''; illo.style.display = 'none'; }
+  const opts = document.getElementById('opts');
+  opts.innerHTML = '';
+  q.o.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt';
+    btn.innerHTML = `<span class="opt-key">${'ABCD'[i]}</span>${opt}`;
+    btn.disabled = answers[cur] !== null;
+    if(answers[cur] !== null){
+      if(i === q.c) btn.classList.add('correct');
+      else if(i === answers[cur] && answers[cur] !== q.c) btn.classList.add('wrong');
+    }
+    btn.addEventListener('click', () => selectAns(i));
+    opts.appendChild(btn);
+  });
+  const expl = document.getElementById('expl');
+  expl.innerHTML = `<span class="expl-tag">// OUTPUT</span>${q.e}`;
+  expl.className = 'expl' + (answers[cur] !== null ? ' show' : '');
+  document.getElementById('sc').textContent = correct;
+  document.getElementById('sw').textContent = wrong;
+  document.getElementById('sr').textContent = activeQ.length - correct - wrong;
+  document.getElementById('btn-prev').style.opacity = cur === 0 ? '0.3' : '1';
+  document.getElementById('btn-prev').disabled = cur === 0;
+  document.getElementById('btn-next').textContent = cur === activeQ.length-1 ? 'SHOW RESULTS →' : 'NEXT →';
+}
+
+function selectAns(i){
+  if(answers[cur] !== null) return;
+  answers[cur] = i;
+  if(i === activeQ[cur].c) correct++;
+  else wrong++;
+  render();
+}
+
+function nextQ(){ if(cur === activeQ.length-1){ showResult(); return; } cur++; render(); }
+function prevQ(){ if(cur > 0){ cur--; render(); } }
+
+function showResult(){
+  show('s-result');
+  const pct = Math.round(correct / activeQ.length * 100);
+  const chip = activeTheme === 'all' ? '// BDD_FULL_SCAN.log' : `// ${THEMES.find(t=>t.id===activeTheme).name.toUpperCase()}.log`;
+  document.getElementById('res-chip').textContent = chip;
+  document.getElementById('res-score').textContent = `${correct}/${activeQ.length}`;
+  document.getElementById('res-detail').textContent = `pct=${pct}%  errors=${wrong}  skipped=${activeQ.length-correct-wrong}`;
+  const mentions = [
+    [90,'> EXCELLENT — Maîtrise parfaite des BDD !'],
+    [75,'> TRES BIEN — Bonne maîtrise, peaufinez les détails'],
+    [60,'> BIEN — Revoyez SQL et la normalisation'],
+    [50,'> MOYEN — Le MCD et le MLDR méritent attention'],
+    [0, '> INSUFFISANT — Reprenez le cours depuis le début'],
+  ];
+  document.getElementById('res-mention').textContent = mentions.find(([p]) => pct >= p)[1];
+  const container = document.getElementById('theme-scores');
+  container.innerHTML = '';
+  const list = activeTheme === 'all' ? THEMES : THEMES.filter(t => t.id === activeTheme);
+  list.forEach((th, idx) => {
+    const thQ = activeQ.filter(q => q.t === th.id);
+    if(!thQ.length) return;
+    const thC = thQ.filter(q => answers[activeQ.indexOf(q)] === q.c).length;
+    const thP = Math.round(thC / thQ.length * 100);
+    const col = thP >= 75 ? '#00ff9d' : thP >= 50 ? '#ffb300' : '#ff4757';
+    const card = document.createElement('div');
+    card.className = 'ts-card';
+    card.innerHTML = `
+      <div class="ts-head"><span class="ts-ico">${th.icon}</span><span class="ts-name">${th.name}</span></div>
+      <div class="ts-track"><div class="ts-fill" style="background:${col};box-shadow:0 0 6px ${col}"></div></div>
+      <div class="ts-nums">${thC}/${thQ.length} correctes</div>
+      <div class="ts-pct" style="color:${col}">${thP}%</div>`;
+    container.appendChild(card);
+    setTimeout(() => { card.querySelector('.ts-fill').style.width = thP + '%'; }, 200 + idx * 70);
+  });
+}
+
+function goHome(){ show('s-home'); }
+function retryQuiz(){ if(activeTheme === 'all') startAll(); else startTheme(activeTheme); }
+
+buildHome();
+</script>
+</body>
+</html>
