@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Résumé · Rédaction Administrative · ENEAM</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Outfit:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#050810;--panel:#0d1520;--panel2:#111e2e;
+  --b1:#162030;--b2:#1e2d40;--b3:#243446;
+  --teal:#00e5cc;--teal2:#00b8a3;--purple:#a78bfa;
+  --green:#00ff9d;--amber:#ffb300;--red:#ff4757;--cyan:#00d4ff;
+  --txt:#c8d6e0;--txt2:#7a9ab0;--txt3:#3d5568;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--void);color:var(--txt);font-family:'Outfit',sans-serif;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,229,204,.015) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,204,.015) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+body::after{content:'';position:fixed;inset:0;background-image:radial-gradient(circle,rgba(0,229,204,.04) 1px,transparent 1px);background-size:40px 40px;background-position:20px 20px;pointer-events:none;z-index:0}
+
+@keyframes scan{0%{transform:translateY(-100vh)}100%{transform:translateY(100vh)}}
+.scanline{position:fixed;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(0,229,204,.18),transparent);animation:scan 9s linear infinite;pointer-events:none;z-index:999}
+
+.root{max-width:900px;margin:0 auto;padding:0 1.4rem 6rem;position:relative;z-index:1}
+
+.nav{display:flex;align-items:center;justify-content:space-between;padding:.9rem 0;border-bottom:1px solid var(--b1);margin-bottom:2.5rem;position:sticky;top:0;background:rgba(5,8,16,.92);backdrop-filter:blur(12px);z-index:40;gap:1rem;flex-wrap:wrap}
+.nav-back{display:flex;align-items:center;gap:.5rem;font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--txt2);text-decoration:none;padding:.3rem .7rem;border:1px solid var(--b2);border-radius:2px;transition:all .2s}
+.nav-back:hover{border-color:var(--teal);color:var(--teal)}
+.nav-title{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--txt3)}
+.nav-title span{color:var(--teal)}
+.nav-tag{font-family:'JetBrains Mono',monospace;font-size:.6rem;padding:.2rem .6rem;border:1px solid rgba(0,229,204,.25);border-radius:2px;color:var(--teal);background:rgba(0,229,204,.07)}
+
+.hdr{padding:1.5rem 0 2.5rem;text-align:center}
+.hdr-eyebrow{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--txt3);letter-spacing:.18em;margin-bottom:1rem;display:flex;align-items:center;justify-content:center;gap:.6rem}
+.hdr-eyebrow::before,.hdr-eyebrow::after{content:'';width:30px;height:1px;background:var(--b3)}
+.hdr h1{font-size:clamp(1.8rem,5vw,3rem);font-weight:900;line-height:1.1;letter-spacing:-.02em;margin-bottom:.6rem}
+.hdr h1 .t1{color:var(--txt)}
+.hdr h1 .t2{color:var(--teal);text-shadow:0 0 30px rgba(0,229,204,.3)}
+.hdr-sub{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--txt2)}
+.hdr-sub .v{color:var(--green)}
+
+.view-toggle{display:flex;gap:.5rem;justify-content:center;margin:2rem 0 2.5rem}
+.vt-btn{font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:500;padding:.4rem 1rem;border-radius:2px;border:1px solid var(--b2);background:transparent;color:var(--txt3);cursor:pointer;letter-spacing:.06em;transition:all .2s;text-transform:uppercase}
+.vt-btn.active{border-color:var(--teal);color:var(--teal);background:rgba(0,229,204,.07);text-shadow:0 0 8px rgba(0,229,204,.3)}
+.vt-btn:hover:not(.active){border-color:var(--b3);color:var(--txt2)}
+
+#view-condensed{display:block}
+#view-detail{display:none}
+
+/* Vue condensée */
+.condensed-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:1rem}
+.ccard{background:var(--panel);border:1px solid var(--b1);border-radius:4px;padding:1.2rem 1.3rem;cursor:pointer;transition:all .22s;position:relative;overflow:hidden}
+.ccard::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--cc);opacity:.7;transform:scaleX(0);transform-origin:left;transition:transform .3s}
+.ccard:hover{border-color:var(--cc);transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,.4)}
+.ccard:hover::before{transform:scaleX(1)}
+.ccard-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:.8rem}
+.ccard-ico{font-size:1.3rem}
+.ccard-id{font-family:'JetBrains Mono',monospace;font-size:.58rem}
+.ccard-title{font-size:.92rem;font-weight:700;margin-bottom:.35rem;line-height:1.25}
+.ccard-nature{font-family:'JetBrains Mono',monospace;font-size:.62rem;margin-bottom:.5rem}
+.ccard-tags{display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.7rem}
+.ctag{font-family:'JetBrains Mono',monospace;font-size:.57rem;padding:.12rem .45rem;background:rgba(0,0,0,.3);border:1px solid var(--b2);border-radius:2px;color:var(--txt3)}
+.ccard-hint{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--txt3)}
+.ccard:hover .ccard-hint{color:var(--cc)}
+
+/* Vue détaillée */
+.themes-list{display:flex;flex-direction:column;gap:.5rem;margin-bottom:2rem}
+.tl-item{display:flex;align-items:center;gap:.7rem;padding:.6rem .9rem;background:var(--panel);border:1px solid var(--b1);border-radius:3px;cursor:pointer;transition:all .2s}
+.tl-item:hover,.tl-item.active{border-color:var(--item-col);background:var(--panel2)}
+.tl-item.active .tl-name{color:var(--item-col)}
+.tl-num{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--txt3);min-width:42px}
+.tl-ico{font-size:1rem}
+.tl-name{font-size:.85rem;font-weight:500;color:var(--txt);flex:1}
+.tl-count{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--txt3)}
+.tl-arrow{font-size:.7rem;color:var(--txt3);transition:all .2s}
+.tl-item:hover .tl-arrow,.tl-item.active .tl-arrow{color:var(--item-col);transform:translateX(2px)}
+
+.fiche{display:none;background:var(--panel);border:1px solid var(--b1);border-radius:6px;overflow:hidden;animation:ficheIn .3s ease}
+.fiche.show{display:block}
+@keyframes ficheIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.fiche-header{padding:1.6rem 2rem;border-bottom:1px solid var(--b1);background:var(--panel2);position:relative;overflow:hidden}
+.fiche-header::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--fiche-col)}
+.fiche-eyebrow{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--txt3);letter-spacing:.12em;margin-bottom:.5rem}
+.fiche-title{font-size:1.3rem;font-weight:700;color:var(--txt);margin-bottom:.3rem}
+.fiche-subtitle{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--fiche-col);opacity:.8}
+.fiche-body{padding:1.8rem 2rem}
+
+.fsec{margin-bottom:2rem}
+.fsec-title{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--fiche-col);letter-spacing:.15em;text-transform:uppercase;margin-bottom:.9rem;display:flex;align-items:center;gap:.5rem}
+.fsec-title::before{content:'//';color:var(--txt3)}
+.fsec-title::after{content:'';flex:1;height:1px;background:var(--b2)}
+
+.def-block{background:rgba(0,0,0,.25);border:1px solid var(--b2);border-left:2px solid var(--fiche-col);border-radius:0 4px 4px 0;padding:.9rem 1.1rem;margin-bottom:.8rem;font-size:.85rem;color:var(--txt2);line-height:1.75;font-weight:300}
+.def-block .kw{font-family:'JetBrains Mono',monospace;font-size:.82rem;font-weight:500}
+.def-block strong{color:var(--txt);font-weight:500}
+
+/* MODÈLE — bloc spécial pour reproduire la structure d'un document */
+.modele{background:rgba(0,0,0,.4);border:1px solid var(--b2);border-radius:4px;padding:0;margin-bottom:1rem;overflow:hidden;font-family:'JetBrains Mono',monospace;font-size:.72rem}
+.modele-title{font-size:.62rem;color:var(--fiche-col);letter-spacing:.12em;padding:.5rem .9rem;background:rgba(0,0,0,.3);border-bottom:1px solid var(--b2)}
+.modele-body{padding:1rem 1.2rem;color:var(--txt2);line-height:2;white-space:pre-wrap}
+.modele-body .ml{color:var(--fiche-col);font-weight:500}
+.modele-body .mc{color:var(--amber);opacity:.8}
+.modele-body .mn{color:var(--txt3)}
+
+.example-block{background:rgba(0,229,204,.03);border:1px solid rgba(0,229,204,.12);border-radius:4px;padding:.9rem 1.1rem;margin-bottom:.8rem}
+.example-block .ex-label{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--teal);letter-spacing:.1em;margin-bottom:.4rem}
+.example-block .ex-content{font-size:.83rem;color:var(--txt2);line-height:1.7;font-weight:300}
+.example-block code{font-family:'JetBrains Mono',monospace;color:var(--green);font-size:.78rem;background:rgba(0,255,157,.06);padding:.1rem .3rem;border-radius:2px}
+
+.ftable{width:100%;border-collapse:collapse;margin-bottom:.8rem;font-size:.78rem}
+.ftable th{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--txt3);text-transform:uppercase;letter-spacing:.08em;padding:.5rem .8rem;border-bottom:1px solid var(--b2);text-align:left;background:rgba(0,0,0,.2)}
+.ftable td{padding:.5rem .8rem;border-bottom:1px solid var(--b1);color:var(--txt2);font-weight:300}
+.ftable tr:hover td{background:rgba(0,0,0,.2);color:var(--txt)}
+.ftable .key{font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:500}
+
+.retenir{border-radius:4px;padding:.9rem 1.1rem;margin-top:.5rem}
+.retenir .r-label{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.1em;margin-bottom:.5rem}
+.retenir ul{list-style:none;padding:0}
+.retenir li{font-size:.82rem;color:var(--txt2);padding:.22rem 0 .22rem 1rem;position:relative;font-weight:300;line-height:1.55}
+.retenir li::before{content:'›';position:absolute;left:0;font-family:'JetBrains Mono',monospace;font-weight:700}
+
+.fiche-nav{display:flex;justify-content:space-between;align-items:center;padding:1rem 2rem;border-top:1px solid var(--b1);background:var(--panel2)}
+.fiche-nav-btn{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--txt3);background:transparent;border:1px solid var(--b2);border-radius:2px;padding:.3rem .8rem;cursor:pointer;transition:all .2s}
+.fiche-nav-btn:hover:not(:disabled){border-color:var(--txt3);color:var(--txt)}
+.fiche-nav-btn:disabled{opacity:.3;cursor:default}
+
+.footer{margin-top:3rem;padding:1.2rem 0;border-top:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;position:relative;z-index:1}
+.footer-brand{display:flex;align-items:center;gap:.7rem}
+.footer-av{width:32px;height:32px;background:var(--panel);border:1px solid var(--teal);border-radius:2px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:.8rem;color:var(--teal)}
+.footer-name{font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:500;color:var(--txt)}
+.footer-role{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--txt3)}
+.footer-wa{display:inline-flex;align-items:center;gap:.5rem;font-family:'JetBrains Mono',monospace;font-size:.65rem;color:#25d366;text-decoration:none;padding:.32rem .65rem;border:1px solid rgba(37,211,102,.25);border-radius:2px;transition:all .18s}
+.footer-wa:hover{background:rgba(37,211,102,.06);border-color:rgba(37,211,102,.5)}
+@media(max-width:600px){.root{padding:0 1rem 5rem}.fiche-body{padding:1.2rem 1rem}.fiche-header{padding:1.2rem 1rem}.fiche-nav{padding:.8rem 1rem}}
+</style>
+</head>
+<body>
+<div class="scanline"></div>
+<div class="root">
+
+<nav class="nav">
+  <a class="nav-back" href="platform.html">&#8592; PLATFORM</a>
+  <span class="nav-title"><span>REDAC</span>_ADMIN · résumé de cours</span>
+  <span class="nav-tag">MODULE_04</span>
+</nav>
+
+<header class="hdr">
+  <div class="hdr-eyebrow">ENEAM · IG2 A&amp;B · Administration Générale</div>
+  <h1><span class="t1">Résumé de Cours —</span><br><span class="t2">Rédaction Administrative</span></h1>
+  <p class="hdr-sub"><span class="v">7</span> documents · Définitions · Structure · Modèles · Exemples</p>
+</header>
+
+<div class="view-toggle">
+  <button class="vt-btn active" onclick="switchView('condensed',this)">⊞ VUE CONDENSÉE</button>
+  <button class="vt-btn" onclick="switchView('detail',this)">≡ FICHES DÉTAILLÉES</button>
+</div>
+
+<div id="view-condensed">
+  <div class="condensed-grid" id="cg"></div>
+</div>
+<div id="view-detail">
+  <div class="themes-list" id="tl"></div>
+  <div id="fiche-container"></div>
+</div>
+
+</div>
+
+<footer class="footer" style="max-width:900px;margin:0 auto;padding-left:1.4rem;padding-right:1.4rem">
+  <div class="footer-brand">
+    <div class="footer-av">M</div>
+    <div><div class="footer-name">Miracle L.</div><div class="footer-role">// Créateur du cours</div></div>
+  </div>
+  <a class="footer-wa" href="https://wa.me/2290190821282" target="_blank" rel="noopener">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    +229 01 90 82 12 82
+  </a>
+</footer>
+
+<script>
+const THEMES = [
+{
+  id:'T01', icon:'📋', color:'#00e5cc', name:'La Note de Service',
+  nature:'Document interne de communication descendante',
+  tags:['Interne','Hiérarchique','Concis','Obligatoire'],
+  resume:'Instruction écrite d\'un supérieur à ses subordonnés pour transmettre une information ou une directive.',
+  sections:[
+    {type:'defs',title:'DÉFINITION & NATURE',items:[
+      {term:'Définition',def:'La note de service est un document administratif interne par lequel un supérieur hiérarchique informe ses subordonnés d\'une décision, d\'une instruction ou d\'une modification de procédure.'},
+      {term:'Nature',def:'Document interne, à sens unique (descendant). Elle n\'attend pas de réponse. Elle est opposable aux agents qui la reçoivent.'},
+      {term:'Objet',def:'Transmettre une information, donner une instruction, rappeler une règle, modifier un mode de fonctionnement interne.'},
+    ]},
+    {type:'table',title:'CARACTÉRISTIQUES',
+      headers:['Critère','Valeur'],
+      rows:[
+        ['Sens','Descendant (supérieur → subordonné)'],
+        ['Diffusion','Interne à l\'administration / service'],
+        ['Ton','Impératif, neutre, concis'],
+        ['Signature','Auteur avec qualité et titre'],
+        ['Numérotation','N°…/…/… (service/année/numéro)'],
+        ['Ampliation','Liste des destinataires en bas'],
+      ]},
+    {type:'modele',title:'STRUCTURE TYPE',
+      label:'NOTE DE SERVICE',
+      content:`<span class="ml">EN-TÊTE</span>
+<span class="mc">MINISTÈRE / DIRECTION / SERVICE</span>
+<span class="mn">─────────────────────────────</span>
+
+<span class="ml">N°</span> <span class="mc">___/___/___ </span>                    <span class="mc">Lieu, le ___________</span>
+
+<span class="ml">NOTE DE SERVICE</span>
+
+<span class="ml">Objet :</span> <span class="mc">[Objet précis en quelques mots]</span>
+
+─────────────────────────────
+
+<span class="mn">[Corps du texte : exposé de la décision, instruction ou information]</span>
+<span class="mn">[Paragraphe 1 : contexte ou motif]</span>
+<span class="mn">[Paragraphe 2 : instruction ou mesure]</span>
+<span class="mn">[Paragraphe 3 : application / entrée en vigueur]</span>
+
+                              <span class="mc">[Signature]</span>
+                         <span class="mc">[Nom, Prénom, Qualité]</span>
+
+<span class="ml">Ampliation :</span>
+<span class="mn">- Destinataire 1</span>
+<span class="mn">- Destinataire 2</span>
+<span class="mn">- Archives</span>`},
+    {type:'example',title:'EXEMPLE CONCRET',
+      content:'<code>NOTE DE SERVICE N° 015/ENEAM/DAF/2025</code>\n\nCotonou, le 10 janvier 2025\n\nObjet : Horaires de travail pendant le mois de février 2025\n\nLe Directeur Administratif et Financier informe l\'ensemble du personnel que, suite à la directive ministérielle du 5 janvier 2025, les horaires de travail sont modifiés comme suit pour le mois de février :\n— Entrée : 7h30 au lieu de 8h00\n— Sortie : 14h00\n\nTout agent en retard devra se signaler à l\'huissier. Cette disposition prend effet le 1er février 2025.'},
+    {type:'retenir',title:'À RETENIR',items:[
+      'La note de service est INTERNE et DESCENDANTE','Elle est numérotée et datée','Pas de formule de politesse ni d\'introduction longue','L\'objet est clairement indiqué en tête','Elle engage la responsabilité de son auteur','Court, précis, impératif = les 3 qualités essentielles'
+    ]}
+  ]
+},
+{
+  id:'T02', icon:'📝', color:'#a78bfa', name:'Le Compte Rendu & PV',
+  nature:'Document de restitution d\'une réunion ou d\'un événement',
+  tags:['Réunion','Délibération','Fidèle','Structuré'],
+  resume:'Narration fidèle et objective des débats, décisions et faits observés lors d\'une séance ou d\'une activité.',
+  sections:[
+    {type:'defs',title:'DÉFINITIONS',items:[
+      {term:'Compte rendu',def:'Document qui relate fidèlement et chronologiquement les faits, discussions et décisions intervenus lors d\'une réunion, d\'une visite ou d\'une inspection. Il est descriptif et objectif.'},
+      {term:'Procès-verbal (PV)',def:'Document officiel qui constate des faits, des décisions ou des infractions avec valeur juridique. Plus formel que le compte rendu, il peut faire foi en justice.'},
+      {term:'Différence clé',def:'Le PV a une valeur juridique et est signé par les participants. Le compte rendu est un récit administratif sans valeur probatoire particulière.'},
+    ]},
+    {type:'table',title:'COMPTE RENDU vs PROCÈS-VERBAL',
+      headers:['Critère','Compte Rendu','Procès-Verbal'],
+      rows:[
+        ['Valeur juridique','Faible','Forte (foi en justice)'],
+        ['Signature','Rédacteur seul','Président + secrétaire ± participants'],
+        ['Tonalité','Descriptive, narrative','Constatative, juridique'],
+        ['Formule d\'ouverture','"Il a été procédé à…"','Heure, lieu, présidents, appel des présents'],
+        ['Usage','Réunions ordinaires','AG, délibérations, infractions'],
+      ]},
+    {type:'modele',title:'STRUCTURE COMPTE RENDU DE RÉUNION',
+      label:'COMPTE RENDU DE RÉUNION',
+      content:`<span class="ml">EN-TÊTE</span>  <span class="mc">SERVICE / DIRECTION</span>
+
+<span class="ml">COMPTE RENDU DE LA RÉUNION DU ___________</span>
+
+<span class="ml">Date :</span> <span class="mc">___________</span>
+<span class="ml">Lieu :</span> <span class="mc">___________</span>
+<span class="ml">Heure de début :</span> <span class="mc">___________</span>
+<span class="ml">Heure de fin :</span> <span class="mc">___________</span>
+<span class="ml">Présidée par :</span> <span class="mc">___________</span>
+
+<span class="ml">ÉTAIENT PRÉSENTS :</span>
+<span class="mn">- M./Mme [Nom, Prénom, qualité]</span>
+<span class="mn">- …</span>
+
+<span class="ml">ORDRE DU JOUR :</span>
+<span class="mn">1. [Point 1]</span>
+<span class="mn">2. [Point 2]</span>
+
+<span class="ml">DÉROULEMENT :</span>
+<span class="mn">[Résumé fidèle des discussions point par point]</span>
+
+<span class="ml">DÉCISIONS PRISES :</span>
+<span class="mn">1. [Décision 1 — responsable — délai]</span>
+<span class="mn">2. [Décision 2 — responsable — délai]</span>
+
+<span class="ml">PROCHAINE RÉUNION :</span> <span class="mc">Date et heure</span>
+
+                    <span class="mc">[Signature du rédacteur]</span>
+                    <span class="mc">Nom, qualité</span>`},
+    {type:'example',title:'FORMULES TYPES',
+      content:'<code>Ouverture :</code> "La séance est ouverte à 9h00 sous la présidence de M. X."\n\n<code>Déroulement :</code> "M. Y a pris la parole pour exposer… Il a été décidé que…"\n\n<code>Vote :</code> "La résolution est adoptée à l\'unanimité / à la majorité de __ voix pour, __ contre, __ abstentions."\n\n<code>Clôture PV :</code> "La séance est levée à __h__ . De tout ce que dessus, il a été dressé le présent procès-verbal."'},
+    {type:'retenir',title:'À RETENIR',items:[
+      'Le compte rendu est OBJECTIF — pas d\'opinion du rédacteur','Mentionner systématiquement : date, lieu, présents, absents, ordre du jour','Les décisions sont numérotées et attribuées à des responsables','Le PV a une valeur juridique : il doit être relu et approuvé','La formule de clôture du PV est obligatoire'
+    ]}
+  ]
+},
+{
+  id:'T03', icon:'📊', color:'#ffb300', name:'Le Rapport',
+  nature:'Document d\'analyse et de proposition',
+  tags:['Analyse','Propositions','Circonstanciel','Périodique'],
+  resume:'Document par lequel un agent rend compte à son supérieur d\'une situation, d\'un événement ou d\'une mission, avec analyse et propositions.',
+  sections:[
+    {type:'defs',title:'DÉFINITIONS & TYPES',items:[
+      {term:'Rapport',def:'Document administratif par lequel un agent rend compte à son supérieur d\'une situation, d\'une mission, d\'une étude ou d\'un incident, en analysant les faits et en formulant des propositions ou conclusions.'},
+      {term:'Rapport périodique',def:'Rapport régulier (hebdomadaire, mensuel, annuel) sur les activités d\'un service. Ex : rapport annuel d\'activités.'},
+      {term:'Rapport circonstanciel',def:'Rapport occasionnel rédigé suite à un événement particulier (accident, mission, inspection). Ex : rapport de mission, rapport d\'enquête.'},
+      {term:'Rapport de stage',def:'Document par lequel le stagiaire rend compte de sa période de formation pratique en entreprise ou administration.'},
+    ]},
+    {type:'table',title:'TYPES DE RAPPORTS',
+      headers:['Type','Occasion','Destinataire'],
+      rows:[
+        ['Rapport d\'activités','Bilan périodique','Supérieur hiérarchique'],
+        ['Rapport de mission','Après une mission','Autorité mandante'],
+        ['Rapport d\'enquête','Après investigation','Autorité compétente'],
+        ['Rapport d\'inspection','Après contrôle','Autorité de tutelle'],
+        ['Rapport de stage','Fin de stage','Directeur / tuteur académique'],
+        ['Rapport technique','Étude spécifique','Décideur / commanditaire'],
+      ]},
+    {type:'modele',title:'STRUCTURE TYPE DU RAPPORT',
+      label:'RAPPORT',
+      content:`<span class="ml">EN-TÊTE</span>  <span class="mc">ADMINISTRATION / SERVICE</span>
+
+<span class="ml">RAPPORT</span>
+<span class="ml">Sur :</span> <span class="mc">[Objet du rapport]</span>
+
+<span class="ml">À :</span> <span class="mc">[Autorité destinataire]</span>
+
+─────────────────────────────
+
+<span class="ml">I. INTRODUCTION</span>
+<span class="mn">[Contexte, objet, cadre de la mission ou étude]</span>
+
+<span class="ml">II. EXPOSÉ DES FAITS / DÉVELOPPEMENT</span>
+<span class="mn">II.1. [Premier aspect]</span>
+<span class="mn">II.2. [Deuxième aspect]</span>
+<span class="mn">…</span>
+
+<span class="ml">III. ANALYSE / OBSERVATIONS</span>
+<span class="mn">[Interprétation des faits, identification des problèmes]</span>
+
+<span class="ml">IV. PROPOSITIONS / RECOMMANDATIONS</span>
+<span class="mn">1. [Proposition 1]</span>
+<span class="mn">2. [Proposition 2]</span>
+
+<span class="ml">CONCLUSION</span>
+<span class="mn">[Synthèse et perspective]</span>
+
+                    <span class="mc">Lieu, le ___________</span>
+                    <span class="mc">[Signature, Nom, Qualité]</span>`},
+    {type:'example',title:'STYLE RÉDACTIONNEL',
+      content:'<code>Introduction type :</code> "En application de vos instructions en date du X / Suite à ma mission du X au Y / J\'ai l\'honneur de vous rendre compte de…"\n\n<code>Corps :</code> Plan numéroté, paragraphes structurés, faits objectifs\n\n<code>Conclusion :</code> "Telles sont les observations que j\'avais à vous soumettre. Je reste à votre disposition pour tout renseignement complémentaire."\n\n<code>Différence note / rapport :</code> La note informe → le rapport analyse ET propose.'},
+    {type:'retenir',title:'À RETENIR',items:[
+      'Le rapport contient toujours une ANALYSE et des PROPOSITIONS','Plan classique : Introduction — Développement — Conclusion','Toujours adressé à une autorité précise (A : …)','Style objectif, impersonnel : "Il ressort que…", "Il a été constaté…"','Le rapport engage la responsabilité de son auteur'
+    ]}
+  ]
+},
+{
+  id:'T04', icon:'✉️', color:'#00d4ff', name:'La Lettre Administrative',
+  nature:'Document de correspondance officielle externe ou interne',
+  tags:['Externe','Formule politesse','Référence','Officielle'],
+  resume:'Moyen de communication écrit entre administrations, ou entre une administration et un particulier, avec des formules codifiées.',
+  sections:[
+    {type:'defs',title:'DÉFINITIONS & TYPES',items:[
+      {term:'Lettre administrative',def:'Document de correspondance officielle utilisé pour communiquer entre administrations (lettre officielle) ou entre une administration et un particulier (lettre à un administré). Elle suit un protocole strict.'},
+      {term:'Lettre entre administrations',def:'Communication formelle entre deux services de l\'État ou collectivités. Style sobre, sans formule de politesse élaborée. Objet et référence obligatoires.'},
+      {term:'Lettre à un administré',def:'Communication d\'une administration vers un particulier. Ton accessible mais respectueux. Formule de politesse requise.'},
+    ]},
+    {type:'table',title:'LETTRE ADMIN vs LETTRE COMMERCIALE',
+      headers:['Critère','Lettre Administrative','Lettre Commerciale'],
+      rows:[
+        ['Expéditeur','Administration publique','Entreprise privée'],
+        ['Ton','Sobre, formel, impersonnel','Variable, plus souple'],
+        ['Formule politesse','Codifiée (≠ selon destinataire)','Variable'],
+        ['Références','Obligatoires (n°, date, objet)','Optionnelles'],
+        ['Plan','Introduction — Corps — Conclusion','Libre'],
+      ]},
+    {type:'modele',title:'STRUCTURE TYPE',
+      label:'LETTRE ADMINISTRATIVE',
+      content:`<span class="ml">EN-TÊTE EXPÉDITEUR</span>             <span class="ml">EN-TÊTE DESTINATAIRE</span>
+<span class="mc">République du Bénin</span>               <span class="mc">À</span>
+<span class="mc">Ministère de…</span>                     <span class="mc">Monsieur le Directeur de…</span>
+<span class="mc">Direction de…</span>                     <span class="mc">Adresse</span>
+<span class="mc">N° ___/___/___</span>
+
+<span class="mc">Lieu, le ___________</span>
+
+<span class="ml">Objet :</span> <span class="mc">___________</span>
+<span class="ml">Réf. :</span> <span class="mc">___________</span> <span class="mn">(si réponse à un courrier)</span>
+
+─────────────────────────────
+
+<span class="mn">[Paragraphe d'introduction : motif du courrier]</span>
+
+<span class="mn">[Corps : développement du propos]</span>
+
+<span class="mn">[Conclusion : demande, décision ou suite attendue]</span>
+
+<span class="ml">Formule de politesse :</span>
+<span class="mc">Veuillez agréer, Monsieur le Directeur,</span>
+<span class="mc">l'expression de ma considération distinguée.</span>
+
+                    <span class="mc">[Signature]</span>
+                    <span class="mc">Nom, Prénom, Qualité</span>`},
+    {type:'example',title:'FORMULES DE POLITESSE SELON LE DESTINATAIRE',
+      content:'<code>Supérieur hiérarchique :</code>\n"Veuillez agréer, Monsieur le Ministre, l\'expression de mon profond respect."\n\n<code>Égal hiérarchique :</code>\n"Veuillez agréer, Monsieur le Directeur, l\'assurance de ma considération distinguée."\n\n<code>Subordonné :</code>\n"Recevez, Monsieur, l\'assurance de ma considération."\n\n<code>Particulier :</code>\n"Veuillez agréer, Monsieur, l\'expression de mes salutations distinguées."'},
+    {type:'retenir',title:'À RETENIR',items:[
+      'L\'objet et la référence sont OBLIGATOIRES','La formule de politesse reprend EXACTEMENT la formule d\'appel du texte','Ne jamais écrire "cordialement" dans une lettre officielle','Le style est sobre, clair, sans fioritures','Toujours numéroter le courrier sortant','Références = n° du courrier auquel on répond'
+    ]}
+  ]
+},
+{
+  id:'T05', icon:'📨', color:'#00ff9d', name:'Le Bordereau',
+  nature:'Document de transmission interne entre services',
+  tags:['Transmission','Accompagnement','Court','Traçabilité'],
+  resume:'Document court servant à transmettre des pièces, dossiers ou correspondances d\'un service à un autre, en précisant l\'action attendue.',
+  sections:[
+    {type:'defs',title:'DÉFINITION & USAGE',items:[
+      {term:'Bordereau',def:'Document administratif bref accompagnant la transmission de pièces ou de correspondances entre services ou administrations. Il remplace la lettre lorsqu\'aucune explication n\'est nécessaire.'},
+      {term:'Bordereau de transmission',def:'Le plus courant. Il liste les documents transmis et précise ce que le destinataire doit en faire (annoter, viser, signer, retourner, classer…).'},
+      {term:'Avantage',def:'Rapidité, traçabilité. Permet de suivre la circulation des dossiers sans rédiger une lettre complète. Toujours numéroté.'},
+    ]},
+    {type:'table',title:'MENTIONS OBLIGATOIRES',
+      headers:['Mention','Description'],
+      rows:[
+        ['En-tête','Service émetteur + numéro'],
+        ['Destinataire','Service ou agent destinataire'],
+        ['Date','Date d\'émission'],
+        ['Liste des pièces','Numérotée, avec désignation de chaque document'],
+        ['Nature de la transmission','"Pour suite à donner", "Pour visa", "Pour information", "Pour retour", "Pour signature"'],
+        ['Signature','Émetteur avec qualité'],
+      ]},
+    {type:'modele',title:'MODÈLE TYPE',
+      label:'BORDEREAU DE TRANSMISSION',
+      content:`<span class="ml">EN-TÊTE</span>  <span class="mc">SERVICE ÉMETTEUR</span>
+<span class="ml">N°</span> <span class="mc">___/___/___</span>
+
+<span class="ml">BORDEREAU DE TRANSMISSION</span>
+
+<span class="ml">De :</span>    <span class="mc">Direction / Service de ___________</span>
+<span class="ml">À :</span>     <span class="mc">Direction / Service de ___________</span>
+<span class="ml">Date :</span>  <span class="mc">___________</span>
+
+─────────────────────────────
+
+<span class="ml">Désignation des pièces transmises :</span>
+
+<span class="mn">1. [Désignation de la pièce n°1] ................. 1 exemplaire</span>
+<span class="mn">2. [Désignation de la pièce n°2] ................. 2 exemplaires</span>
+<span class="mn">3. [Désignation de la pièce n°3] ................. 1 exemplaire</span>
+
+<span class="ml">Observations :</span>
+<span class="mc">☐ Pour information</span>
+<span class="mc">☐ Pour suite à donner</span>
+<span class="mc">☐ Pour visa et retour</span>
+<span class="mc">☐ Pour signature</span>
+<span class="mc">☐ Pour classement</span>
+<span class="mc">☐ Autre : ___________</span>
+
+                    <span class="mc">[Signature]</span>
+                    <span class="mc">Nom, Qualité</span>`},
+    {type:'example',title:'EXEMPLE RÉEL',
+      content:'<code>N° 027/ENEAM/DRH/2025</code>\n\nBORDEREAU DE TRANSMISSION\nDe : Direction des Ressources Humaines\nÀ : Direction Administrative et Financière\nDate : 15 mars 2025\n\nDésignation des pièces :\n1. Demande de congé de M. AHOUA Jean ......... 1 exemplaire\n2. Rapport médical joint ........................... 1 exemplaire\n\nObservations : ✅ Pour suite à donner et retour avant le 20 mars 2025\n\n[Signé] Le DRH — ADANNOU M.'},
+    {type:'retenir',title:'À RETENIR',items:[
+      'Le bordereau ACCOMPAGNE des pièces, il ne les remplace pas','Toujours préciser la nature de la transmission (pour visa, pour info…)','Plus court qu\'une lettre — c\'est son avantage principal','Numéroter les pièces transmises et indiquer le nombre d\'exemplaires','Conserver un exemplaire signé pour la traçabilité'
+    ]}
+  ]
+},
+{
+  id:'T06', icon:'📢', color:'#ff6b35', name:'Le Communiqué',
+  nature:'Information destinée au public ou à la presse',
+  tags:['Public','Presse','Officiel','Bref'],
+  resume:'Message officiel destiné à informer le public ou les médias d\'une décision, d\'un événement ou d\'une position d\'une autorité.',
+  sections:[
+    {type:'defs',title:'DÉFINITION & TYPES',items:[
+      {term:'Communiqué',def:'Document officiel de courte portée par lequel une autorité ou une organisation rend publique une information importante, une décision ou une mise au point à l\'intention du grand public ou de la presse.'},
+      {term:'Communiqué de presse',def:'Destiné aux journalistes et médias pour relayer une information. Structure : accroche forte, informations essentielles, contact.'},
+      {term:'Communiqué officiel',def:'Émanant d\'une autorité publique (gouvernement, préfecture, mairie) pour informer les administrés d\'une mesure, d\'une décision ou d\'une situation d\'urgence.'},
+    ]},
+    {type:'table',title:'COMMUNIQUÉ vs NOTE D\'INFORMATION',
+      headers:['Critère','Communiqué','Note d\'information'],
+      rows:[
+        ['Destinataire','Public, presse, administrés','Personnel interne'],
+        ['Diffusion','Large, externe','Interne, ciblée'],
+        ['Forme','Sobre, percutante','Standard administrative'],
+        ['Longueur','Court (1/2 à 1 page max)','Variable'],
+        ['Objectif','Informer, rassurer, alerter','Informer des agents'],
+      ]},
+    {type:'modele',title:'STRUCTURE TYPE',
+      label:'COMMUNIQUÉ',
+      content:`<span class="ml">EN-TÊTE</span>  <span class="mc">INSTITUTION / ORGANISATION</span>
+
+<span class="ml">COMMUNIQUÉ</span>  <span class="mn">(ou COMMUNIQUÉ DE PRESSE)</span>
+
+<span class="mc">Lieu, le ___________</span>
+
+─────────────────────────────
+
+<span class="ml">[TITRE ACCROCHEUR EN MAJUSCULES]</span>
+
+<span class="mn">[Paragraphe 1 : l'essentiel en 2-3 lignes — Qui ? Quoi ? Quand ? Où ?]</span>
+
+<span class="mn">[Paragraphe 2 : contexte, explication ou détails importants]</span>
+
+<span class="mn">[Paragraphe 3 : mesures prises, suites, appel à l'action si nécessaire]</span>
+
+<span class="ml">Contact :</span> <span class="mc">Nom — Titre — Téléphone — Email</span>
+
+                    <span class="mc">[Signature de l'autorité]</span>
+                    <span class="mc">Nom, Qualité, Cachet</span>`},
+    {type:'example',title:'EXEMPLE DE COMMUNIQUÉ OFFICIEL',
+      content:'<code>COMMUNIQUÉ DU MINISTÈRE DE L\'ÉDUCATION NATIONALE</code>\n\nCotonou, le 5 mars 2025\n\n<code>REPORT DES EXAMENS DE FIN D\'ANNÉE</code>\n\nLe Ministère de l\'Éducation Nationale informe les élèves, parents d\'élèves et enseignants que, suite aux perturbations météorologiques survenues dans les régions du Sud, les examens de fin d\'année initialement prévus du 10 au 15 mars 2025 sont reportés au 20 mars 2025.\n\nDe nouvelles dates seront communiquées dans les meilleurs délais par les directions départementales.\n\nLe Ministre de l\'Éducation Nationale\n[Signature]'},
+    {type:'retenir',title:'À RETENIR',items:[
+      'Le communiqué est EXTERNE (public ou presse)','Un seul message, un seul objet — pas de développement multiple','Titre percutant, accrocheur et informatif','Style direct, phrases courtes, vocabulaire accessible','Toujours dater, signer et identifier l\'émetteur','Mentionner un contact pour les questions des médias'
+    ]}
+  ]
+},
+{
+  id:'T07', icon:'📜', color:'#f472b6', name:'La Circulaire',
+  nature:'Instruction générale envoyée à plusieurs destinataires',
+  tags:['Multiple','Instruction','Identique','Hierarchique'],
+  resume:'Texte officiel envoyé simultanément à plusieurs destinataires pour leur transmettre des instructions, directives ou informations uniformes.',
+  sections:[
+    {type:'defs',title:'DÉFINITION & USAGE',items:[
+      {term:'Circulaire',def:'Document administratif par lequel une autorité supérieure transmet simultanément des instructions, directives ou informations identiques à plusieurs agents ou services subordonnés. C\'est la note de service "multi-destinataires".'},
+      {term:'Circulaire ministérielle',def:'Émise par un ministre à l\'intention de l\'ensemble des services sous sa tutelle. Elle peut préciser l\'interprétation d\'une loi ou d\'un décret.'},
+      {term:'Caractère',def:'La circulaire a un caractère général et impersonnel. Elle s\'adresse à une catégorie de personnes (ex: "tous les chefs de service") et non à un individu précis.'},
+    ]},
+    {type:'table',title:'CIRCULAIRE vs NOTE DE SERVICE',
+      headers:['Critère','Circulaire','Note de Service'],
+      rows:[
+        ['Destinataires','Plusieurs services / agents simultanément','Un ou des destinataires ciblés'],
+        ['Caractère','Général, impersonnel','Particulier, ciblé'],
+        ['Ampleur','Large diffusion','Diffusion limitée'],
+        ['Objet','Directives générales, instructions uniformes','Instruction ou information spécifique'],
+        ['Niveau','Souvent ministériel ou directionnel','Opérationnel'],
+      ]},
+    {type:'modele',title:'STRUCTURE TYPE',
+      label:'CIRCULAIRE',
+      content:`<span class="ml">EN-TÊTE</span>  <span class="mc">INSTITUTION</span>
+
+<span class="ml">CIRCULAIRE N°</span> <span class="mc">___/___/___</span>
+
+<span class="ml">À :</span> <span class="mc">Messieurs les Chefs de service de…</span>
+<span class="ml">     </span> <span class="mc">Mesdames et Messieurs les Directeurs de…</span>
+
+<span class="mc">Lieu, le ___________</span>
+
+<span class="ml">Objet :</span> <span class="mc">___________</span>
+<span class="ml">Réf. :</span>  <span class="mc">___________</span>
+
+─────────────────────────────
+
+<span class="mn">[Introduction : rappel du contexte réglementaire ou de la nécessité de la circulaire]</span>
+
+<span class="mn">[Corps : instructions détaillées, organisées par articles ou paragraphes numérotés]</span>
+
+<span class="mn">Article 1 : …</span>
+<span class="mn">Article 2 : …</span>
+
+<span class="mn">[Conclusion : date d'entrée en vigueur, modalités d'application]</span>
+
+                    <span class="mc">[Signature]</span>
+                    <span class="mc">Nom, Qualité</span>
+
+<span class="ml">Ampliation :</span>
+<span class="mn">- Direction A</span>
+<span class="mn">- Direction B</span>
+<span class="mn">- Archives</span>`},
+    {type:'example',title:'EXEMPLE D\'OBJET DE CIRCULAIRE',
+      content:'<code>Objet :</code> Application des nouvelles dispositions relatives aux congés annuels (Décret n° 2025-012 du 2 janvier 2025)\n\n<code>Corps :</code>\nArticle 1 : Tout agent souhaitant bénéficier d\'un congé annuel devra déposer sa demande au moins 15 jours ouvrables avant la date souhaitée.\n\nArticle 2 : Les absences non autorisées seront sanctionnées conformément au Statut Général de la Fonction Publique.\n\n<code>Particularité :</code> La circulaire ne crée pas de droit nouveau, elle précise l\'application d\'un texte existant.'},
+    {type:'retenir',title:'À RETENIR',items:[
+      'Destinataires multiples et simultanés = critère principal','Caractère général et impersonnel','Peut citer des textes de référence (loi, décret)','Organisée en articles pour les longues circulaires','L\'ampliation liste tous les services destinataires','Elle n\'est pas une loi mais s\'impose aux agents'
+    ]}
+  ]
+}
+];
+
+function buildCondensed(){
+  const cg = document.getElementById('cg');
+  cg.innerHTML = '';
+  THEMES.forEach((th,i)=>{
+    const card = document.createElement('div');
+    card.className = 'ccard';
+    card.style.setProperty('--cc', th.color);
+    card.innerHTML=`
+      <div class="ccard-head">
+        <span class="ccard-ico">${th.icon}</span>
+        <span class="ccard-id" style="color:${th.color}">${th.id}</span>
+      </div>
+      <div class="ccard-title" style="color:${th.color}">${th.name}</div>
+      <div class="ccard-nature" style="color:${th.color};opacity:.6">${th.nature}</div>
+      <div class="ccard-tags">${th.tags.map(t=>`<span class="ctag">${t}</span>`).join('')}</div>
+      <div class="ccard-hint">// ${th.resume.substring(0,70)}…</div>`;
+    card.addEventListener('click',()=>{switchView('detail',document.querySelectorAll('.vt-btn')[1]);showFiche(i);});
+    cg.appendChild(card);
+  });
+}
+
+function buildThemeList(){
+  const tl = document.getElementById('tl');
+  tl.innerHTML = '';
+  THEMES.forEach((th,i)=>{
+    const item = document.createElement('div');
+    item.className = 'tl-item';
+    item.style.setProperty('--item-col', th.color);
+    item.innerHTML=`
+      <span class="tl-num">${th.id}</span>
+      <span class="tl-ico">${th.icon}</span>
+      <span class="tl-name">${th.name}</span>
+      <span class="tl-count" style="color:${th.color}">${th.sections.length} sections</span>
+      <span class="tl-arrow">›</span>`;
+    item.addEventListener('click',()=>showFiche(i));
+    tl.appendChild(item);
+  });
+}
+
+function buildSection(sec, col){
+  if(sec.type==='defs')
+    return `<div class="fsec"><div class="fsec-title" style="color:${col}">${sec.title}</div>${sec.items.map(it=>`<div class="def-block" style="border-left-color:${col}"><span class="kw" style="color:${col}">${it.term}</span><br><span style="color:var(--txt2)">${it.def}</span></div>`).join('')}</div>`;
+  if(sec.type==='table')
+    return `<div class="fsec"><div class="fsec-title" style="color:${col}">${sec.title}</div><div style="overflow-x:auto"><table class="ftable"><thead><tr>${sec.headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${sec.rows.map(row=>`<tr>${row.map((cell,ci)=>`<td class="${ci===0?'key':''}" ${ci===0?`style="color:${col}"`:''}>${cell}</td>`).join('')}</tr>`).join('')}</tbody></table></div></div>`;
+  if(sec.type==='modele')
+    return `<div class="fsec"><div class="fsec-title" style="color:${col}">${sec.title}</div><div class="modele"><div class="modele-title">// MODÈLE : ${sec.label}</div><div class="modele-body">${sec.content}</div></div></div>`;
+  if(sec.type==='example')
+    return `<div class="fsec"><div class="fsec-title" style="color:${col}">${sec.title}</div><div class="example-block"><div class="ex-label">// EXEMPLE CONCRET</div><div class="ex-content">${sec.content.replace(/\n/g,'<br>')}</div></div></div>`;
+  if(sec.type==='retenir')
+    return `<div class="fsec"><div class="fsec-title" style="color:${col}">${sec.title}</div><div class="retenir" style="background:${col}06;border:1px solid ${col}25"><div class="r-label" style="color:${col}">// POINTS CLÉS</div><ul>${sec.items.map(it=>`<li><span style="color:${col};position:absolute;left:0">›</span>${it}</li>`).join('')}</ul></div></div>`;
+  return '';
+}
+
+function showFiche(idx){
+  const th = THEMES[idx];
+  const col = th.color;
+  document.querySelectorAll('.tl-item').forEach((el,i)=>el.classList.toggle('active',i===idx));
+  const container = document.getElementById('fiche-container');
+  container.innerHTML=`
+    <div class="fiche show" style="--fiche-col:${col}">
+      <div class="fiche-header">
+        <div class="fiche-eyebrow">${th.id} · FICHE DÉTAILLÉE · Rédaction Administrative</div>
+        <div class="fiche-title">${th.icon} ${th.name}</div>
+        <div class="fiche-subtitle">${th.nature}</div>
+      </div>
+      <div class="fiche-body">${th.sections.map(s=>buildSection(s,col)).join('')}</div>
+      <div class="fiche-nav">
+        <button class="fiche-nav-btn" onclick="showFiche(${idx-1})" ${idx===0?'disabled':''}>&#8592; Précédent</button>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--txt3)">${idx+1} / ${THEMES.length}</span>
+        <button class="fiche-nav-btn" onclick="showFiche(${idx+1})" ${idx===THEMES.length-1?'disabled':''}>Suivant &#8594;</button>
+      </div>
+    </div>`;
+  container.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function switchView(view, btn){
+  document.querySelectorAll('.vt-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('view-condensed').style.display = view==='condensed'?'block':'none';
+  document.getElementById('view-detail').style.display = view==='detail'?'block':'none';
+}
+
+buildCondensed();
+buildThemeList();
+</script>
+</body>
+</html>
